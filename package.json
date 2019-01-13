@@ -1,0 +1,33 @@
+{
+  "name": "live-trading",
+  "version": "1.0.0",
+  "description": "live trading realtime",
+  "main": "index.js",
+  "author": "kingofdelphi",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack-dev-server"
+  },
+  "jest": {
+    "transform": {
+      ".*": "<rootDir>/node_modules/babel-jest"
+    },
+    "moduleNameMapper": {
+      "\\.(css|pcss)$": "identity-obj-proxy"
+    }
+  },
+  "devDependencies": {
+    "css-loader": "^0.28.7",
+    "file-loader": "^1.1.5",
+    "html-webpack-plugin": "^2.30.1",
+    "path": "^0.12.7",
+    "style-loader": "^0.19.0",
+    "webpack": "^3.0.0",
+    "webpack-dev-server": "^2.5.0"
+  },
+  "repository": "https://bitbucket.org/kingofdelphi/live-trading",
+  "dependencies": {
+    "mathjs": "^5.4.1",
+    "paper": "^0.12.0"
+  }
+}
