@@ -42,7 +42,7 @@ for (let i = 0; i < 20; ++i) {
 	balls.push({ 
 		obj: ball, 
 		position,
-		velocity: [0, 0],
+		oldPos: position,
 		angVel: 0 
 	});
 }
@@ -62,8 +62,7 @@ const updateGame = (event) => {
 	if (keys['d']) {
 		mode = 'dest';
 	}
-	if (keys['t']) {
-		mode = 'throw';
+	if (keys['t']) { mode = 'throw';
 	}
 	if (keys['s']) {
 		strikeInfo = null;
@@ -72,37 +71,27 @@ const updateGame = (event) => {
 	var iter = 10;
 	var DT = dt / iter;
 	for (let fr = 0; fr < iter; ++fr) {
-		var g = 100;
+		var g = 5;
 		for (let i = 1; i < balls.length; ++i) {
-			balls[i].velocity = math.add(balls[i].velocity, [0, g * DT]);
-			var dVel = math.multiply(balls[i].velocity, DT);
-			balls[i].position = math.add(balls[i].position, dVel);
+			balls[i].vel = math.subtract(balls[i].position, balls[i].oldPos);
+			balls[i].oldPos = balls[i].position;
 		}
 		for (let i = 1; i < balls.length; ++i) {
+			balls[i].position = math.add(balls[i].position, [0, g * DT]);
+			var dVel = math.multiply(balls[i].vel, DT);
+			dVel = math.add(dVel, balls[i].vel);
+			dVel = math.multiply(dVel, 0.998);
+			balls[i].position = math.add(balls[i].position, dVel);
 			var pa = balls[i - 1].position;
 			var pb = balls[i].position;
 
-			var R = math.subtract(pa, pb).concat(0);
-
-			var force = 0;
-			var F = [force, force + g, 0];
-			var angAccln = math.cross(R, F)[2];
-
-			var m = math.norm(R);
-			if (m != 0) {
-				angAccln /= m;
-			}
-
-			balls[i].angVel += angAccln * DT;
-			// console.log(balls[i].angVel);
-			// var tangent = [-R[1], R[0]];
-			// var angVel = math.multiply(tangent, balls[i].angVel * DT);
-			// balls[i].velocity = math.add(balls[i].velocity, angVel);
-
 			var vab = math.subtract(pb, pa);
 			var uab = math.divide(vab, math.norm(vab));
-			vab = math.add(vab, math.multiply(uab, L - math.norm(vab)));
-			vab = rotate(vab, -balls[i].angVel * DT);
+			var v = math.multiply(uab, (L - math.norm(vab)) / 2);
+			if (i > 1) {
+				balls[i - 1].position = math.add(pa, math.multiply(v, -1));
+			}
+			vab = math.add(vab, v);
 			pb = math.add(pa, vab);
 			balls[i].position = pb;
 		}
