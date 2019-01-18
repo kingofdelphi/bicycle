@@ -36,10 +36,27 @@ var L = 20;
 
 paper.setup(canvas);
 var balls = [];
-for (let i = 0; i < 6; ++i) {
-	var ball = createBall(new Point(100, 70 + i * L));
-	balls.push({ obj: ball, velocity: new Point(0, 0), oldPos: new Point(100, 70 + i * L) });
+for (let i = 0; i < 20; ++i) {
+	var position = [100, 70 + i * L];
+	var ball = createBall(new Point(position[0], position[1]));
+	balls.push({ 
+		obj: ball, 
+		position,
+		velocity: [0, 0],
+		angVel: 0 
+	});
 }
+
+const rotate = (vec, angle) => {
+	var cs = Math.cos(angle);
+	var si = Math.sin(angle);
+	var rot_mat = [
+		[cs, -si],
+		[si, cs]
+	];
+	var c = math;
+	return math.multiply(rot_mat, vec);
+};
 
 const updateGame = (event) => {
 	if (keys['d']) {
@@ -52,30 +69,49 @@ const updateGame = (event) => {
 		strikeInfo = null;
 		autoVel();
 	}
-	var iter = 1;
-	var DT = 20 * dt / iter;
+	var iter = 10;
+	var DT = dt / iter;
 	for (let fr = 0; fr < iter; ++fr) {
+		var g = 100;
 		for (let i = 1; i < balls.length; ++i) {
-			var pa = balls[i - 1].obj.position;
-			var pb = balls[i].obj.position;
-			var dx = pa.x - pb.x;
-			var dy = pa.y - pb.y;
-			var m = Math.hypot(dx, dy);
-			if (dx == 0 && dy == 0) m = 0;
-			var k = 1;
-			var force = k * (m - L);
-			var mass = 10;
-			var u = m == 0 ? 0 : dx / m;
-			var v = m == 0 ? 0 : dy / m;
-			var vx = balls[i].obj.position.x - balls[i].oldPos.x;
-			var vy = balls[i].obj.position.y - balls[i].oldPos.y;
-			vx *= 0.8;
-			vy *= 0.8;
-			balls[i].oldPos = new Point(balls[i].obj.position.x, balls[i].obj.position.y);
-			balls[i].obj.position.x += vx + (force * u * DT - .03 * vx) / mass;
-			balls[i].obj.position.y += vy + (force * v * DT - .03 * vy) / mass + 0.3;
+			balls[i].velocity = math.add(balls[i].velocity, [0, g * DT]);
+			var dVel = math.multiply(balls[i].velocity, DT);
+			balls[i].position = math.add(balls[i].position, dVel);
+		}
+		for (let i = 1; i < balls.length; ++i) {
+			var pa = balls[i - 1].position;
+			var pb = balls[i].position;
+
+			var R = math.subtract(pa, pb).concat(0);
+
+			var force = 0;
+			var F = [force, force + g, 0];
+			var angAccln = math.cross(R, F)[2];
+
+			var m = math.norm(R);
+			if (m != 0) {
+				angAccln /= m;
+			}
+
+			balls[i].angVel += angAccln * DT;
+			// console.log(balls[i].angVel);
+			// var tangent = [-R[1], R[0]];
+			// var angVel = math.multiply(tangent, balls[i].angVel * DT);
+			// balls[i].velocity = math.add(balls[i].velocity, angVel);
+
+			var vab = math.subtract(pb, pa);
+			var uab = math.divide(vab, math.norm(vab));
+			vab = math.add(vab, math.multiply(uab, L - math.norm(vab)));
+			vab = rotate(vab, -balls[i].angVel * DT);
+			pb = math.add(pa, vab);
+			balls[i].position = pb;
 		}
 	}
+
+	balls.forEach(ball => {
+		ball.obj.position.x = ball.position[0];
+		ball.obj.position.y = ball.position[1];
+	});
 
 };
 
@@ -91,8 +127,8 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 canvas.addEventListener('mousemove', (e) => {
-	var curPos = new Point(e.pageX, e.pageY);
-	balls[0].obj.position = curPos;
+	var curPos = [e.pageX, e.pageY];
+	balls[0].position = curPos;
 });
 
 canvas.addEventListener('mouseup', (e) => {
