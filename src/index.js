@@ -194,17 +194,19 @@ const getMousePos = (evt) => {
 canvas.addEventListener('mousedown', (e) => {
 	var curPos = getMousePos(e);
 	downPos = curPos;
-	selVertex = getNearestBall(curPos);
 	var mode = getMode();
 	if (mode == 'connect') {
+		if (shouldConnectToExistingNode(curPos)) {
+			selVertex = getNearestBall(curPos);
+		} else {
+			selVertex = addNewVertex(curPos, true);
+		}
 		connectSegment.visible = true;
 		connectSegment.segments[0].point = balls[selVertex].position;
 		connectSegment.segments[1].point = downPos;
 	}
-	if (mode == 'freestyle') {
-		connectSegment.visible = true;
-		connectSegment.segments[0].point = downPos;
-		connectSegment.segments[1].point = downPos;
+	if (mode == 'pull') {
+		selVertex = getNearestBall(curPos);
 	}
 
 });
@@ -227,19 +229,14 @@ canvas.addEventListener('mousemove', (e) => {
 		changeSelection(balls[candidateVertex], true);
 	}
 	if (mode === 'pull') {
-		if (selVertex) {
+		if (selVertex != null) {
 			balls[selVertex].position = curPos;
 		}
 	}
 	if (mode == 'connect') {
-		if (selVertex) {
+		if (selVertex != null) {
 			var pos = shouldConnectToExistingNode(curPos) ? balls[getNearestBall(curPos)].position : curPos;
 			connectSegment.segments[1].point = pos;
-		}
-	}
-	if (mode == 'freestyle') {
-		if (downPos) {
-			connectSegment.segments[1].point = curPos;
 		}
 	}
 });
@@ -276,18 +273,12 @@ canvas.addEventListener('mouseup', (e) => {
 			addNewJoint(selVertex, v2); 
 		}
 		connectSegment.visible = false;
-	}
-	if (mode == 'freestyle') {
-		var v1 = addNewVertex(downPos, true);
-		var v2 = addNewVertex(curPos, true);
-		addNewJoint(v1, v2); 
-		connectSegment.visible = false;
+		changeSelection(balls[selVertex], false);
 	}
 	if (mode == 'pin') {
 		var nearest = getNearestBall(curPos);
 		pinVertex(balls[nearest], !balls[nearest].pinned);
 	}
-	changeSelection(balls[selVertex], false);
 	downPos = null;
 	selVertex = null;
 });
