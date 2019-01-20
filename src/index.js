@@ -34,13 +34,28 @@ var FLOOR = canvas.height;
 paper.setup(canvas);
 var balls = [];
 
-var createBall = (position, pinned = false) => {
-	var ball = createBallObj(position);
-	return { 
+var createCircle = (position, color = 'grey') => {
+	var ball = createBallObj(position, color, 20);
+	return {
+		rigid: true,
 		obj: ball, 
 		position,
 		oldPos: position,
-		pinned
+		color
+	};
+};
+
+balls.push(createCircle([200, 870]));
+
+var createBall = (position, pinned = false) => {
+	var color = pinned ? 'green' : 'black';
+	var ball = createBallObj(position, color);
+	return {
+		obj: ball, 
+		position,
+		oldPos: position,
+		pinned,
+		color
 	};
 };
 
@@ -53,11 +68,12 @@ var createVertices = () => {
 
 var joints = [];
 var createJoints = () => {
+	var idx = balls.length;
 	for (let i = 1; i < 20; ++i) {
 		var joint = {
 			obj: createSegment(),
-			v1: i - 1,
-			v2: i,
+			v1: idx + i - 1,
+			v2: idx + i,
 			length: 20
 		};
 		joints.push(joint);
@@ -97,20 +113,62 @@ const solveConstraints = () => {
 	});
 };
 
+var wheel = null;
+var vehicleXvel = 0;
 const updateGame = (event) => {
-	if (keys['s']) {
-	}
 	var dt = event.delta;
-	var DT = dt;
-	var g = 1.9;
-	balls.forEach(ball => {
+	var gravity = 10.9;
+	if (keys['d']) {
+		if (wheel != null) {
+			vehicleXvel += 3 * dt;
+		}
+	}
+	if (keys['a']) {
+		if (wheel != null) {
+			vehicleXvel -= 3 * dt;
+		}
+	}
+	vehicleXvel *= 0.99;
+	if (wheel != null) {
+		balls[wheel].position[0] += vehicleXvel;
+	}
+	balls.forEach((ball, i) => {
 		if (!ball.pinned) {
 			var vel = math.subtract(ball.position, ball.oldPos);
 			ball.oldPos = ball.position;
 
 			var dv = math.multiply(vel, 0.99);
-			dv = math.add(dv, [0, g * DT]);
+			dv = math.add(dv, [0, gravity * dt]);
 			ball.position = math.add(ball.position, dv);
+			var r = ball.obj.bounds.width / 2;
+			var s = 0.6;
+			var collide = false;
+			if (ball.position[0] - r < 0) {
+				ball.position[0] = r;
+				dv[1] *= -1;
+				ball.oldPos = math.add(ball.position, math.multiply(dv, s));
+				if (i == wheel) {
+					vehicleXvel *= -0.9;
+				}
+			}
+			if (ball.position[0] + r > w) {
+				ball.position[0] = w - r;
+				dv[1] *= -1;
+				ball.oldPos = math.add(ball.position, math.multiply(dv, s));
+				if (i == wheel) {
+					vehicleXvel *= -0.9;
+				}
+			}
+			if (ball.position[1] - r < 0) {
+				ball.position[1] = r;
+				dv[0] *= -1;
+				ball.oldPos = math.add(ball.position, math.multiply(dv, s));
+			}
+			if (ball.position[1] + r > h) {
+				ball.position[1] = h - r;
+				dv[0] *= -1;
+				ball.oldPos = math.add(ball.position, math.multiply(dv, s));
+			}
 		}
 	});
 
@@ -137,6 +195,46 @@ const updateGame = (event) => {
 	});
 
 };
+
+var addNewJoint = (v1, v2) => {
+	var joint = {
+		obj: createSegment(),
+		v1,
+		v2
+	};
+	Object.assign(joint, {
+		length: math.distance(balls[joint.v1].position, balls[joint.v2].position)
+	});
+	joints.push(joint);
+};
+
+var addNewVertex = (position, pinned = false) => {
+	balls.push(createBall(position, pinned));
+	return balls.length - 1;
+};
+
+const buildCloth = () => {
+	let x = w / 2;
+	let y = h / 2;
+	let ww = 10;
+	let l = balls.length;
+	let C = 10;
+	for (let i = 0; i < C; ++i) {
+		for (let j = 0; j < C; ++j) {
+			var pos = [x + j * ww, y + i * ww];
+			addNewVertex(pos, i == 0);
+			var k = l + i * C + j;
+			if (j) addNewJoint(k - 1, k);
+			if (i) {
+				addNewJoint(k - C, k);
+				// if (j) addNewJoint(k - C - 1, k);
+				// if (j + 1 < C) addNewJoint(k - C + 1, k);
+			}
+		}
+	}
+};
+
+buildCloth();
 
 paper.view.onFrame = (event) => {
 	// Get a reference to the canvas object
@@ -176,7 +274,7 @@ var changeSelection = (ball, isSelected) => {
 		pinVertex(ball, ball.pinned);
 		return;
 	}
-	ball.obj.fillColor = 'black';
+	ball.obj.fillColor = ball.color;
 };
 
 var downPos;
@@ -207,6 +305,12 @@ canvas.addEventListener('mousedown', (e) => {
 	}
 	if (mode == 'pull') {
 		selVertex = getNearestBall(curPos);
+	}
+	if (mode == 'circle') {
+		balls.push(createCircle(downPos));
+	}
+	if (mode == 'backwheel') {
+		wheel = getNearestBall(curPos);
 	}
 
 });
@@ -240,23 +344,6 @@ canvas.addEventListener('mousemove', (e) => {
 		}
 	}
 });
-
-var addNewVertex = (position, pinned = false) => {
-	balls.push(createBall(position, pinned));
-	return balls.length - 1;
-};
-
-var addNewJoint = (v1, v2) => {
-	var joint = {
-		obj: createSegment(),
-		v1,
-		v2
-	};
-	Object.assign(joint, {
-		length: math.distance(balls[joint.v1].position, balls[joint.v2].position)
-	});
-	joints.push(joint);
-};
 
 canvas.addEventListener('mouseup', (e) => {
 	var curPos = getMousePos(e);

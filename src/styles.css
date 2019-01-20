@@ -8,10 +8,6 @@ input[type=radio] ~ label {
 	cursor: pointer;
 }
 
-body {
-	margin: 20px;
-}
-
 #canvas-wrapper {
 	flex: 1;
 	.canvas {
@@ -22,6 +18,12 @@ body {
 
 .root {
 	display: flex;
+	border: 20px solid silver;
 	height: calc(100vh - 40px);
 	flex-direction: column;
+}
+
+.mode-container {
+	padding: 10px;
+	border-bottom: 1px solid black;
 }
