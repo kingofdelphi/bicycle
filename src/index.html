@@ -7,8 +7,18 @@
     <meta charset="utf-8">
   </head>
   <body>
-    <div id="root">
-      <canvas id="canvas"></canvas>
+    <div class="root">
+		<div class='mode-container'>
+			<input type='radio' id='pull' name='mode' value='pull' checked>
+			<label for='pull'>PULL</label>
+			<input type='radio' id='pin' name='mode' value='pin'>
+			<label for='pin'>PIN</label>
+			<input type='radio' id='connect' name='mode' value='connect'>
+			<label for='connect'>CONNECT</label>
+		</div>
+		<div id='canvas-wrapper'>
+			<canvas id="canvas"></canvas>
+		</div>
     </div>
   </body>
 </html>
