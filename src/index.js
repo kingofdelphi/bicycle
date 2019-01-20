@@ -14,7 +14,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = w;
 canvas.height = h;
 
-const createBallObj = (position, color = 'black', radius = 3) => {
+const createBallObj = (position, color = 'black', radius = 4) => {
 	var myCircle = new Path.Circle(position, radius);
 	myCircle.fillColor = color;	
 	return myCircle;
@@ -25,7 +25,7 @@ const createSegment = () => {
 		segments: [[0, 0], [0, 0]]
 	});
 	myPath.strokeColor = 'black';
-	myPath.strokeWidth = 4;
+	myPath.strokeWidth = 2;
 	return myPath;
 };
 
@@ -197,9 +197,14 @@ canvas.addEventListener('mousedown', (e) => {
 	selVertex = getNearestBall(curPos);
 	var mode = getMode();
 	if (mode == 'connect') {
+		connectSegment.visible = true;
 		connectSegment.segments[0].point = balls[selVertex].position;
 		connectSegment.segments[1].point = downPos;
+	}
+	if (mode == 'freestyle') {
 		connectSegment.visible = true;
+		connectSegment.segments[0].point = downPos;
+		connectSegment.segments[1].point = downPos;
 	}
 
 });
@@ -232,7 +237,29 @@ canvas.addEventListener('mousemove', (e) => {
 			connectSegment.segments[1].point = pos;
 		}
 	}
+	if (mode == 'freestyle') {
+		if (downPos) {
+			connectSegment.segments[1].point = curPos;
+		}
+	}
 });
+
+var addNewVertex = (position, pinned = false) => {
+	balls.push(createBall(position, pinned));
+	return balls.length - 1;
+};
+
+var addNewJoint = (v1, v2) => {
+	var joint = {
+		obj: createSegment(),
+		v1,
+		v2
+	};
+	Object.assign(joint, {
+		length: math.distance(balls[joint.v1].position, balls[joint.v2].position)
+	});
+	joints.push(joint);
+};
 
 canvas.addEventListener('mouseup', (e) => {
 	var curPos = getMousePos(e);
@@ -240,23 +267,20 @@ canvas.addEventListener('mouseup', (e) => {
 	if (mode === 'connect') {
 		var v2;
 		if (!shouldConnectToExistingNode(curPos)) {
-			balls.push(createBall(curPos, true));
-			v2 = balls.length - 1;
+			v2 = addNewVertex(curPos, true);
 		} else {
 			v2 = getNearestBall(curPos);
 		}
 		if (selVertex != v2) {
 			// disallow connecting same vertex
-			var joint = {
-				obj: createSegment(),
-				v1: selVertex,
-				v2
-			};
-			Object.assign(joint, {
-				length: math.distance(balls[joint.v1].position, balls[joint.v2].position)
-			});
-			joints.push(joint);
+			addNewJoint(selVertex, v2); 
 		}
+		connectSegment.visible = false;
+	}
+	if (mode == 'freestyle') {
+		var v1 = addNewVertex(downPos, true);
+		var v2 = addNewVertex(curPos, true);
+		addNewJoint(v1, v2); 
 		connectSegment.visible = false;
 	}
 	if (mode == 'pin') {
