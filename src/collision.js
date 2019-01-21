@@ -1,6 +1,6 @@
 import * as math from 'mathjs';
 
-const lineCircleCollision = (p1, p2, ball, vel, radius) => {
+const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, radius) => {
 	var dj = math.subtract(p1, p2);
 	var djNormal = [-dj[1], dj[0]];
 	const checkColl = (projAxis) => {
@@ -44,7 +44,9 @@ const lineCircleCollision = (p1, p2, ball, vel, radius) => {
 	var axis2 = math.subtract(ball, p2);
 	var c = checkColl(axis2);
 	if (!c) return false;
-	var d = [a, b, c];
+	var d = [a];
+	if (!p1IgnoreNormal) d.push(b);
+	if (!p2IgnoreNormal) d.push(c);
 	var minp = d.map(m => m.penetration).sort((a, b) => a - b)[0];
 	var bestAxis = d.filter(v => v.penetration == minp)[0].projAxis;
 	return { axis: bestAxis, penetration: minp };

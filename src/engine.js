@@ -100,10 +100,25 @@ class Engine {
 				joints.forEach(joint => {
 					const { v1, v2 } = joint;
 					const radius = node.data.config.radius;
-					let c = lineCircleCollision(v1.getPosition(), v2.getPosition(), node.getPosition(), [0, 0], radius);
+					let c = lineCircleCollision(v1.getPosition(),
+						v2.getPosition(),
+						v1.getData().config.ignoreNormal,
+						v2.getData().config.ignoreNormal,
+						node.getPosition(),
+						[0, 0],
+						radius
+					);
 					if (!c) return;
 					coll = true;
-					node.position = math.add(node.position, math.multiply(c.axis, c.penetration));
+					let k = v1.isPinned() && v2.isPinned() ? 1 : 0.5;
+					let delta = math.multiply(c.axis, k * c.penetration);
+					node.position = math.add(node.position, delta);
+					if (!v1.isPinned()) {
+						v1.position = math.subtract(v1.position, delta);
+					}
+					if (!v2.isPinned()) {
+						v2.position = math.subtract(v2.position, delta);
+					}
 					refAxis = math.add(refAxis, c.axis);
 					colcount++;
 				});

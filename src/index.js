@@ -23,7 +23,7 @@ class Main {
 		paper.view.onFrame = (event) => {
 			// Get a reference to the canvas renderObject
 			// Create an empty project and a view for the canvas:
-			world.preUpdateCallback(this.viewController);
+			world.preUpdateCallback(event);
 			this.updateGame(event);
 		};
 	}

@@ -68,6 +68,7 @@ const MouseHandler = (viewController) => {
 		}
 		if (mode == 'pull') {
 			selVertex = getNearestBall(curPos);
+			if (math.distance(selVertex.getPosition(), curPos) > 20) selVertex = null;
 		}
 		if (mode == 'circle') {
 			viewController.createBall(downPos, { color: 'grey', radius: 20, rigid: true });
@@ -98,6 +99,7 @@ const MouseHandler = (viewController) => {
 		if (mode === 'pull') {
 			if (selVertex != null) {
 				selVertex.setPosition(curPos);
+				selVertex.oldPosition = curPos;
 			}
 		}
 		if (mode == 'connect') {
@@ -115,6 +117,7 @@ const MouseHandler = (viewController) => {
 			let v2;
 			if (!shouldConnectToExistingNode(curPos)) {
 				v2 = addNewVertex(curPos, true);
+				selVertex.getData().config.ignoreNormal = true;
 			} else {
 				v2 = getNearestBall(curPos);
 			}

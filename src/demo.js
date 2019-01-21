@@ -1,9 +1,22 @@
 import mouseHandler from './mousehandler';
+import * as paper from 'paper';
 import keys from './keys';
 
 class Demo {
 	postInit(viewController) {
 		this.viewController = viewController;
+		const wallHelper = (positionA, positionB) => {
+			const config = {
+				pinned: true,
+				color: 'black',
+				radius: 2
+			};
+
+			const ballA = viewController.createBall(positionA, Object.assign({}, config));
+			const ballB = viewController.createBall(positionB, config);
+
+			return viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true });
+		};
 		const createJoints = () => {
 			let ballsAdded = [];
 			const K = 10;
@@ -13,7 +26,8 @@ class Demo {
 				const config = {
 					pinned: i == 0 || i == K - 1,
 					color: 'black',
-					radius: 2
+					radius: 2,
+					ignoreNormal: i > 0 && i + 1 < K
 				};
 				let ball = viewController.createBall(position, config);
 				ballsAdded.push(ball);
@@ -32,26 +46,25 @@ class Demo {
 			color: 'black',
 			radius: 2
 		};
+		const bounds = paper.view.getSize();
+		wallHelper([0, bounds.height], [bounds.width, bounds.height]);
+		wallHelper([bounds.width, 0], [bounds.width, bounds.height]);
+		wallHelper([0, 0], [bounds.width, 0]);
+		wallHelper([0, 0], [0, bounds.height]);
 
-		let positionA = [0, 470];
-		let positionB = [800, 470];
-
-		let ballA = viewController.createBall(positionA, config);
-		let ballB = viewController.createBall(positionB, config);
-
-		viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true });
 		this.addBigCircle([30, 30]);
 
 		config = Object.assign({}, config);
 		config.rigid = true;
-		config.radius = 20;
+		config.radius = 10;
 		config.pinned = false;
-		positionA = [40, 300];
-		positionB = [90, 300];
-		ballA = viewController.createBall(positionA, Object.assign({}, config));
-		ballB = viewController.createBall(positionB, config);
+		const positionA = [40, 300];
+		const positionB = [90, 300];
+		const ballA = viewController.createBall(positionA, Object.assign({}, config));
+		const ballB = viewController.createBall(positionB, config);
 
-		viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true });
+		this.wheel = viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true });
+		this.vehicleXvel = 0;
 
 		mouseHandler(viewController);
 	};
@@ -66,22 +79,23 @@ class Demo {
 		this.viewController.createBall(position, config);
 	}
 
-	preUpdateCallback() {
-		let vehicleXvel = 0;
-		let wheel = null;
+	preUpdateCallback(event) {
+		let wheel = this.wheel;
+		const dt = event.delta;
+		const vx = .05;
 		if (keys['d']) {
 			if (wheel != null) {
-				vehicleXvel += 3 * dt;
+				this.vehicleXvel += vx * dt;
 			}
 		}
 		if (keys['a']) {
 			if (wheel != null) {
-				vehicleXvel -= 3 * dt;
+				this.vehicleXvel -= vx * dt;
 			}
 		}
-		vehicleXvel *= 0.99;
+		this.vehicleXvel *= 0.99;
 		if (wheel != null) {
-			balls[wheel].position[0] += vehicleXvel;
+			this.wheel.v1.position[0] += this.vehicleXvel;
 		}
 	}
 }
