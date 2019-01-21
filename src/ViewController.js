@@ -7,62 +7,34 @@ class ViewController {
 
 	init() {
 		this.engine = new Engine();
-		this.createJoints();
-		this.createCircle([30, 30]);
 	}
 
 	getEngine() {
 		return this.engine;
 	}
 
-	createCircle(position, color = 'grey') {
-		let node = this.engine.addNode(position, false, true);
-		let ball = PaperHelper.createBallObj(position, color, 20);
+	createBall(position, config) {
+		let node = this.engine.addNode(position, config.pinned, true);
+		let color = config.pinned ? 'green' : config.color;
+		let nconfig = Object.assign({}, config, { color });
+		let ball = PaperHelper.createBallObj(position, nconfig);
 		ball = {
 			renderObj: ball, 
 			node,
-			color
+			config
 		};
 		node.setData(ball);
 		return node;
 	}
 
-	createBall(position, pinned = false) {
-		let node = this.engine.addNode(position, pinned, true);
-		let color = pinned ? 'green' : 'black';
-		let ball = PaperHelper.createBallObj(position, color);
-		ball = {
-			renderObj: ball, 
-			node,
-			color
-		};
-		node.setData(ball);
-		return node;
-	}
-
-	addNewJoint(v1, v2) {
+	addNewJoint(v1, v2, config) {
 		let joint = this.engine.connectJoint(v1, v2);
 		let jointInfo = {
-			renderObj: PaperHelper.createSegment(),
+			renderObj: PaperHelper.createSegment(config),
 			joint,
 		};
 		joint.setData(jointInfo);
 		return joint;
-	}
-
-	createJoints() {
-		let ballsAdded = [];
-		const K = 20;
-		for (let i = 0; i < K; ++i) {
-			let position = [100, 70 + i * 20];
-			let ball = this.createBall(position, i == 0 || i == K - 1);
-			ballsAdded.push(ball);
-		}
-		for (let i = 1; i < K; ++i) {
-			this.addNewJoint(ballsAdded[i - 1], ballsAdded[i]);
-		}
-		let lastNode = ballsAdded.slice(-1)[0];
-		lastNode.setPosition([300, 170]);
 	}
 
 	update(dt) {

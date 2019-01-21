@@ -37,7 +37,7 @@ const MouseHandler = (viewController) => {
 			node.getData().renderObj.fillColor = 'green';
 			return;
 		}
-		renderInfo.renderObj.fillColor = renderInfo.color;
+		renderInfo.renderObj.fillColor = renderInfo.config.color;
 	};
 
 	let downPos;

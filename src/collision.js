@@ -1,3 +1,5 @@
+import * as math from 'mathjs';
+
 const lineCircleCollision = (p1, p2, ball, vel, radius) => {
 	var dj = math.subtract(p1, p2);
 	var djNormal = [-dj[1], dj[0]];
