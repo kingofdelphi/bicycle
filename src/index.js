@@ -5,6 +5,7 @@ import './styles.css';
 import * as paper from 'paper';
 import { Point, Path, Size } from 'paper';
 import * as math from 'mathjs';
+import Engine from './engine';
 
 const root = document.getElementById('canvas-wrapper');
 const w = root.clientWidth;
@@ -15,13 +16,13 @@ canvas.width = w;
 canvas.height = h;
 
 const createBallObj = (position, color = 'black', radius = 4) => {
-	var myCircle = new Path.Circle(position, radius);
+	let myCircle = new Path.Circle(position, radius);
 	myCircle.fillColor = color;	
 	return myCircle;
 };
 
 const createSegment = () => {
-	var myPath = new Path({
+	let myPath = new Path({
 		segments: [[0, 0], [0, 0]]
 	});
 	myPath.strokeColor = 'black';
@@ -29,95 +30,84 @@ const createSegment = () => {
 	return myPath;
 };
 
-var FLOOR = canvas.height;
+let FLOOR = canvas.height;
+
+let engine = new Engine();
 
 paper.setup(canvas);
-var balls = [];
 
-var createCircle = (position, color = 'grey') => {
-	var ball = createBallObj(position, color, 20);
-	return {
-		rigid: true,
-		obj: ball, 
-		position,
-		oldPos: position,
+let createCircle = (position, color = 'grey') => {
+	let node = engine.addNode(position, false, true);
+	let ball = createBallObj(position, color, 20);
+	ball = {
+		renderObj: ball, 
+		node,
 		color
 	};
+	node.setData(ball);
+	return node;
 };
 
-balls.push(createCircle([200, 870]));
+let circ = createCircle([30, 30]);
 
-var createBall = (position, pinned = false) => {
-	var color = pinned ? 'green' : 'black';
-	var ball = createBallObj(position, color);
-	return {
-		obj: ball, 
-		position,
-		oldPos: position,
-		pinned,
+let createBall = (position, pinned = false) => {
+	let node = engine.addNode(position, pinned, true);
+	let color = pinned ? 'green' : 'black';
+	let ball = createBallObj(position, color);
+	ball = {
+		renderObj: ball, 
+		node,
 		color
 	};
+	node.setData(ball);
+	return node;
 };
 
-var createVertices = () => {
-	for (let i = 0; i < 20; ++i) {
-		var position = [100, 70 + i * 20];
-		balls.push(createBall(position, i == 0));
-	}
+let K = 20;
+
+const addNewJoint = (v1, v2) => {
+	let joint = engine.connectJoint(v1, v2);
+	let jointInfo = {
+		renderObj: createSegment(),
+		joint,
+	};
+	joint.setData(jointInfo);
+	return joint;
 };
 
-var joints = [];
-var createJoints = () => {
-	var idx = balls.length;
-	for (let i = 1; i < 20; ++i) {
-		var joint = {
-			obj: createSegment(),
-			v1: idx + i - 1,
-			v2: idx + i,
-			length: 20
-		};
-		joints.push(joint);
+let createJoints = () => {
+	let idx = engine.getNodes().length;
+	let ballsAdded = [];
+	for (let i = 0; i < K; ++i) {
+		let position = [100, 70 + i * 20];
+		let ball = createBall(position, i == 0 || i == K - 1);
+		ballsAdded.push(ball);
 	}
+	for (let i = 1; i < K; ++i) {
+		addNewJoint(ballsAdded[i - 1], ballsAdded[i]);
+	}
+	let lastNode = ballsAdded.slice(-1)[0];
+	lastNode.setPosition([300, 170]);
 };
 
 createJoints();
-createVertices();
 
 const rotate = (vec, angle) => {
-	var cs = Math.cos(angle);
-	var si = Math.sin(angle);
-	var rot_mat = [
+	let cs = Math.cos(angle);
+	let si = Math.sin(angle);
+	let rot_mat = [
 		[cs, -si],
 		[si, cs]
 	];
-	var c = math;
+	let c = math;
 	return math.multiply(rot_mat, vec);
 };
 
-const solveConstraints = () => {
-	joints.forEach(joint => {
-		var ballA = balls[joint.v1];
-		var ballB = balls[joint.v2];
-		var pa = ballA.position;
-		var pb = ballB.position;
-
-		var vab = math.subtract(pb, pa);
-		var uab = math.divide(vab, math.norm(vab));
-		var v = math.multiply(uab, -(joint.length - math.norm(vab)) / 2);
-		if (!ballA.pinned) {
-			ballA.position = math.add(pa, math.multiply(v, 1));
-		}
-		if (!ballB.pinned) {
-			ballB.position = math.add(pb, math.multiply(v, -1));
-		}
-	});
-};
-
-var wheel = null;
-var vehicleXvel = 0;
+let wheel = null;
+let vehicleXvel = 0;
 const updateGame = (event) => {
-	var dt = event.delta;
-	var gravity = 10.9;
+	let dt = event.delta;
+	let gravity = 10.9;
 	if (keys['d']) {
 		if (wheel != null) {
 			vehicleXvel += 3 * dt;
@@ -132,54 +122,28 @@ const updateGame = (event) => {
 	if (wheel != null) {
 		balls[wheel].position[0] += vehicleXvel;
 	}
-	balls.forEach((ball, i) => {
-		if (!ball.pinned) {
-			var vel = math.subtract(ball.position, ball.oldPos);
-			ball.oldPos = ball.position;
 
-			var dv = math.multiply(vel, 0.99);
-			dv = math.add(dv, [0, gravity * dt]);
-			ball.position = math.add(ball.position, dv);
-			var r = ball.obj.bounds.width / 2;
-			var s = 0.6;
-			var collide = false;
-			if (ball.position[0] - r < 0) {
-				ball.position[0] = r;
-				dv[1] *= -1;
-				ball.oldPos = math.add(ball.position, math.multiply(dv, s));
-				if (i == wheel) {
-					vehicleXvel *= -0.9;
-				}
-			}
-			if (ball.position[0] + r > w) {
-				ball.position[0] = w - r;
-				dv[1] *= -1;
-				ball.oldPos = math.add(ball.position, math.multiply(dv, s));
-				if (i == wheel) {
-					vehicleXvel *= -0.9;
-				}
-			}
-			if (ball.position[1] - r < 0) {
-				ball.position[1] = r;
-				dv[0] *= -1;
-				ball.oldPos = math.add(ball.position, math.multiply(dv, s));
-			}
-			if (ball.position[1] + r > h) {
-				ball.position[1] = h - r;
-				dv[0] *= -1;
-				ball.oldPos = math.add(ball.position, math.multiply(dv, s));
-			}
-		}
-	});
+	//balls.filter(d => d.rigid == true).forEach((ball, i) => {
+	//	// if (math.norm(ball.vel) <= 0) return;
+	//	while (1) {
+	//		let coll = false;
+	//		joints.forEach(joint => {
+	//			const { v1, v2 } = joint;
+	//			let c = lineCircleCollision(balls[v1].position, balls[v2].position, ball.position, ball.vel, ball.renderObj.bounds.width / 2);
+	//			if (!c) return;
+	//			ball.position = math.add(ball.position, math.multiply(c.axis, c.penetration));
+	//		});
+	//		if (!coll) break;
+	//	}
+	//});
 
-	var iter = 20;
-	while (iter--) {
-		solveConstraints();
-	}
+	engine.update(event.delta);
 
-	balls.forEach(ball => {
-		ball.obj.position.x = ball.position[0];
-		ball.obj.position.y = ball.position[1];
+	engine.getNodes().forEach(node => {
+		const renderInfo = node.getData();
+		var pos = node.getPosition();
+		renderInfo.renderObj.position.x = pos[0];
+		renderInfo.renderObj.position.y = pos[1];
 	});
 
 	const vecToPoint = (pos) => {
@@ -189,28 +153,17 @@ const updateGame = (event) => {
 		};
 	};
 
-	joints.forEach(joint => {
-		joint.obj.segments[0].point = vecToPoint(balls[joint.v1].position);
-		joint.obj.segments[1].point = vecToPoint(balls[joint.v2].position);
+	engine.getJoints().forEach(joint => {
+		const renderInfo = joint.getData();
+		renderInfo.renderObj.segments[0].point = vecToPoint(joint.v1.getPosition());
+		renderInfo.renderObj.segments[1].point = vecToPoint(joint.v2.getPosition());
 	});
 
 };
 
-var addNewJoint = (v1, v2) => {
-	var joint = {
-		obj: createSegment(),
-		v1,
-		v2
-	};
-	Object.assign(joint, {
-		length: math.distance(balls[joint.v1].position, balls[joint.v2].position)
-	});
-	joints.push(joint);
-};
-
-var addNewVertex = (position, pinned = false) => {
-	balls.push(createBall(position, pinned));
-	return balls.length - 1;
+const addNewVertex = (position, pinned = false) => {
+	var ball = createBall(position, pinned);
+	return ball;
 };
 
 const buildCloth = () => {
@@ -221,9 +174,9 @@ const buildCloth = () => {
 	let C = 10;
 	for (let i = 0; i < C; ++i) {
 		for (let j = 0; j < C; ++j) {
-			var pos = [x + j * ww, y + i * ww];
+			let pos = [x + j * ww, y + i * ww];
 			addNewVertex(pos, i == 0);
-			var k = l + i * C + j;
+			let k = l + i * C + j;
 			if (j) addNewJoint(k - 1, k);
 			if (i) {
 				addNewJoint(k - C, k);
@@ -234,21 +187,23 @@ const buildCloth = () => {
 	}
 };
 
-buildCloth();
+// buildCloth();
 
 paper.view.onFrame = (event) => {
-	// Get a reference to the canvas object
+	// Get a reference to the canvas renderObject
 	// Create an empty project and a view for the canvas:
 	updateGame(event);
 };
 
 const getNearestBall = (pos) => {
-	var mindist = 1e9;
-	var chosen;
-	balls.forEach((ball, i) => {
-		var dist = math.distance(ball.position, pos);
+	let mindist = 1e9;
+	let chosen;
+	engine.getNodes().forEach((node) => {
+		let ball = node.data;
+		let ballPos = [ball.renderObj.position.x, ball.renderObj.position.y];
+		let dist = math.distance(ballPos, pos);
 		if (dist < mindist) {
-			chosen = i;
+			chosen = node;
 			mindist = dist;
 		}
 	});
@@ -259,30 +214,25 @@ const getMode = () => {
 	return document.querySelector('.mode-container input[name="mode"]:checked').value;
 };
 
-var pinVertex = (ball, isPinned) => {
-	var color = isPinned ? 'green' : 'black';
-	ball.obj.fillColor = color;
-	ball.pinned = isPinned;
-};
-
-var changeSelection = (ball, isSelected) => {
+let changeSelection = (node, isSelected) => {
+	let renderInfo = node.getData();
 	if (isSelected) {
-		ball.obj.fillColor = 'red';
+		renderInfo.renderObj.fillColor = 'red';
 		return;
 	}
-	if (ball.pinned) {
-		pinVertex(ball, ball.pinned);
+	if (node.isPinned()) {
+		node.getData().renderObj.fillColor = 'green';
 		return;
 	}
-	ball.obj.fillColor = ball.color;
+	renderInfo.renderObj.fillColor = renderInfo.color;
 };
 
-var downPos;
-var selVertex = null;
-var connectSegment = createSegment();
+let downPos;
+let selVertex = null;
+let connectSegment = createSegment();
 
 const getMousePos = (evt) => {
-    var rect = canvas.getBoundingClientRect();
+    let rect = canvas.getBoundingClientRect();
 	return [
 		evt.clientX - rect.left,
 		evt.clientY - rect.top
@@ -290,9 +240,9 @@ const getMousePos = (evt) => {
 };
 
 canvas.addEventListener('mousedown', (e) => {
-	var curPos = getMousePos(e);
+	let curPos = getMousePos(e);
 	downPos = curPos;
-	var mode = getMode();
+	let mode = getMode();
 	if (mode == 'connect') {
 		if (shouldConnectToExistingNode(curPos)) {
 			selVertex = getNearestBall(curPos);
@@ -300,14 +250,14 @@ canvas.addEventListener('mousedown', (e) => {
 			selVertex = addNewVertex(curPos, true);
 		}
 		connectSegment.visible = true;
-		connectSegment.segments[0].point = balls[selVertex].position;
+		connectSegment.segments[0].point = selVertex.getPosition();
 		connectSegment.segments[1].point = downPos;
 	}
 	if (mode == 'pull') {
 		selVertex = getNearestBall(curPos);
 	}
 	if (mode == 'circle') {
-		balls.push(createCircle(downPos));
+		createCircle(downPos);
 	}
 	if (mode == 'backwheel') {
 		wheel = getNearestBall(curPos);
@@ -315,41 +265,41 @@ canvas.addEventListener('mousedown', (e) => {
 
 });
 
-var shouldConnectToExistingNode = (destPos) => {
-	var nearest = getNearestBall(destPos);
-	var dist = math.distance(balls[nearest].position, destPos);
+let shouldConnectToExistingNode = (destPos) => {
+	let nearest = getNearestBall(destPos);
+	let dist = math.distance(nearest.getPosition(), destPos);
 	return dist < 10;
 };
 
-var candidateVertex = null;
+let candidateVertex = null;
 canvas.addEventListener('mousemove', (e) => {
-	var curPos = getMousePos(e);
-	var mode = getMode();
+	let curPos = getMousePos(e);
+	let mode = getMode();
 	if (selVertex == null) {
 		if (candidateVertex != null) {
-			changeSelection(balls[candidateVertex], false);
+			changeSelection(candidateVertex, false);
 		}
 		candidateVertex = getNearestBall(curPos);
-		changeSelection(balls[candidateVertex], true);
+		changeSelection(candidateVertex, true);
 	}
 	if (mode === 'pull') {
 		if (selVertex != null) {
-			balls[selVertex].position = curPos;
+			selVertex.setPosition(curPos);
 		}
 	}
 	if (mode == 'connect') {
 		if (selVertex != null) {
-			var pos = shouldConnectToExistingNode(curPos) ? balls[getNearestBall(curPos)].position : curPos;
+			let pos = shouldConnectToExistingNode(curPos) ? getNearestBall(curPos).getPosition() : curPos;
 			connectSegment.segments[1].point = pos;
 		}
 	}
 });
 
 canvas.addEventListener('mouseup', (e) => {
-	var curPos = getMousePos(e);
+	let curPos = getMousePos(e);
 	const mode = getMode();
 	if (mode === 'connect') {
-		var v2;
+		let v2;
 		if (!shouldConnectToExistingNode(curPos)) {
 			v2 = addNewVertex(curPos, true);
 		} else {
@@ -360,11 +310,15 @@ canvas.addEventListener('mouseup', (e) => {
 			addNewJoint(selVertex, v2); 
 		}
 		connectSegment.visible = false;
-		changeSelection(balls[selVertex], false);
+		changeSelection(selVertex, false);
 	}
 	if (mode == 'pin') {
-		var nearest = getNearestBall(curPos);
-		pinVertex(balls[nearest], !balls[nearest].pinned);
+		let nearest = getNearestBall(curPos);
+		if (nearest.isPinned()) {
+			nearest.unpin();
+		} else {
+			nearest.pin();
+		}
 	}
 	downPos = null;
 	selVertex = null;
