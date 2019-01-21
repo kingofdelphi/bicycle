@@ -14,7 +14,7 @@ class ViewController {
 	}
 
 	createBall(position, config) {
-		let node = this.engine.addNode(position, config.pinned, true);
+		let node = this.engine.addNode(position, config);
 		let color = config.pinned ? 'green' : config.color;
 		let nconfig = Object.assign({}, config, { color });
 		let ball = PaperHelper.createBallObj(position, nconfig);

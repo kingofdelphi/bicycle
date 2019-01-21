@@ -6,9 +6,10 @@ class Demo {
 		this.viewController = viewController;
 		const createJoints = () => {
 			let ballsAdded = [];
-			const K = 20;
+			const K = 10;
+			const L = 40;
 			for (let i = 0; i < K; ++i) {
-				let position = [100, 70 + i * 20];
+				let position = [100, 70 + i * L];
 				const config = {
 					pinned: i == 0 || i == K - 1,
 					color: 'black',
@@ -26,14 +27,29 @@ class Demo {
 
 		createJoints();
 
+		const config = {
+			pinned: true,
+			color: 'black',
+			radius: 2
+		};
+
+		const positionA = [0, 470];
+		const positionB = [800, 470];
+
+		let ballA = viewController.createBall(positionA, config);
+		let ballB = viewController.createBall(positionB, config);
+
+		viewController.addNewJoint(ballA, ballB, { color: 'black', thickness: 1 });
 		this.addBigCircle([30, 30]);
+
 
 		mouseHandler(viewController);
 	};
 
 	addBigCircle(position) {
 		const config = {
-			color: 'black',
+			color: 'silver',
+			rigid: true,
 			pinned: false,
 			radius: 20
 		};

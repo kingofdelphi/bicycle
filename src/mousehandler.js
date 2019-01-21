@@ -8,7 +8,7 @@ const getMode = () => {
 const MouseHandler = (viewController) => {
 	const engine = viewController.getEngine();
 	const addNewVertex = (position, pinned = false) => {
-		var ball = viewController.createBall(position, pinned);
+		var ball = viewController.createBall(position, { pinned, color: 'black', radius: 2 });
 		return ball;
 	};
 
@@ -70,7 +70,7 @@ const MouseHandler = (viewController) => {
 			selVertex = getNearestBall(curPos);
 		}
 		if (mode == 'circle') {
-			viewController.createCircle(downPos);
+			viewController.createBall(downPos, { color: 'grey', radius: 20, rigid: true });
 		}
 		if (mode == 'backwheel') {
 			wheel = getNearestBall(curPos);

@@ -1,4 +1,5 @@
 import * as math from 'mathjs';
+import lineCircleCollision from './collision';
 
 class Engine {
 	constructor() {
@@ -21,21 +22,19 @@ class Engine {
 			var vab = math.subtract(pb, pa);
 			var uab = math.divide(vab, math.norm(vab));
 			var v = math.multiply(uab, -(joint.length - math.norm(vab)) / 2);
-			if (!nodeA.pinned) {
+			if (!nodeA.isPinned()) {
 				nodeA.position = math.add(pa, math.multiply(v, 1));
 			}
-			if (!nodeB.pinned) {
+			if (!nodeB.isPinned()) {
 				nodeB.position = math.add(pb, math.multiply(v, -1));
 			}
 		});
 	}
 
-	addNode(position, pinned = false, rigid = false, data) {
+	addNode(position, config, data) {
 		let node = {
 			position,
 			oldPosition: position,
-			pinned,
-			rigid,
 			data,
 			getPosition: function () {
 				return this.position;
@@ -50,13 +49,13 @@ class Engine {
 				this.data = data;
 			},
 			pin: function() {
-				this.pinned = true;
+				this.data.config.pinned = true;
 			},
 			unpin: function() {
-				this.pinned = false;
+				this.data.config.pinned = false;
 			},
 			isPinned: function() {
-				return this.pinned;
+				return this.data.config.pinned;
 			}
 		}
 		this.nodes.push(node);
@@ -88,14 +87,49 @@ class Engine {
 		return joint;
 	}
 
+	resolveCollisions() {
+		this.nodes.filter(node => node.getData().config.rigid == true).forEach((node) => {
+			// if (math.norm(ball.vel) <= 0) return;
+			let colcount = 0;
+			let refAxis = [0, 0];
+			while (1) {
+				let coll = false;
+				this.joints.forEach(joint => {
+					const { v1, v2 } = joint;
+					const radius = node.data.config.radius;
+					let c = lineCircleCollision(v1.getPosition(), v2.getPosition(), node.getPosition(), [0, 0], radius);
+					if (!c) return;
+					coll = true;
+					node.position = math.add(node.position, math.multiply(c.axis, c.penetration));
+					refAxis = math.add(refAxis, c.axis);
+					colcount++;
+				});
+				if (!coll) break;
+			}
+			if (colcount) {
+				refAxis = math.divide(refAxis, math.norm(refAxis));
+				var normVel = math.dot(refAxis, node.vel);
+				normVel = math.multiply(refAxis, normVel);
+				var tangentVel = math.subtract(node.vel, normVel);
+				tangentVel = math.multiply(tangentVel, -.99);
+				normVel = math.multiply(normVel, .8);
+				node.vel = math.add(normVel, tangentVel);
+				node.oldPosition = math.add(node.position, node.vel);
+			}
+		});
+	}
+
 	update(dt) {
+		this.dt = dt;
 		this.nodes.forEach((node, i) => {
-			if (node.pinned) return;
+			if (node.isPinned()) return;
 			var vel = math.subtract(node.position, node.oldPosition);
 			node.oldPosition = node.position;
 
 			var dv = math.multiply(vel, 0.99);
-			dv = math.add(dv, [0, this.config.gravity * dt]);
+			var gravity = [0, this.config.gravity * dt];
+			dv = math.add(dv, gravity);
+			node.vel = math.add(vel, gravity);
 			node.position = math.add(node.position, dv);
 		});
 
@@ -103,6 +137,8 @@ class Engine {
 		while (iter--) {
 			this.solveConstraints();
 		}
+
+		this.resolveCollisions();
 
 	}
 

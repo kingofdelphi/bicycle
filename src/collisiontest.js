@@ -1,6 +1,7 @@
 import mouseHandler from './mousehandler';
 import keys from './keys';
 import lineCircleCollision from './collision';
+import * as math from 'mathjs';
 
 class Test {
 	postInit(viewController) {
@@ -9,10 +10,11 @@ class Test {
 		});
 
 		const positionA = [100, 70];
-		const positionB = [300, 170];
+		const positionB = [100, 170];
 
-		let ballA = viewController.createBall(positionA, true);
-		let ballB = viewController.createBall(positionB, true);
+		let config = { pinned: true, color: 'black', radius: 2 };
+		let ballA = viewController.createBall(positionA, config);
+		let ballB = viewController.createBall(positionB, config);
 
 		this.joint = viewController.addNewJoint(ballA, ballB, { color: 'black', thickness: 1 });
 
@@ -29,9 +31,8 @@ class Test {
 			const { v1, v2 } = joint;
 			let c = lineCircleCollision(v1.position, v2.position, circle.position, [0, 0], circle.getData().renderObj.bounds.width / 2);
 			if (!c) break;
-			console.log('coll');
-			break;
-			// ball.position = math.add(ball.position, math.multiply(c.axis, c.penetration));
+			console.log(c);
+			circle.position = math.add(circle.position, math.multiply(c.axis, c.penetration));
 		}
 
 	}

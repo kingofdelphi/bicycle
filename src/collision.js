@@ -6,15 +6,8 @@ const lineCircleCollision = (p1, p2, ball, vel, radius) => {
 	const checkColl = (projAxis) => {
 		var norm = math.norm(projAxis);
 		projAxis = math.divide(projAxis, norm);
-		var normal = [projAxis[1], -projAxis[0]];
-		var projCircle = math.dot(projAxis, ball);
-		if (math.dot(normal, ball) < 0) {
-			projAxis = math.multiply(projAxis, -1);
-			projCircle *= -1;
-		} else {
-		}
 		// if (math.dot(vel, projAxis) >= 0) return false;
-
+		var projCircle = math.dot(ball, projAxis);
 		var proja = math.dot(p1, projAxis);
 		var projb = math.dot(p2, projAxis);
 		if (projb < proja) [proja, projb] = [projb, proja];
@@ -39,6 +32,10 @@ const lineCircleCollision = (p1, p2, ball, vel, radius) => {
 		if (prj <= 1e-3) return false;
 		return { projAxis, penetration: prj };
 	}
+	var normal = [-djNormal[1], djNormal[0]];
+	if (math.dot(djNormal, math.subtract(ball, p2)) < 0) {
+		djNormal = math.multiply(djNormal, -1);
+	}
 	var a = checkColl(djNormal);
 	if (!a) return false;
 	var axis1 = math.subtract(ball, p1);
@@ -47,7 +44,7 @@ const lineCircleCollision = (p1, p2, ball, vel, radius) => {
 	var axis2 = math.subtract(ball, p2);
 	var c = checkColl(axis2);
 	if (!c) return false;
-	var d = [a];
+	var d = [a, b, c];
 	var minp = d.map(m => m.penetration).sort((a, b) => a - b)[0];
 	var bestAxis = d.filter(v => v.penetration == minp)[0].projAxis;
 	return { axis: bestAxis, penetration: minp };

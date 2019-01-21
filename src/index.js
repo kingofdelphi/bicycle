@@ -35,7 +35,7 @@ class Main {
 
 const main = new Main();
 
-const mode = 'test';
+const mode = 'demo';
 
 let world;
 if (mode == 'demo') {
