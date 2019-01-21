@@ -88,13 +88,16 @@ class Engine {
 	}
 
 	resolveCollisions() {
+		const collidableJoints = this.joints.filter(joint => joint.getData().config.collidable);
 		this.nodes.filter(node => node.getData().config.rigid == true).forEach((node) => {
 			// if (math.norm(ball.vel) <= 0) return;
+			// if a circle is connected to a joint, shouldn't check collision with it
+			const joints = collidableJoints.filter(joint => joint.v1 != node && joint.v2 != node);
 			let colcount = 0;
 			let refAxis = [0, 0];
 			while (1) {
 				let coll = false;
-				this.joints.forEach(joint => {
+				joints.forEach(joint => {
 					const { v1, v2 } = joint;
 					const radius = node.data.config.radius;
 					let c = lineCircleCollision(v1.getPosition(), v2.getPosition(), node.getPosition(), [0, 0], radius);

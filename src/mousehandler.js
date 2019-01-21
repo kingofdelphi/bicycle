@@ -120,7 +120,7 @@ const MouseHandler = (viewController) => {
 			}
 			if (selVertex != v2) {
 				// disallow connecting same vertex
-				viewController.addNewJoint(selVertex, v2); 
+				viewController.addNewJoint(selVertex, v2, { color: 'grey', thickness: 2, collidable: true }); 
 			}
 			connectSegment.visible = false;
 			changeSelection(selVertex, false);

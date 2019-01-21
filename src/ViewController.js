@@ -31,6 +31,7 @@ class ViewController {
 		let joint = this.engine.connectJoint(v1, v2);
 		let jointInfo = {
 			renderObj: PaperHelper.createSegment(config),
+			config,
 			joint,
 		};
 		joint.setData(jointInfo);

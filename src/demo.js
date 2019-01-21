@@ -19,7 +19,7 @@ class Demo {
 				ballsAdded.push(ball);
 			}
 			for (let i = 1; i < K; ++i) {
-				viewController.addNewJoint(ballsAdded[i - 1], ballsAdded[i], { color: 'grey', thickness: 2 });
+				viewController.addNewJoint(ballsAdded[i - 1], ballsAdded[i], { collidable: true, color: 'grey', thickness: 2 });
 			}
 			let lastNode = ballsAdded.slice(-1)[0];
 			lastNode.setPosition([300, 170]);
@@ -27,21 +27,31 @@ class Demo {
 
 		createJoints();
 
-		const config = {
+		let config = {
 			pinned: true,
 			color: 'black',
 			radius: 2
 		};
 
-		const positionA = [0, 470];
-		const positionB = [800, 470];
+		let positionA = [0, 470];
+		let positionB = [800, 470];
 
 		let ballA = viewController.createBall(positionA, config);
 		let ballB = viewController.createBall(positionB, config);
 
-		viewController.addNewJoint(ballA, ballB, { color: 'black', thickness: 1 });
+		viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true });
 		this.addBigCircle([30, 30]);
 
+		config = Object.assign({}, config);
+		config.rigid = true;
+		config.radius = 20;
+		config.pinned = false;
+		positionA = [40, 300];
+		positionB = [90, 300];
+		ballA = viewController.createBall(positionA, Object.assign({}, config));
+		ballB = viewController.createBall(positionB, config);
+
+		viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true });
 
 		mouseHandler(viewController);
 	};

@@ -1,12 +1,24 @@
 import { Point, Path, Size } from 'paper';
 
-export const createBallObj = (position, config = { color: 'black', radius: 4 }) => {
+export const createBallObj = (position, config = {}) => {
+	if (!config.radius) {
+		Object.assign(config, { radius: 4 });
+	}
+	if (!config.color) {
+		Object.assign(config, { color: 'black' });
+	}
 	let myCircle = new Path.Circle(position, config.radius);
 	myCircle.fillColor = config.color;	
 	return myCircle;
 };
 
-export const createSegment = (config = { color: 'black', thickness: 2 }) => {
+export const createSegment = (config = {}) => {
+	if (!config.thickness) {
+		Object.assign(config, { thickness: 2 });
+	}
+	if (!config.color) {
+		Object.assign(config, { color: 'black' });
+	}
 	let myPath = new Path({
 		segments: [[0, 0], [0, 0]]
 	});
