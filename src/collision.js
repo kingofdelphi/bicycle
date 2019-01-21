@@ -51,4 +51,16 @@ const lineCircleCollision = (p1, p2, ball, vel, radius) => {
 	return { axis: bestAxis, penetration: minp };
 };
 
+const rotate = (vec, angle) => {
+	let cs = Math.cos(angle);
+	let si = Math.sin(angle);
+	let rot_mat = [
+		[cs, -si],
+		[si, cs]
+	];
+	let c = math;
+	return math.multiply(rot_mat, vec);
+};
+
+
 export default lineCircleCollision;

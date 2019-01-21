@@ -4,6 +4,12 @@ class Engine {
 	constructor() {
 		this.nodes = [];
 		this.joints = [];
+		this.config = {
+			gravity: 10
+		};
+	}
+	setConfig(config) {
+		this.config = config;
 	}
 	solveConstraints() {
 		this.joints.forEach(joint => {
@@ -83,14 +89,13 @@ class Engine {
 	}
 
 	update(dt) {
-		const gravity = 10;
 		this.nodes.forEach((node, i) => {
 			if (node.pinned) return;
 			var vel = math.subtract(node.position, node.oldPosition);
 			node.oldPosition = node.position;
 
 			var dv = math.multiply(vel, 0.99);
-			dv = math.add(dv, [0, gravity * dt]);
+			dv = math.add(dv, [0, this.config.gravity * dt]);
 			node.position = math.add(node.position, dv);
 		});
 
