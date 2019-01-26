@@ -1,6 +1,8 @@
 import mouseHandler from './mousehandler';
 import * as paper from 'paper';
 import keys from './keys';
+import * as PaperHelper from './paperhelper';
+import * as math from 'mathjs';
 
 class Demo {
 	postInit(viewController) {
@@ -63,8 +65,14 @@ class Demo {
 		const ballA = viewController.createBall(positionA, Object.assign({}, config));
 		const ballB = viewController.createBall(positionB, config);
 
-		this.wheel = viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true });
-		this.vehicleXvel = 0;
+		this.wheel = viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true, weightageA: 0, weightageB: 1 });
+		this.vehicleVel = [0, 0];
+
+		const cfg = Object.assign({}, config, { pinned: true, rigid: false });
+		cfg.radius = 2;
+		const pa = viewController.createBall([0, 0], cfg);
+		const pb = viewController.createBall([1, 0], cfg);
+		this.collisionLine = viewController.addNewJoint(pa, pb, { thickness: 3, color: 'red', collidable: false });
 
 		mouseHandler(viewController);
 	};
@@ -82,20 +90,49 @@ class Demo {
 	preUpdateCallback(event) {
 		let wheel = this.wheel;
 		const dt = event.delta;
+		const engine = this.viewController.getEngine();
+		const collision = engine.getCollidingObjects(wheel.v1);
+		let colInfo;
+		if (collision.length > 0) {
+			colInfo = collision[0];
+			this.collisionLine.v1.position = colInfo.joint.v1.position;
+			this.collisionLine.v2.position = colInfo.joint.v2.position;
+			this.collisionLine.updateDistance();
+		}
+
+
 		const vx = .05;
+		const f = 0.2;
+		const addVel = (collisionInfo, f) => {
+			const ci = collisionInfo.collisionInfo;
+			const dir = [-ci.axis[1], ci.axis[0]];
+			const dv = math.multiply(dir, f * dt);
+			const L = math.norm(this.vehicleVel);
+			const u = .1;
+			if (L > u) {
+				this.vehicleVel = math.divide(this.vehicleVel, L / u);
+				return;
+			}
+			this.vehicleVel = math.add(this.vehicleVel, dv);
+		};
 		if (keys['d']) {
 			if (wheel != null) {
-				this.vehicleXvel += vx * dt;
+				if (colInfo) {
+					addVel(colInfo, f);
+				}
 			}
 		}
 		if (keys['a']) {
 			if (wheel != null) {
-				this.vehicleXvel -= vx * dt;
+				if (colInfo) {
+					addVel(colInfo, -f);
+				}
 			}
 		}
-		this.vehicleXvel *= 0.99;
+		this.vehicleVel = math.multiply(this.vehicleVel, 0.99);
 		if (wheel != null) {
-			this.wheel.v1.position[0] += this.vehicleXvel;
+			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);
+			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);
 		}
 	}
 }

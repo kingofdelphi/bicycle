@@ -8,6 +8,7 @@ class Engine {
 		this.config = {
 			gravity: 10
 		};
+		this.collisionMap = new Map();
 	}
 	setConfig(config) {
 		this.config = config;
@@ -22,11 +23,14 @@ class Engine {
 			var vab = math.subtract(pb, pa);
 			var uab = math.divide(vab, math.norm(vab));
 			var v = math.multiply(uab, -(joint.length - math.norm(vab)) / 2);
-			if (!nodeA.isPinned()) {
-				nodeA.position = math.add(pa, math.multiply(v, 1));
-			}
-			if (!nodeB.isPinned()) {
-				nodeB.position = math.add(pb, math.multiply(v, -1));
+			if (nodeA.isPinned()) {
+				nodeB.position = math.add(pb, math.multiply(v, -2));
+			} else if (nodeB.isPinned()) {
+				nodeA.position = math.add(pa, math.multiply(v, 2));
+			} else {
+				const { weightageA = 0.5, weightageB = 0.5 } = joint.getData().config;
+				nodeA.position = math.add(pa, math.multiply(v, weightageA));
+				nodeB.position = math.add(pb, math.multiply(v, -weightageB));
 			}
 		});
 	}
@@ -76,6 +80,9 @@ class Engine {
 			v2: node2,
 			length: math.distance(node1.position, node2.position),
 			data,
+			updateDistance: function() {
+				this.length = math.distance(this.v1.position, this.v2.position);
+			},
 			setData: function (data) {
 				this.data = data;
 			},
@@ -87,9 +94,14 @@ class Engine {
 		return joint;
 	}
 
+	getNodesForCollision() {
+		return this.nodes.filter(node => node.getData().config.rigid == true);
+	}
+
 	resolveCollisions() {
 		const collidableJoints = this.joints.filter(joint => joint.getData().config.collidable);
-		this.nodes.filter(node => node.getData().config.rigid == true).forEach((node) => {
+		this.collisionMap.clear();
+		this.getNodesForCollision().filter(node => node.getData().config.rigid == true).forEach((node) => {
 			// if (math.norm(ball.vel) <= 0) return;
 			// if a circle is connected to a joint, shouldn't check collision with it
 			const joints = collidableJoints.filter(joint => joint.v1 != node && joint.v2 != node);
@@ -113,19 +125,31 @@ class Engine {
 					let k = v1.isPinned() && v2.isPinned() ? 1 : 0.5;
 					let delta = math.multiply(c.axis, k * c.penetration);
 					node.position = math.add(node.position, delta);
+					const collisionList = this.collisionMap.get(node) || [];
+					collisionList.push({
+						joint,
+						collisionInfo: c
+					});
+					this.collisionMap.set(
+						node,
+						collisionList
+					);
 					if (!v1.isPinned()) {
 						v1.position = math.subtract(v1.position, delta);
 					}
 					if (!v2.isPinned()) {
 						v2.position = math.subtract(v2.position, delta);
 					}
-					refAxis = math.add(refAxis, c.axis);
+					refAxis = math.add([0, 0], c.axis);
 					colcount++;
 				});
 				if (!coll) break;
 			}
 			if (colcount) {
 				refAxis = math.divide(refAxis, math.norm(refAxis));
+				const gravity = [0, this.config.gravity * this.dt];
+				var gravityNormVel = math.multiply(refAxis, math.dot(refAxis, gravity));
+				node.vel = math.subtract(node.vel, gravityNormVel);
 				var normVel = math.dot(refAxis, node.vel);
 				normVel = math.multiply(refAxis, normVel);
 				var tangentVel = math.subtract(node.vel, normVel);
@@ -140,6 +164,7 @@ class Engine {
 	update(dt) {
 		this.dt = dt;
 		this.nodes.forEach((node, i) => {
+			node.vel = [0, 0];
 			if (node.isPinned()) return;
 			var vel = math.subtract(node.position, node.oldPosition);
 			node.oldPosition = node.position;
@@ -158,6 +183,10 @@ class Engine {
 
 		this.resolveCollisions();
 
+	}
+
+	getCollidingObjects(node) {
+		return this.collisionMap.get(node) || [];
 	}
 
 }
