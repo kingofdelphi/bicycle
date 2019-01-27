@@ -1,5 +1,7 @@
 import * as PaperHelper from './paperhelper';
 import Engine from './engine';
+import * as math from 'mathjs';
+import { rotateZ } from './collision';
 
 class ViewController {
 	constructor() {
@@ -23,6 +25,12 @@ class ViewController {
 			node,
 			config
 		};
+		if (config.rigid) {
+			ball.rotationObj = PaperHelper.createSegment({ color: 'yellow' });
+			ball.rotationObj.segments[0].point = { x: position[0], y: position[1] };
+			const v = math.add(position, config.radius);
+			ball.rotationObj.segments[1].point = { x: v[0], y: v[1] };
+		}
 		node.setData(ball);
 		return node;
 	}
@@ -46,6 +54,13 @@ class ViewController {
 			var pos = node.getPosition();
 			renderInfo.renderObj.position.x = pos[0];
 			renderInfo.renderObj.position.y = pos[1];
+			if (renderInfo.config.rigid) {
+				const l = renderInfo.rotationObj;
+				l.segments[0].point = { x: pos[0], y: pos[1] };
+				const v2 = rotateZ([0, renderInfo.config.radius], node.getRotation());
+				const v = math.add(pos, v2);
+				l.segments[1].point = { x: v[0], y: v[1] };
+			}
 		});
 
 		const vecToPoint = (pos) => {
@@ -61,7 +76,6 @@ class ViewController {
 			renderInfo.renderObj.segments[1].point = vecToPoint(joint.v2.getPosition());
 		});
 	}
-
 
 }
 

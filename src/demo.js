@@ -65,7 +65,7 @@ class Demo {
 		const ballA = viewController.createBall(positionA, Object.assign({}, config));
 		const ballB = viewController.createBall(positionB, config);
 
-		this.wheel = viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true, weightageA: 0, weightageB: 1 });
+		this.wheel = viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true, weightageA: 0.5, weightageB: .5 });
 		this.vehicleVel = [0, 0];
 
 		const cfg = Object.assign({}, config, { pinned: true, rigid: false });
@@ -100,15 +100,13 @@ class Demo {
 			this.collisionLine.updateDistance();
 		}
 
-
-		const vx = .05;
-		const f = 0.2;
+		const f = 0.4;
 		const addVel = (collisionInfo, f) => {
 			const ci = collisionInfo.collisionInfo;
 			const dir = [-ci.axis[1], ci.axis[0]];
 			const dv = math.multiply(dir, f * dt);
 			const L = math.norm(this.vehicleVel);
-			const u = .1;
+			const u = 8;
 			if (L > u) {
 				this.vehicleVel = math.divide(this.vehicleVel, L / u);
 				return;

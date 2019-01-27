@@ -52,7 +52,7 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 	return { axis: bestAxis, penetration: minp };
 };
 
-const rotate = (vec, angle) => {
+export const rotateZ = (vec, angle) => {
 	let cs = Math.cos(angle);
 	let si = Math.sin(angle);
 	let rot_mat = [

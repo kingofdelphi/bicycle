@@ -40,6 +40,8 @@ class Engine {
 			position,
 			oldPosition: position,
 			data,
+			rotation: 0,
+			angularVelocity: 0,
 			getPosition: function () {
 				return this.position;
 			},
@@ -60,6 +62,9 @@ class Engine {
 			},
 			isPinned: function() {
 				return this.data.config.pinned;
+			},
+			getRotation: function() {
+				return this.rotation;
 			}
 		}
 		this.nodes.push(node);
@@ -140,23 +145,33 @@ class Engine {
 					if (!v2.isPinned()) {
 						v2.position = math.subtract(v2.position, delta);
 					}
-					refAxis = math.add([0, 0], c.axis);
+					refAxis = math.add(refAxis, c.axis);
 					colcount++;
 				});
 				if (!coll) break;
 			}
+			// TODO: DO NOT AVERAGE refAxis, 
+			// put collision resolution inside the loop (to see if its better)
+			// remember to reflect normal only if velocity goes towards the collision axis
 			if (colcount) {
 				refAxis = math.divide(refAxis, math.norm(refAxis));
-				const gravity = [0, this.config.gravity * this.dt];
-				var gravityNormVel = math.multiply(refAxis, math.dot(refAxis, gravity));
-				node.vel = math.subtract(node.vel, gravityNormVel);
-				var normVel = math.dot(refAxis, node.vel);
+				const nodeVel = math.subtract(node.position, node.oldPosition);
+
+				// rotation calculation
+				var r = math.multiply(refAxis, -node.getData().config.radius);
+				const I = math.dot(r, r);
+				const T = math.cross(r.concat(0), nodeVel.concat(0))[2];
+				const mg = Math.min(math.norm(nodeVel), 200);
+				node.angularVelocity += -30 * mg * T * this.dt / I;
+
+				// new velocity after collision
+				var normVel = math.dot(refAxis, nodeVel);
 				normVel = math.multiply(refAxis, normVel);
-				var tangentVel = math.subtract(node.vel, normVel);
+				var tangentVel = math.subtract(nodeVel, normVel);
 				tangentVel = math.multiply(tangentVel, -.99);
 				normVel = math.multiply(normVel, .8);
-				node.vel = math.add(normVel, tangentVel);
-				node.oldPosition = math.add(node.position, node.vel);
+				const newNodeVel = math.add(normVel, tangentVel);
+				node.oldPosition = math.add(node.position, newNodeVel);
 			}
 		});
 	}
@@ -164,7 +179,6 @@ class Engine {
 	update(dt) {
 		this.dt = dt;
 		this.nodes.forEach((node, i) => {
-			node.vel = [0, 0];
 			if (node.isPinned()) return;
 			var vel = math.subtract(node.position, node.oldPosition);
 			node.oldPosition = node.position;
@@ -172,7 +186,8 @@ class Engine {
 			var dv = math.multiply(vel, 0.99);
 			var gravity = [0, this.config.gravity * dt];
 			dv = math.add(dv, gravity);
-			node.vel = math.add(vel, gravity);
+			node.rotation += node.angularVelocity * dt;
+			node.angularVelocity *= 0.99;
 			node.position = math.add(node.position, dv);
 		});
 
