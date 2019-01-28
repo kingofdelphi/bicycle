@@ -3,6 +3,7 @@ import * as paper from 'paper';
 import keys from './keys';
 import * as PaperHelper from './paperhelper';
 import * as math from 'mathjs';
+import { rotateZ } from './collision';
 
 class Demo {
 	postInit(viewController) {
@@ -113,23 +114,42 @@ class Demo {
 			}
 			this.vehicleVel = math.add(this.vehicleVel, dv);
 		};
-		if (keys['d']) {
+		if (keys['w'] || keys['ArrowUp']) {
 			if (wheel != null) {
 				if (colInfo) {
 					addVel(colInfo, f);
 				}
 			}
 		}
-		if (keys['a']) {
+		if (keys['s'] || keys['ArrowDown']) {
 			if (wheel != null) {
 				if (colInfo) {
 					addVel(colInfo, -f);
 				}
 			}
 		}
+		const rot = (dir) => {
+			const v12 = math.subtract(wheel.v2.position, wheel.v1.position);
+			const np = rotateZ(v12, dir * Math.PI * .5 / 180);
+			const newPosition = math.add(wheel.v1.position, np);
+			const addVel = math.subtract(newPosition, wheel.v2.position);
+			wheel.v2.position = newPosition;
+			wheel.v2.oldPosition = math.subtract(wheel.v2.oldPosition, addVel);
+		};
+
+		if (keys['a'] || keys['ArrowLeft']) {
+			if (wheel != null && colInfo) {
+				rot(-0.3);
+			}
+		}
+		if (keys['d'] || keys['ArrowRight']) {
+			if (wheel != null && colInfo) {
+				rot(0.3);
+			}
+		}
 		if (keys[' ']) {
 			if (colInfo) {
-				const del = [0, -120 * dt];
+				const del = [0, -180 * dt];
 				wheel.v1.position = math.add(wheel.v1.position, del);
 				wheel.v2.position = math.add(wheel.v2.position, del);
 			}
