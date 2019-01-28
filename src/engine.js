@@ -162,7 +162,7 @@ class Engine {
 				const I = math.dot(r, r);
 				const T = math.cross(r.concat(0), nodeVel.concat(0))[2];
 				const mg = Math.min(math.norm(nodeVel), 200);
-				node.angularVelocity += -30 * mg * T * this.dt / I;
+				node.angularVelocity += -10 * mg * T * this.dt / I;
 
 				// new velocity after collision
 				var normVel = math.dot(refAxis, nodeVel);

@@ -127,6 +127,13 @@ class Demo {
 				}
 			}
 		}
+		if (keys[' ']) {
+			if (colInfo) {
+				const del = [0, -120 * dt];
+				wheel.v1.position = math.add(wheel.v1.position, del);
+				wheel.v2.position = math.add(wheel.v2.position, del);
+			}
+		}
 		this.vehicleVel = math.multiply(this.vehicleVel, 0.99);
 		if (wheel != null) {
 			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);
