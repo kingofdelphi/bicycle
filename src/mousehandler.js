@@ -1,5 +1,6 @@
 import * as PaperHelper from './paperhelper';
 import * as math from 'mathjs';
+import { point2pos } from './util';
 
 const getMode = () => {
 	return document.querySelector('.mode-container input[name="mode"]:checked').value;

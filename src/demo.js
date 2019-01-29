@@ -128,6 +128,12 @@ class Demo {
 				}
 			}
 		}
+		if (keys['z']) {
+			this.viewController.config.scale += 0.001;
+		}
+		if (keys['x']) {
+			this.viewController.config.scale -= 0.001;
+		}
 		const rot = (dir) => {
 			const v12 = math.subtract(wheel.v2.position, wheel.v1.position);
 			const np = rotateZ(v12, dir * Math.PI * .5 / 180);
@@ -159,6 +165,11 @@ class Demo {
 			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);
 			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);
 		}
+
+		// focus follow
+		const dest = math.add(wheel.v1.position, [120, -80]);
+		const del = math.subtract(dest, this.viewController.focus); 
+		this.viewController.focus = math.add(this.viewController.focus, math.multiply(del, 0.1));
 	}
 }
 
