@@ -57,13 +57,23 @@ class ViewController {
 		return finalPos;
 	}
 
-	getViewPortPosition(position) {
+	worldToViewPort(position) {
 		const bounds = paper.view.getSize();
 
 		const center = [bounds.width / 2, bounds.height / 2];
 
 		const pos = math.subtract(this.getScaledPosition(position), this.getScaledPosition(this.focus));
 		return math.add(center, pos);
+	}
+
+	viewPortToWorld(position) {
+		const bounds = paper.view.getSize();
+
+		const center = [bounds.width / 2, bounds.height / 2];
+
+		let pos = math.subtract(position, center);
+		pos = math.divide(pos, this.config.scale);
+		return math.add(pos, this.focus);
 	}
 
 	update(dt) {
@@ -75,7 +85,7 @@ class ViewController {
 		this.engine.getNodes().forEach(node => {
 			const renderInfo = node.getData();
 			var pos = node.getPosition();
-			var viewPortPos = this.getViewPortPosition(pos);
+			var viewPortPos = this.worldToViewPort(pos);
 			renderInfo.renderObj.position = pos2point(viewPortPos);
 
 			const radius = renderInfo.config.radius;
@@ -93,8 +103,8 @@ class ViewController {
 
 		this.engine.getJoints().forEach(joint => {
 			const renderInfo = joint.getData();
-			renderInfo.renderObj.segments[0].point = pos2point(this.getViewPortPosition(joint.v1.getPosition()));
-			renderInfo.renderObj.segments[1].point = pos2point(this.getViewPortPosition(joint.v2.getPosition()));
+			renderInfo.renderObj.segments[0].point = pos2point(this.worldToViewPort(joint.v1.getPosition()));
+			renderInfo.renderObj.segments[1].point = pos2point(this.worldToViewPort(joint.v2.getPosition()));
 		});
 	}
 

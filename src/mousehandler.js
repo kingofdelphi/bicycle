@@ -1,6 +1,6 @@
 import * as PaperHelper from './paperhelper';
 import * as math from 'mathjs';
-import { point2pos } from './util';
+import { pos2point, point2pos } from './util';
 
 const getMode = () => {
 	return document.querySelector('.mode-container input[name="mode"]:checked').value;
@@ -61,18 +61,20 @@ const MouseHandler = (viewController) => {
 			if (shouldConnectToExistingNode(curPos)) {
 				selVertex = getNearestBall(curPos);
 			} else {
-				selVertex = addNewVertex(curPos, true);
+				selVertex = addNewVertex(viewController.viewPortToWorld(curPos), true);
 			}
 			connectSegment.visible = true;
-			connectSegment.segments[0].point = selVertex.getPosition();
+			connectSegment.segments[0].point = curPos;
 			connectSegment.segments[1].point = downPos;
 		}
 		if (mode == 'pull') {
 			selVertex = getNearestBall(curPos);
-			if (math.distance(selVertex.getPosition(), curPos) > 20) selVertex = null;
+			if (math.distance(point2pos(selVertex.getData().renderObj.position), curPos) > 20) {
+				selVertex = null;
+			}
 		}
 		if (mode == 'circle') {
-			viewController.createBall(downPos, { color: 'grey', radius: 20, rigid: true });
+			viewController.createBall(viewController.viewPortToWorld(downPos), { color: 'grey', radius: 20, rigid: true });
 		}
 		if (mode == 'backwheel') {
 			wheel = getNearestBall(curPos);
@@ -82,7 +84,7 @@ const MouseHandler = (viewController) => {
 
 	let shouldConnectToExistingNode = (destPos) => {
 		let nearest = getNearestBall(destPos);
-		let dist = math.distance(nearest.getPosition(), destPos);
+		let dist = math.distance(point2pos(nearest.getData().renderObj.position), destPos);
 		return dist < 10;
 	};
 
@@ -99,13 +101,14 @@ const MouseHandler = (viewController) => {
 		}
 		if (mode === 'pull') {
 			if (selVertex != null) {
-				selVertex.setPosition(curPos);
-				selVertex.oldPosition = curPos;
+				const worldPos = viewController.viewPortToWorld(curPos);
+				selVertex.setPosition(worldPos);
+				selVertex.oldPosition = worldPos;
 			}
 		}
 		if (mode == 'connect') {
 			if (selVertex != null) {
-				let pos = shouldConnectToExistingNode(curPos) ? getNearestBall(curPos).getPosition() : curPos;
+				const pos = shouldConnectToExistingNode(curPos) ? point2pos(getNearestBall(curPos).getData().renderObj.position) : curPos;
 				connectSegment.segments[1].point = pos;
 			}
 		}
@@ -117,7 +120,7 @@ const MouseHandler = (viewController) => {
 		if (mode === 'connect') {
 			let v2;
 			if (!shouldConnectToExistingNode(curPos)) {
-				v2 = addNewVertex(curPos, true);
+				v2 = addNewVertex(viewController.viewPortToWorld(curPos), true);
 				selVertex.getData().config.ignoreNormal = true;
 			} else {
 				v2 = getNearestBall(curPos);
