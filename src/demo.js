@@ -52,8 +52,8 @@ class Demo {
 		};
 		const bounds = paper.view.getSize();
 		wallHelper([0, bounds.height], [bounds.width, bounds.height]);
-		wallHelper([bounds.width, 0], [bounds.width, bounds.height]);
-		wallHelper([0, 0], [bounds.width, 0]);
+		// wallHelper([bounds.width, 0], [bounds.width, bounds.height]);
+		//wallHelper([0, 0], [bounds.width, 0]);
 		wallHelper([0, 0], [0, bounds.height]);
 
 		this.addBigCircle([30, 30]);
@@ -62,8 +62,8 @@ class Demo {
 		config.rigid = true;
 		config.radius = 10;
 		config.pinned = false;
-		const positionA = [40, 300];
-		const positionB = [90, 300];
+		const positionA = [80, 300];
+		const positionB = [130, 300];
 		const ballA = viewController.createBall(positionA, Object.assign({}, config));
 		const ballB = viewController.createBall(positionB, config);
 
@@ -79,7 +79,8 @@ class Demo {
 		for (let i = 0; i < nodes.length; ++i) {
 			const config = {
 				radius: 2,
-				pinned: true
+				pinned: true,
+				ignoreNormal: true
 			};
 			const ball = viewController.createBall(nodes[i], Object.assign({}, config));
 			nodesP.push(ball);
@@ -176,7 +177,7 @@ class Demo {
 		if (keys['p']) {
 			console.log(JSON.stringify(this.viewController.nodes));
 		}
-		this.vehicleVel = math.multiply(this.vehicleVel, 0.99);
+		this.vehicleVel = math.multiply(this.vehicleVel, 0.98);
 		if (wheel != null) {
 			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);
 			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);

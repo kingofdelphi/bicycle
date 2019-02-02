@@ -6,7 +6,7 @@ class Engine {
 		this.nodes = [];
 		this.joints = [];
 		this.config = {
-			gravity: 20
+			gravity: 10
 		};
 		this.collisionMap = new Map();
 	}
@@ -162,7 +162,7 @@ class Engine {
 				const I = math.dot(r, r);
 				const T = math.cross(r.concat(0), nodeVel.concat(0))[2];
 				const mg = Math.min(math.norm(nodeVel), 200);
-				node.angularVelocity += -10 * mg * T * this.dt / I;
+				node.angularVelocity += -mg * T * this.dt / I;
 
 				// new velocity after collision
 				var normVel = math.dot(refAxis, nodeVel);
@@ -183,7 +183,7 @@ class Engine {
 			var vel = math.subtract(node.position, node.oldPosition);
 			node.oldPosition = node.position;
 
-			var dv = math.multiply(vel, 0.99);
+			var dv = math.multiply(vel, 0.98);
 			var gravity = [0, this.config.gravity * dt];
 			dv = math.add(dv, gravity);
 			node.rotation += node.angularVelocity * dt;
