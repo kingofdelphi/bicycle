@@ -4,6 +4,7 @@ import keys from './keys';
 import * as PaperHelper from './paperhelper';
 import * as math from 'mathjs';
 import { rotateZ } from './collision';
+import nodes from './level';
 
 class Demo {
 	postInit(viewController) {
@@ -74,7 +75,19 @@ class Demo {
 		const pa = viewController.createBall([0, 0], cfg);
 		const pb = viewController.createBall([1, 0], cfg);
 		this.collisionLine = viewController.addNewJoint(pa, pb, { thickness: 3, color: 'red', collidable: false });
-
+		const nodesP = [];
+		for (let i = 0; i < nodes.length; ++i) {
+			const config = {
+				radius: 2,
+				pinned: true
+			};
+			const ball = viewController.createBall(nodes[i], Object.assign({}, config));
+			nodesP.push(ball);
+			if (i) {
+				viewController.addNewJoint(nodesP[i - 1], nodesP[i], { thickness: 1, collidable: true, weightageA: 0.5, weightageB: .5 });
+			}
+		}
+		viewController.nodes = [];
 		mouseHandler(viewController);
 	};
 
@@ -144,13 +157,13 @@ class Demo {
 		};
 
 		if (keys['a'] || keys['ArrowLeft']) {
-			if (wheel != null && colInfo) {
-				rot(-0.3);
+			if (wheel != null) {
+				rot(-0.8);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
-			if (wheel != null && colInfo) {
-				rot(0.3);
+			if (wheel != null) {
+				rot(0.8);
 			}
 		}
 		if (keys[' ']) {
@@ -159,6 +172,9 @@ class Demo {
 				wheel.v1.position = math.add(wheel.v1.position, del);
 				wheel.v2.position = math.add(wheel.v2.position, del);
 			}
+		}
+		if (keys['p']) {
+			console.log(JSON.stringify(this.viewController.nodes));
 		}
 		this.vehicleVel = math.multiply(this.vehicleVel, 0.99);
 		if (wheel != null) {

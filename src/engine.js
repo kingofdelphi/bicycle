@@ -6,7 +6,7 @@ class Engine {
 		this.nodes = [];
 		this.joints = [];
 		this.config = {
-			gravity: 10
+			gravity: 20
 		};
 		this.collisionMap = new Map();
 	}

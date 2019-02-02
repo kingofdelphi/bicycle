@@ -1,6 +1,32 @@
 import * as math from 'mathjs';
+const lineToBBox = (p1, p2) => {
+	const minPos = [Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1])];
+	const maxPos = [Math.max(p1[0], p2[0]), Math.max(p1[1], p2[1])];
+	return {
+		position: minPos,
+		width: maxPos[0] - minPos[0],
+		height: maxPos[1] - minPos[1]
+	};
+};
+
+const circleToBBox = (pos, radius) => {
+	return {
+		position: [pos[0] - radius, pos[1] - radius],
+		width: 2 * radius,
+		height: 2 * radius,
+	}
+};
+
+const boudingBoxCollision = (rectA, rectB) => {
+	if (rectA.position[0] + rectA.width < rectB.position[0]) return false;
+	if (rectB.position[0] + rectB.width < rectA.position[0]) return false;
+	if (rectA.position[1] + rectA.height < rectB.position[1]) return false;
+	if (rectB.position[1] + rectB.height < rectA.position[1]) return false;
+	return true;
+};
 
 const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, radius) => {
+	if (!boudingBoxCollision(lineToBBox(p1, p2), circleToBBox(ball))) return false;
 	var dj = math.subtract(p1, p2);
 	var djNormal = [-dj[1], dj[0]];
 	const checkColl = (projAxis) => {
@@ -48,7 +74,11 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 	if (!p1IgnoreNormal) d.push(b);
 	if (!p2IgnoreNormal) d.push(c);
 	var minp = d.map(m => m.penetration).sort((a, b) => a - b)[0];
-	var bestAxis = d.filter(v => v.penetration == minp)[0].projAxis;
+	var pen = d.filter(v => v.penetration == minp);
+	if (pen.length == 0) {
+		debugger;
+	}
+	var bestAxis = pen[0].projAxis;
 	return { axis: bestAxis, penetration: minp };
 };
 

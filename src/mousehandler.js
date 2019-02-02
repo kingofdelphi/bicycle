@@ -62,6 +62,7 @@ const MouseHandler = (viewController) => {
 				selVertex = getNearestBall(curPos);
 			} else {
 				selVertex = addNewVertex(viewController.viewPortToWorld(curPos), true);
+				viewController.nodes.push(selVertex.getPosition());
 			}
 			connectSegment.visible = true;
 			connectSegment.segments[0].point = curPos;
@@ -121,6 +122,7 @@ const MouseHandler = (viewController) => {
 			let v2;
 			if (!shouldConnectToExistingNode(curPos)) {
 				v2 = addNewVertex(viewController.viewPortToWorld(curPos), true);
+				viewController.nodes.push(v2.getPosition());
 				selVertex.getData().config.ignoreNormal = true;
 			} else {
 				v2 = getNearestBall(curPos);
