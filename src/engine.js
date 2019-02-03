@@ -193,7 +193,7 @@ class Engine {
 					if (!v2.isPinned()) {
 						v2.position = math.subtract(v2.position, delta);
 					}
-					refAxis = math.add(refAxis, c.axis);
+					refAxis = math.add([0, 0], c.axis);
 					colcount++;
 				});
 				if (!coll) break;
@@ -217,7 +217,7 @@ class Engine {
 				normVel = math.multiply(refAxis, normVel);
 				var tangentVel = math.subtract(nodeVel, normVel);
 				tangentVel = math.multiply(tangentVel, -.99);
-				normVel = math.multiply(normVel, .8);
+				normVel = math.multiply(normVel, .6);
 				const newNodeVel = math.add(normVel, tangentVel);
 				node.oldPosition = math.add(node.position, newNodeVel);
 			}
