@@ -118,6 +118,9 @@ class Demo {
 			this.collisionLine.v1.position = colInfo.joint.v1.position;
 			this.collisionLine.v2.position = colInfo.joint.v2.position;
 			this.collisionLine.updateDistance();
+			this.collisionLine.getData().renderObj.visible = true;
+		} else {
+			this.collisionLine.getData().renderObj.visible = false;
 		}
 
 		const f = 0.4;
