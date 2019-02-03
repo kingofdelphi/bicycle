@@ -222,12 +222,22 @@ class Demo {
 			this.viewController.config.scale -= 0.001;
 		}
 		const rot = (dir) => {
-			const v12 = math.subtract(wheel.v2.position, wheel.v1.position);
-			const np = rotateZ(v12, dir * Math.PI * .5 / 180);
-			const newPosition = math.add(wheel.v1.position, np);
-			const addVel = math.subtract(newPosition, wheel.v2.position);
-			wheel.v2.position = newPosition;
-			wheel.v2.oldPosition = math.subtract(wheel.v2.oldPosition, addVel);
+			let pivot = math.add(wheel.v1.position, wheel.v2.position);
+			pivot = math.multiply(pivot, .5);
+			// pivot = wheel.v2.position;
+			const rotAroundPivot = (pos, angle) => {
+				const vrp = math.subtract(pos, pivot);
+				const np = rotateZ(vrp, angle);
+				return math.add(pivot, np);
+			};
+			const angle = dir * Math.PI * .8 / 180;
+			// const addVel = math.subtract(newPosition, wheel.v2.position);
+			const wheel1NewPos = rotAroundPivot(wheel.v1.position, angle);
+			const wheel2NewPos = rotAroundPivot(wheel.v2.position, angle);
+
+			wheel.v1.position = wheel1NewPos;
+
+			wheel.v2.position = wheel2NewPos;
 		};
 
 		if (keys['a'] || keys['ArrowLeft']) {
