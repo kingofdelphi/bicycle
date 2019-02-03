@@ -18,8 +18,8 @@ class Demo {
 		config.pinned = false;
 		const positionA = [80, 300];
 		const positionB = [130, 300];
-		const ballA = this.viewController.createBall(positionA, Object.assign({}, config));
-		const ballB = this.viewController.createBall(positionB, config);
+		const ballA = this.viewController.createBall(positionA, Object.assign({}, config, { color: null }));
+		const ballB = this.viewController.createBall(positionB, Object.assign({}, config, { color: null }));
 
 		const thickness = 2;
 		this.wheel = this.viewController.addNewJoint(ballA, ballB, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 });

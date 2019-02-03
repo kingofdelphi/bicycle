@@ -9,7 +9,7 @@ const getMode = () => {
 const MouseHandler = (viewController) => {
 	const engine = viewController.getEngine();
 	const addNewVertex = (position, pinned = false) => {
-		var ball = viewController.createBall(position, { pinned, color: 'black', radius: 2 });
+		var ball = viewController.createBall(position, { pinned, color: 'black', radius: 0 });
 		return ball;
 	};
 
@@ -128,7 +128,7 @@ const MouseHandler = (viewController) => {
 			}
 			if (selVertex != v2) {
 				// disallow connecting same vertex
-				viewController.addNewJoint(selVertex, v2, { color: 'grey', thickness: 2, collidable: true }); 
+				viewController.addNewJoint(selVertex, v2, { color: 'grey', thickness: 4, collidable: true }); 
 			}
 			connectSegment.visible = false;
 			changeSelection(selVertex, false);

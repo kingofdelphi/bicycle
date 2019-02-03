@@ -75,6 +75,7 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 	var pen = d.filter(v => v.penetration == minp);
 	if (pen.length == 0) {
 		debugger;
+		return false;
 	}
 	var bestAxis = pen[0].projAxis;
 	return { axis: bestAxis, penetration: minp };
