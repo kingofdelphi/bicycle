@@ -68,6 +68,11 @@ class Demo {
 		const ballB = viewController.createBall(positionB, config);
 
 		this.wheel = viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true, weightageA: 0.5, weightageB: .5 });
+		const positionC = [80, 250];
+		const ballC = viewController.createBall(positionC, { radius: 2, pinned: false });
+
+		viewController.addNewJoint(ballA, ballC, { thickness: 1, collidable: true, weightageA: 0, weightageB: 1 });
+		viewController.engine.addAngularConstraint(ballB, ballA, ballC, -Math.PI / 2, 0, 1);
 		this.vehicleVel = [0, 0];
 
 		const cfg = Object.assign({}, config, { pinned: true, rigid: false });
