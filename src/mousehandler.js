@@ -123,7 +123,6 @@ const MouseHandler = (viewController) => {
 			if (!shouldConnectToExistingNode(curPos)) {
 				v2 = addNewVertex(viewController.viewPortToWorld(curPos), true);
 				viewController.nodes.push(v2.getPosition());
-				selVertex.getData().config.ignoreNormal = true;
 			} else {
 				v2 = getNearestBall(curPos);
 			}

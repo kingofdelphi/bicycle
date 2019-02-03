@@ -70,9 +70,7 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 	var axis2 = math.subtract(ball, p2);
 	var c = checkColl(axis2);
 	if (!c) return false;
-	var d = [a];
-	if (!p1IgnoreNormal) d.push(b);
-	if (!p2IgnoreNormal) d.push(c);
+	var d = [a, b, c];
 	var minp = d.map(m => m.penetration).sort((a, b) => a - b)[0];
 	var pen = d.filter(v => v.penetration == minp);
 	if (pen.length == 0) {

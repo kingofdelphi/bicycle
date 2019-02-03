@@ -116,8 +116,7 @@ class Demo {
 				const config = {
 					pinned: i == 0 || i == K - 1,
 					color: 'black',
-					radius: 2,
-					ignoreNormal: i > 0 && i + 1 < K
+					radius: 2
 				};
 				let ball = viewController.createBall(position, config);
 				ballsAdded.push(ball);
@@ -149,8 +148,7 @@ class Demo {
 		for (let i = 0; i < nodes.length; ++i) {
 			const config = {
 				radius: 2,
-				pinned: true,
-				ignoreNormal: true
+				pinned: true
 			};
 			const ball = viewController.createBall(nodes[i], Object.assign({}, config));
 			nodesP.push(ball);
@@ -216,10 +214,10 @@ class Demo {
 			}
 		}
 		if (keys['z']) {
-			this.viewController.config.scale += 0.001;
+			this.viewController.config.scale += 0.01;
 		}
 		if (keys['x']) {
-			this.viewController.config.scale -= 0.001;
+			this.viewController.config.scale -= 0.01;
 		}
 		const rot = (dir) => {
 			let pivot = math.add(wheel.v1.position, wheel.v2.position);
