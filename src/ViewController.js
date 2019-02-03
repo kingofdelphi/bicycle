@@ -29,10 +29,11 @@ class ViewController {
 			config
 		};
 		if (config.rigid) {
-			ball.rotationObj = PaperHelper.createSegment({ color: 'yellow' });
-			ball.rotationObj.segments[0].point = { x: position[0], y: position[1] };
-			const v = math.add(position, config.radius);
-			ball.rotationObj.segments[1].point = { x: v[0], y: v[1] };
+			ball.rotationObj = PaperHelper.createSegment({ color: 'grey' });
+			const v1 = math.add(position, -config.radius);
+			ball.rotationObj.segments[0].point = pos2point(v1);
+			const v2 = math.add(position, config.radius);
+			ball.rotationObj.segments[1].point = pos2point(v2);
 		}
 		node.setData(ball);
 		return node;
@@ -94,8 +95,12 @@ class ViewController {
 
 			if (renderInfo.config.rigid) {
 				const circleLine = renderInfo.rotationObj;
-				circleLine.segments[0].point = pos2point(viewPortPos);
-				const v2 = rotateZ([0, radius], node.getRotation());
+
+				const v1 = rotateZ([-curRadius, 0], node.getRotation());
+				const v1Scaled = math.add(viewPortPos, v1);
+				circleLine.segments[0].point = pos2point(v1Scaled);
+
+				const v2 = rotateZ([curRadius, 0], node.getRotation());
 				const v2Scaled = math.add(viewPortPos, v2);
 				circleLine.segments[1].point = pos2point(v2Scaled);
 			}

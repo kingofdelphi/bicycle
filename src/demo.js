@@ -25,6 +25,15 @@ class Demo {
 		this.wheel = this.viewController.addNewJoint(ballA, ballB, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 });
 		this.wheel.getData().renderObj.visible = false;
 
+		// remove wheel solid color
+		ballA.getData().renderObj.fillColor = null;
+		ballA.getData().renderObj.strokeColor = 'black';
+		ballA.getData().renderObj.strokeWidth = 4;
+
+		ballB.getData().renderObj.fillColor = null;
+		ballB.getData().renderObj.strokeColor = 'black';
+		ballB.getData().renderObj.strokeWidth = 4;
+
 		const rearAngleToSeat = -Math.PI / 6 * 2;
 		const RR = 30;
 		const positionRear = math.add(positionA, math.multiply([Math.cos(rearAngleToSeat), Math.sin(rearAngleToSeat)], RR));
@@ -147,13 +156,13 @@ class Demo {
 		const nodesP = [];
 		for (let i = 0; i < nodes.length; ++i) {
 			const config = {
-				radius: 2,
+				radius: 0,
 				pinned: true
 			};
 			const ball = viewController.createBall(nodes[i], Object.assign({}, config));
 			nodesP.push(ball);
 			if (i) {
-				viewController.addNewJoint(nodesP[i - 1], nodesP[i], { thickness: 1, collidable: true, weightageA: 0.5, weightageB: .5 });
+				viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'brown', thickness: 3, collidable: true, weightageA: 0.5, weightageB: .5 });
 			}
 		}
 		viewController.nodes = [];
