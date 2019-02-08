@@ -137,13 +137,13 @@ class Demo {
 			lastNode.setPosition([300, 170]);
 		}
 
-		createJoints();
+		// createJoints();
 
 		const bounds = paper.view.getSize();
-		wallHelper([0, bounds.height], [bounds.width, bounds.height]);
+		// wallHelper([0, bounds.height], [bounds.width, bounds.height]);
 		// wallHelper([bounds.width, 0], [bounds.width, bounds.height]);
 		//wallHelper([0, 0], [bounds.width, 0]);
-		wallHelper([0, 0], [0, bounds.height]);
+		// wallHelper([0, 0], [0, bounds.height]);
 
 		this.buildBicycle();
 		this.vehicleVel = [0, 0];

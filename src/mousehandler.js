@@ -9,7 +9,7 @@ const getMode = () => {
 const MouseHandler = (viewController) => {
 	const engine = viewController.getEngine();
 	const addNewVertex = (position, pinned = false) => {
-		var ball = viewController.createBall(position, { pinned, color: 'black', radius: 0 });
+		var ball = viewController.createBall(position, { pinned, color: 'black', radius: 2 });
 		return ball;
 	};
 
