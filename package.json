@@ -6,8 +6,8 @@
   "author": "kingofdelphi",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --mode=development",
-	"build": "webpack --mode=production"
+    "start": "webpack-dev-server",
+	"build": "webpack --env.mode=production"
   },
   "jest": {
     "transform": {
