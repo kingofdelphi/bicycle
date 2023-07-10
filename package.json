@@ -1,35 +1,22 @@
 {
-  "name": "live-trading",
-  "version": "1.0.0",
-  "description": "live trading realtime",
-  "main": "index.js",
-  "author": "kingofdelphi",
-  "license": "MIT",
+  "name": "bicycle",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server",
-	"build": "webpack --env.mode=production"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "jest": {
-    "transform": {
-      ".*": "<rootDir>/node_modules/babel-jest"
-    },
-    "moduleNameMapper": {
-      "\\.(css|pcss)$": "identity-obj-proxy"
-    }
-  },
-  "devDependencies": {
-    "css-loader": "^0.28.7",
-    "file-loader": "^1.1.5",
-    "path": "^0.12.7",
-    "style-loader": "^0.19.0",
-    "webpack-cli": "^3.2.3"
-  },
-  "repository": "https://bitbucket.org/kingofdelphi/live-trading",
   "dependencies": {
-    "html-webpack-plugin": "^3.2.0",
-    "mathjs": "^5.4.1",
-    "paper": "^0.12.0",
-    "webpack": "^4.29.3",
-    "webpack-dev-server": "^3.1.14"
+    "@types/node": "20.4.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "mathjs": "^11.8.2",
+    "next": "13.4.9",
+    "paper": "^0.12.17",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "5.1.6"
   }
 }
