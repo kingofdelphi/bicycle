@@ -196,7 +196,12 @@ class Demo {
 		}
 
 		const f = 0.4;
+		const spin = true
 		const addVel = (collisionInfo, f) => {
+			if (spin) {
+				this.wheel.v1.angularVelocity += 10 * f
+				return
+			}
 			const ci = collisionInfo.collisionInfo;
 			const dir = [-ci.axis[1], ci.axis[0]];
 			const dv = math.multiply(dir, f * dt);
@@ -210,16 +215,12 @@ class Demo {
 		};
 		if (keys['w'] || keys['ArrowUp']) {
 			if (wheel != null) {
-				if (colInfo) {
-					addVel(colInfo, f);
-				}
+				addVel(colInfo, f);
 			}
 		}
 		if (keys['s'] || keys['ArrowDown']) {
 			if (wheel != null) {
-				if (colInfo) {
-					addVel(colInfo, -f);
-				}
+				addVel(colInfo, -f);
 			}
 		}
 		if (keys['z']) {
@@ -249,12 +250,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-0.8);
+				rot(-1.8);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(0.8);
+				rot(1.8);
 			}
 		}
 		if (keys[' ']) {

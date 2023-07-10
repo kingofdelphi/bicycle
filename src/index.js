@@ -29,7 +29,7 @@ class Main {
 	}
 
 	updateGame(event) {
-		this.viewController.update(event.delta);
+		this.viewController.update(1 / 40.0);
 	}
 }
 

@@ -7,7 +7,7 @@ class Engine {
 		this.joints = [];
 		this.angularConstraints = [];
 		this.config = {
-			gravity: 10
+			gravity: 200
 		};
 		this.collisionMap = new Map();
 	}
@@ -203,40 +203,62 @@ class Engine {
 			// remember to reflect normal only if velocity goes towards the collision axis
 			if (colcount) {
 				refAxis = math.divide(refAxis, math.norm(refAxis));
-				const nodeVel = math.subtract(node.position, node.oldPosition);
-
-				// rotation calculation
+				const nodeVel = node.velocity
+				
 				var r = math.multiply(refAxis, -node.getData().config.radius);
-				const I = math.dot(r, r);
-				const T = math.cross(r.concat(0), nodeVel.concat(0))[2];
-				const mg = Math.min(math.norm(nodeVel), 200);
-				node.angularVelocity += -mg * T * this.dt / I;
 
-				// new velocity after collision
-				var normVel = math.dot(refAxis, nodeVel);
-				normVel = math.multiply(refAxis, normVel);
-				var tangentVel = math.subtract(nodeVel, normVel);
-				tangentVel = math.multiply(tangentVel, -.99);
-				normVel = math.multiply(normVel, .6);
-				const newNodeVel = math.add(normVel, tangentVel);
-				node.oldPosition = math.add(node.position, newNodeVel);
+				const angularVel = math.cross([0, 0, node.angularVelocity], r.concat(0)).slice(0, -1)
+				const contactVel = math.add(nodeVel, angularVel)
+				const coeff_of_friction = 0.99
+
+				const contactNormVel = math.multiply(refAxis, math.dot(contactVel, refAxis))
+				const contactTangentVel = math.subtract(contactVel, contactNormVel)
+
+				const impulse = math.multiply(contactNormVel, -1.5)
+
+				const contactTangentVelNorm = math.norm(contactTangentVel)
+
+				const contactTangentAxis = math.divide(contactTangentVel, contactTangentVelNorm)
+
+				const normalImpulse = math.abs(math.dot(impulse, refAxis))
+				
+				const frictionMg = coeff_of_friction * normalImpulse
+				
+				const frictionalImpulse = contactTangentVelNorm > 0 ? 
+					math.multiply(contactTangentAxis, -Math.min(frictionMg, contactTangentVelNorm))
+				: [0, 0]
+								
+				const totImpulse = math.add(frictionalImpulse, impulse)
+				// p - op = (vel + impulse) * dt
+				// 
+
+				node.oldPosition = math.subtract(node.position, math.multiply(math.add(nodeVel, totImpulse), this.dt))
+
+				const Im = math.dot(r, r)
+				const T = math.cross(r.concat(0), totImpulse.concat(0))[2]
+				node.angularVelocity += T / Im;
+
 			}
 		});
 	}
+	// a b 0
+	// 0 0 w
 
 	update(dt) {
+		if (dt == 0) return;
 		this.dt = dt;
 		this.nodes.forEach((node, i) => {
 			if (node.isPinned()) return;
-			var vel = math.subtract(node.position, node.oldPosition);
-			node.oldPosition = node.position;
+			const f = 0.99
+			let velocity = math.divide(math.subtract(node.position, node.oldPosition), this.dt / f)
 
-			var dv = math.multiply(vel, 0.98);
-			var gravity = [0, this.config.gravity * dt];
-			dv = math.add(dv, gravity);
-			node.rotation += node.angularVelocity * dt;
-			node.angularVelocity *= 0.99;
-			node.position = math.add(node.position, dv);
+			velocity = math.add(velocity, [0, this.config.gravity * this.dt])
+
+			node.rotation += node.angularVelocity * this.dt * f
+			
+			node.oldPosition = node.position
+			node.velocity = velocity
+			node.position = math.add(node.position, math.multiply(velocity, this.dt))
 		});
 
 		var iter = 30;

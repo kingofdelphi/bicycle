@@ -6,7 +6,7 @@
   "author": "kingofdelphi",
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server",
 	"build": "webpack --env.mode=production"
   },
   "jest": {
