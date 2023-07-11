@@ -6,8 +6,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   useEffect(() => {
-	document.getElementById('pull').checked = true
-	import ('./main.js').then(_ => _)
+	import ('../lib/main.js').then(_ => _)
   }, [])
 
   return (

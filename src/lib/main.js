@@ -12,6 +12,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = w;
 canvas.height = h;
 
+document.getElementById('pull').checked = true
+
 class Main {
 	init(world) {
 		paper.setup(canvas);
