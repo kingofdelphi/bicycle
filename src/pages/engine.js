@@ -251,7 +251,7 @@ class Engine {
 		this.dt = dt;
 		this.nodes.forEach((node, i) => {
 			if (node.isPinned()) return;
-			const f = 0.99
+			const f = 0.98
 			let velocity = math.divide(math.subtract(node.position, node.oldPosition), this.dt / f)
 
 			velocity = math.add(velocity, [0, this.config.gravity * this.dt])
@@ -263,13 +263,14 @@ class Engine {
 			node.position = math.add(node.position, math.multiply(velocity, this.dt))
 		});
 
-		var iter = 30;
+		this.resolveCollisions();
+
+		var iter = 20;
 		while (iter--) {
 			this.solveConstraints();
 			this.solveAngularConstraints();
 		}
 
-		this.resolveCollisions();
 
 	}
 

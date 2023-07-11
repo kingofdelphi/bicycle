@@ -4,7 +4,7 @@ import * as math from 'mathjs';
 import * as paper from 'paper';
 import { rotateZ } from './collision';
 
-import { pos2point } from './util';
+import { pos2point, point2pos } from './util';
 
 class ViewController {
 	init(config = {}) {
@@ -29,11 +29,12 @@ class ViewController {
 			config
 		};
 		if (config.rigid) {
-			ball.rotationObj = PaperHelper.createSegment({ color: 'grey' });
-			const v1 = math.add(position, -config.radius);
-			ball.rotationObj.segments[0].point = pos2point(v1);
-			const v2 = math.add(position, config.radius);
-			ball.rotationObj.segments[1].point = pos2point(v2);
+			const numSpokes = 6
+			ball.rotationObjs = []
+			for (let i = 0; i < numSpokes; ++i) {
+				const segment = PaperHelper.createSegment({ color: 'black', thickness: 1 });
+				ball.rotationObjs.push(segment)
+			}
 		}
 		node.setData(ball);
 		return node;
@@ -94,20 +95,32 @@ class ViewController {
 			renderInfo.renderObj.scale(scale * radius / curRadius);
 
 			if (renderInfo.config.rigid) {
-				const circleLine = renderInfo.rotationObj;
+				const circleLines = renderInfo.rotationObjs;
+				const count = circleLines.length
+				const delta = 2 * Math.PI / count
+				let off = 0
+				const r = [curRadius, 0]
 
-				const v1 = rotateZ([-curRadius, 0], node.getRotation());
-				const v1Scaled = math.add(viewPortPos, v1);
-				circleLine.segments[0].point = pos2point(v1Scaled);
+				for (const circleLine of circleLines) {
+					const angle = off * delta + node.getRotation()
+					off += 1
+					
+					const v1 = math.rotate(r, angle)
+					const v2 = math.rotate(r, angle + Math.PI)
+					
+					console.log(v1, v2)
+					const v1Scaled = math.add(viewPortPos, v1);
+					circleLine.segments[0].point = pos2point(v1Scaled);
 
-				const v2 = rotateZ([curRadius, 0], node.getRotation());
-				const v2Scaled = math.add(viewPortPos, v2);
-				circleLine.segments[1].point = pos2point(v2Scaled);
+					const v2Scaled = math.add(viewPortPos, v2);
+					circleLine.segments[1].point = pos2point(v2Scaled);
+				}
 			}
 		});
 
 		this.engine.getJoints().forEach(joint => {
 			const renderInfo = joint.getData();
+			
 			renderInfo.renderObj.segments[0].point = pos2point(this.worldToViewPort(joint.v1.getPosition()));
 			renderInfo.renderObj.segments[1].point = pos2point(this.worldToViewPort(joint.v2.getPosition()));
 		});
