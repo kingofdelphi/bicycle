@@ -58,7 +58,6 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 		if (prj <= 1e-3) return false;
 		return { projAxis, penetration: prj };
 	}
-	var normal = [-djNormal[1], djNormal[0]];
 	if (math.dot(djNormal, math.subtract(ball, p2)) < 0) {
 		djNormal = math.multiply(djNormal, -1);
 	}
@@ -70,11 +69,10 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 	var axis2 = math.subtract(ball, p2);
 	var c = checkColl(axis2);
 	if (!c) return false;
-	var d = [a, b, c];
+	var d = [a]; // ignore other axis because only one is enough(except for the end edges)
 	var minp = d.map(m => m.penetration).sort((a, b) => a - b)[0];
 	var pen = d.filter(v => v.penetration == minp);
 	if (pen.length == 0) {
-		debugger;
 		return false;
 	}
 	var bestAxis = pen[0].projAxis;

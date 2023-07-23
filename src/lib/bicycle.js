@@ -263,7 +263,7 @@ class Demo {
 		}
 		if (keys[' ']) {
 			if (colInfo) {
-				const del = [0, -180 * dt];
+				const del = [0, -0.5 * this.viewController.engine.config.gravity * dt];
 				wheel.v1.position = math.add(wheel.v1.position, del);
 				wheel.v2.position = math.add(wheel.v2.position, del);
 			}

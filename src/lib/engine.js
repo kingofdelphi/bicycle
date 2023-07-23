@@ -7,7 +7,7 @@ class Engine {
 		this.joints = [];
 		this.angularConstraints = [];
 		this.config = {
-			gravity: 200
+			gravity: 300
 		};
 		this.collisionMap = new Map();
 	}
@@ -216,7 +216,7 @@ class Engine {
 				const contactNormVel = math.multiply(refAxis, math.dot(contactVel, refAxis))
 				const contactTangentVel = math.subtract(contactVel, contactNormVel)
 
-				const impulse = math.multiply(contactNormVel, -1.3)
+				const impulse = math.multiply(contactNormVel, -1.4)
 
 				const contactTangentVelNorm = math.norm(contactTangentVel)
 
