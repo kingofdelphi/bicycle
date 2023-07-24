@@ -14,7 +14,7 @@ class Demo {
 			radius: 2
 		};
 		config.rigid = true;
-		config.radius = 16;
+		config.radius = 12;
 		config.pinned = false;
 		const positionA = [80, 300];
 		const positionB = [130, 300];
@@ -28,11 +28,11 @@ class Demo {
 		// remove wheel solid color
 		ballA.getData().renderObj.fillColor = null;
 		ballA.getData().renderObj.strokeColor = 'black';
-		ballA.getData().renderObj.strokeWidth = 4;
+		ballA.getData().renderObj.strokeWidth = 2;
 
 		ballB.getData().renderObj.fillColor = null;
 		ballB.getData().renderObj.strokeColor = 'black';
-		ballB.getData().renderObj.strokeWidth = 4;
+		ballB.getData().renderObj.strokeWidth = 2;
 
 		const rearAngleToSeat = -Math.PI / 6 * 2;
 		const RR = 30;

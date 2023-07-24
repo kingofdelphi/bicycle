@@ -7,7 +7,7 @@ class Engine {
 		this.joints = [];
 		this.angularConstraints = [];
 		this.config = {
-			gravity: 200
+			gravity: 500
 		};
 		this.collisionMap = new Map();
 	}
@@ -270,7 +270,7 @@ class Engine {
 			this.resolveCollisions();
 		}
 
-		var iter = 20;
+		var iter = 10;
 		while (iter--) {
 			this.solveConstraints();
 			this.solveAngularConstraints();

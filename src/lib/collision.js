@@ -28,9 +28,14 @@ const boudingBoxCollision = (rectA, rectB) => {
 const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, ball, vel, radius) => {
 	if (p1continuousNormal == null) p1continuousNormal = true
 	if (p2continuousNormal == null) p2continuousNormal = true
+	
 	if (!boudingBoxCollision(lineToBBox(p1, p2), circleToBBox(ball))) return false;
-	var dj = math.subtract(p1, p2);
+	
+	var dj = math.subtract(p2, p1);
+	var L = math.norm(dj)
+	dj = math.divide(dj, L)
 	var djNormal = [-dj[1], dj[0]];
+
 	const checkColl = (projAxis) => {
 		var norm = math.norm(projAxis);
 		projAxis = math.divide(projAxis, norm);
@@ -61,33 +66,50 @@ const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, bal
 		if (prj <= 1e-3) return false;
 		return { projAxis, penetration: prj };
 	}
+
 	if (math.dot(djNormal, math.subtract(ball, p1)) < 0) {
 		djNormal = math.multiply(djNormal, -1);
 	}
+	
 	var a = checkColl(djNormal);
+	
 	if (!a) return false;
 	var axis1 = math.subtract(ball, p1);
 	var b = checkColl(axis1);
+	
 	if (!b) return false;
 	var axis2 = math.subtract(ball, p2);
+	
 	var c = checkColl(axis2);
 	if (!c) return false;
-	var d = [a]; // ignore other axis because only one is enough(except for the end edges)
-
-	if (math.norm(axis1) <= radius && p1continuousNormal) {
-		d.push(b)
-	}
-	if (math.norm(axis2) <= radius && p2continuousNormal) {
-		d.push(c)
+	
+	if (p1continuousNormal && math.dot(axis1, dj) < 0) {
+		return { axis: b.projAxis, penetration: b.penetration }
 	}
 
-	var minp = d.map(m => m.penetration).sort((a, b) => a - b)[0];
-	var pen = d.filter(v => v.penetration == minp);
-	if (pen.length == 0) {
-		return false;
+	if (p2continuousNormal && L < math.dot(axis1, dj)) {
+		return { axis: c.projAxis, penetration: c.penetration }
 	}
-	var bestAxis = pen[0].projAxis;
-	return { axis: bestAxis, penetration: minp };
+	
+	return { axis: a.projAxis, penetration: a.penetration }
+};
+
+export const circleEdgePairCollision = (p1, p2, p3, ball, vel, radius) => {
+	let c1 = lineCircleCollision(p1, p2, false, false, ball, vel, radius)
+	let c2 = lineCircleCollision(p2, p3, false, false, ball, vel, radius)
+
+	if (!c1 && !c2) {
+		return false
+	}
+
+	const both = c1 && c2
+
+	if (both) {
+		return c1 ? c1 : c2
+	}
+	
+	return c1
+
 };
 
 export const rotateZ = (vec, angle) => {
