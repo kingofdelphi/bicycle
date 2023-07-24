@@ -7,7 +7,7 @@ class Engine {
 		this.joints = [];
 		this.angularConstraints = [];
 		this.config = {
-			gravity: 300
+			gravity: 200
 		};
 		this.collisionMap = new Map();
 	}
@@ -167,8 +167,8 @@ class Engine {
 					const radius = node.data.config.radius;
 					let c = lineCircleCollision(v1.getPosition(),
 						v2.getPosition(),
-						v1.getData().config.ignoreNormal,
-						v2.getData().config.ignoreNormal,
+						v1.getData().config.continuousNormal,
+						v2.getData().config.continuousNormal,
 						node.getPosition(),
 						[0, 0],
 						radius
@@ -263,7 +263,12 @@ class Engine {
 			node.position = math.add(node.position, math.multiply(velocity, this.dt))
 		});
 
-		this.resolveCollisions();
+		for (let i = 0; i < 1; ++i) {
+			this.nodes.forEach((node, i) => {
+				node.velocity = math.divide(math.subtract(node.position, node.oldPosition), this.dt)
+			})
+			this.resolveCollisions();
+		}
 
 		var iter = 20;
 		while (iter--) {

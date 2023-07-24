@@ -25,7 +25,7 @@ const boudingBoxCollision = (rectA, rectB) => {
 	return true;
 };
 
-const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, radius) => {
+const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, ball, vel, radius) => {
 	if (!boudingBoxCollision(lineToBBox(p1, p2), circleToBBox(ball))) return false;
 	var dj = math.subtract(p1, p2);
 	var djNormal = [-dj[1], dj[0]];
@@ -39,6 +39,7 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 		if (projb < proja) [proja, projb] = [projb, proja];
 		var pc1 = projCircle - radius;
 		var pc2 = projCircle + radius;
+
 		var prj;
 		if (proja >= pc1 && projb <= pc2) {
 			//proj of line completely inside circle
@@ -58,7 +59,7 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 		if (prj <= 1e-3) return false;
 		return { projAxis, penetration: prj };
 	}
-	if (math.dot(djNormal, math.subtract(ball, p2)) < 0) {
+	if (math.dot(djNormal, math.subtract(ball, p1)) < 0) {
 		djNormal = math.multiply(djNormal, -1);
 	}
 	var a = checkColl(djNormal);
@@ -70,6 +71,8 @@ const lineCircleCollision = (p1, p2, p1IgnoreNormal, p2IgnoreNormal, ball, vel, 
 	var c = checkColl(axis2);
 	if (!c) return false;
 	var d = [a]; // ignore other axis because only one is enough(except for the end edges)
+	if (p1continuousNormal) d.push(b)
+	if (p2continuousNormal) d.push(c)
 	var minp = d.map(m => m.penetration).sort((a, b) => a - b)[0];
 	var pen = d.filter(v => v.penetration == minp);
 	if (pen.length == 0) {

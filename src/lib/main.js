@@ -1,6 +1,6 @@
 
 import * as paper from 'paper';
-import Demo from './bicycle';
+import Bicycle from './bicycle';
 import Test from './collisiontest';
 import ViewController from './ViewController';
 
@@ -36,11 +36,11 @@ class Main {
 
 const main = new Main();
 
-const mode = 'demo';
+const mode = 'bicycle';
 
 let world;
-if (mode == 'demo') {
-	world = new Demo();
+if (mode === 'bicycle') {
+	world = new Bicycle();
 } else {
 	world = new Test();
 }

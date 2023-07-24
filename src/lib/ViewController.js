@@ -108,7 +108,6 @@ class ViewController {
 					const v1 = math.rotate(r, angle)
 					const v2 = math.rotate(r, angle + Math.PI)
 					
-					console.log(v1, v2)
 					const v1Scaled = math.add(viewPortPos, v1);
 					circleLine.segments[0].point = pos2point(v1Scaled);
 

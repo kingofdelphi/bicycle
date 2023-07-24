@@ -161,9 +161,18 @@ class Demo {
 			};
 			const ball = viewController.createBall(nodes[i], Object.assign({}, config));
 			nodesP.push(ball);
-			if (i) {
-				viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'brown', thickness: 3, collidable: true, weightageA: 0.5, weightageB: .5 });
-			}
+		}
+		for (let i = 1; i + 1 < nodesP.length; ++i) {
+			const a = nodesP[i - 1].position
+			const b = nodesP[i + 1].position
+			const m = nodesP[i].position
+			const dab = math.subtract(b, a) // a ---> b
+			const dam = math.subtract(m, a)
+			const v = math.cross(dab.concat(0), dam.concat(0))[2]
+			nodesP[i].data.config.continuousNormal = v <= 0
+		}
+		for (let i = 1; i < nodesP.length; ++i) {
+			viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'brown', thickness: 3, collidable: true, weightageA: 0.5, weightageB: .5 });
 		}
 		viewController.nodes = [];
 		mouseHandler(viewController);
