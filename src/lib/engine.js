@@ -7,7 +7,7 @@ class Engine {
 		this.joints = [];
 		this.angularConstraints = [];
 		this.config = {
-			gravity: 200
+			gravity: 300
 		};
 		this.collisionMap = new Map();
 	}
