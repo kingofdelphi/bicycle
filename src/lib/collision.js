@@ -77,7 +77,7 @@ const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, bal
 	if (math.norm(axis1) <= radius && p1continuousNormal) {
 		d.push(b)
 	}
-	if (math.norm(axis2) <= radius && p1continuousNormal) {
+	if (math.norm(axis2) <= radius && p2continuousNormal) {
 		d.push(c)
 	}
 

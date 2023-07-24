@@ -67,7 +67,7 @@ class Demo {
 		this.viewController.addNewJoint(ballHandle, ballRear, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
 
 		//actual seat
-		const seatHeight = 8;
+		const seatHeight = 10;
 		const seatPos = math.add(positionRear, [0, -seatHeight]);
 		const ballSeat = this.viewController.createBall(seatPos, { radius: 0, pinned: false });
 		this.viewController.addNewJoint(ballSeat, ballRear, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
@@ -90,7 +90,7 @@ class Demo {
 		this.viewController.addNewJoint(handleCenterBall, ballHandle, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
 		this.viewController.engine.addAngularConstraint(ballB, ballHandle, handleCenterBall, Math.PI, 0, 1);
 
-		const handle_length = 8;
+		const handle_length = 15;
 		const handlePosA = math.add(handleCenterPos, [-handle_length, 0]);
 		const handlePosB = math.add(handleCenterPos, [handle_length, 0]);
 		const ballHandleA = this.viewController.createBall(handlePosA, { radius: 0, pinned: false });
