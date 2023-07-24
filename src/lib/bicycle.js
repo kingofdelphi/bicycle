@@ -14,7 +14,7 @@ class Demo {
 			radius: 2
 		};
 		config.rigid = true;
-		config.radius = 14;
+		config.radius = 16;
 		config.pinned = false;
 		const positionA = [80, 300];
 		const positionB = [130, 300];

@@ -26,6 +26,8 @@ const boudingBoxCollision = (rectA, rectB) => {
 };
 
 const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, ball, vel, radius) => {
+	if (p1continuousNormal == null) p1continuousNormal = true
+	if (p2continuousNormal == null) p2continuousNormal = true
 	if (!boudingBoxCollision(lineToBBox(p1, p2), circleToBBox(ball))) return false;
 	var dj = math.subtract(p1, p2);
 	var djNormal = [-dj[1], dj[0]];
@@ -71,8 +73,14 @@ const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, bal
 	var c = checkColl(axis2);
 	if (!c) return false;
 	var d = [a]; // ignore other axis because only one is enough(except for the end edges)
-	if (p1continuousNormal) d.push(b)
-	if (p2continuousNormal) d.push(c)
+
+	if (math.norm(axis1) <= radius && p1continuousNormal) {
+		d.push(b)
+	}
+	if (math.norm(axis2) <= radius && p1continuousNormal) {
+		d.push(c)
+	}
+
 	var minp = d.map(m => m.penetration).sort((a, b) => a - b)[0];
 	var pen = d.filter(v => v.penetration == minp);
 	if (pen.length == 0) {
