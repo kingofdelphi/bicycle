@@ -144,8 +144,12 @@ class Demo {
 		// wallHelper([bounds.width, 0], [bounds.width, bounds.height]);
 		//wallHelper([0, 0], [bounds.width, 0]);
 		// wallHelper([0, 0], [0, bounds.height]);
-
+		const lengthPrev = viewController.engine.nodes.length
 		this.buildBicycle();
+
+		const lengthCur = viewController.engine.nodes.length
+		this.bicycleNodes = viewController.engine.nodes.slice(lengthPrev, lengthCur)
+
 		this.vehicleVel = [0, 0];
 
 		const cfg = { pinned: true, rigid: false };
@@ -277,11 +281,12 @@ class Demo {
 			console.log(JSON.stringify(this.viewController.nodes));
 		}
 		this.vehicleVel = math.multiply(this.vehicleVel, 0.98);
-		if (wheel != null) {
-			const delta = math.multiply(this.vehicleVel, dt)
-			wheel.v1.position = math.add(wheel.v1.position, delta);
-			wheel.v1.position = math.add(wheel.v1.position, delta);
-		}
+		
+		const delta = math.multiply(this.vehicleVel, dt)
+		
+		this.bicycleNodes.forEach(node => {
+			node.position = math.add(node.position, delta)
+		})
 
 		// focus follow
 		const dest = math.add(wheel.v1.position, [120, -80]);
