@@ -84,14 +84,14 @@ const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, bal
 	if (!c) return false;
 	
 	if (p1continuousNormal && math.dot(axis1, dj) < 0) {
-		return { axis: b.projAxis, penetration: b.penetration }
+		return { axis: b.projAxis, penetration: b.penetration, type: 'edge_a' }
 	}
 
 	if (p2continuousNormal && L < math.dot(axis1, dj)) {
-		return { axis: c.projAxis, penetration: c.penetration }
+		return { axis: c.projAxis, penetration: c.penetration, type: 'edge_b' }
 	}
 	
-	return { axis: a.projAxis, penetration: a.penetration }
+	return { axis: a.projAxis, penetration: a.penetration, type: 'edge_normal' }
 };
 
 export const circleEdgePairCollision = (p1, p2, p3, ball, vel, radius) => {

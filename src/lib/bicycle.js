@@ -14,7 +14,7 @@ class Demo {
 			radius: 2
 		};
 		config.rigid = true;
-		config.radius = 12;
+		config.radius = 14;
 		config.pinned = false;
 		const positionA = [80, 300];
 		const positionB = [130, 300];
@@ -262,12 +262,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-1.8);
+				rot(-30*dt);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(1.8);
+				rot(30*dt);
 			}
 		}
 		if (keys[' ']) {
