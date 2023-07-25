@@ -188,7 +188,7 @@ class Engine {
 					bestColl = colInfo[1]
 				}
 				if (t1 === 'edge_normal' && t2 === 'edge_normal') {
-					console.log(math.dot(colInfo[0].collision.axis, colInfo[1].collision.axis))
+					// console.log(math.dot(colInfo[0].collision.axis, colInfo[1].collision.axis))
 					// debugger
 				}
 				// console.log(math.dot(node.velocity, bestColl.collision.axis))
@@ -240,7 +240,7 @@ class Engine {
 			const contactNormVel = math.multiply(refAxis, math.dot(contactVel, refAxis))
 			const contactTangentVel = math.subtract(contactVel, contactNormVel)
 
-			const impulse = math.multiply(contactNormVel, -1.4)
+			const impulse = math.multiply(contactNormVel, -1)
 
 			const contactTangentVelNorm = math.norm(contactTangentVel)
 

@@ -158,7 +158,7 @@ class Demo {
 		const pb = viewController.createBall([1, 0], cfg);
 		this.collisionLine = viewController.addNewJoint(pa, pb, { thickness: 3, color: 'red', collidable: false });
 		const nodesP = [];
-		const numberOfAverages = 1	
+		const numberOfAverages = 1
 		for (let iter = 1; iter <= numberOfAverages; ++iter) {
 			for (let i = 1; i + 1 < nodes.length; ++i) {
 				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
@@ -304,6 +304,7 @@ class Demo {
 		}
 		const delta = math.multiply(this.vehicleVel, dt)
 		// this.vehicleVel = [0, 0]
+		// console.log(this.vehicleVel)
 		this.bicycleNodes.forEach(node => {
 			node.position = math.add(node.position, delta)
 		})

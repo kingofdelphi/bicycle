@@ -31,67 +31,42 @@ const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, bal
 	
 	if (!boudingBoxCollision(lineToBBox(p1, p2), circleToBBox(ball))) return false;
 	
-	var dj = math.subtract(p2, p1);
-	var L = math.norm(dj)
-	dj = math.divide(dj, L)
-	var djNormal = [-dj[1], dj[0]];
+	var dj = math.subtract(p2, p1)
+	const jointLength = math.norm(dj)
 
-	const checkColl = (projAxis) => {
-		var norm = math.norm(projAxis);
-		projAxis = math.divide(projAxis, norm);
-		// if (math.dot(vel, projAxis) >= 0) return false;
-		var projCircle = math.dot(ball, projAxis);
-		var proja = math.dot(p1, projAxis);
-		var projb = math.dot(p2, projAxis);
-		if (projb < proja) [proja, projb] = [projb, proja];
-		var pc1 = projCircle - radius;
-		var pc2 = projCircle + radius;
+	dj = math.divide(dj, jointLength)
+	let djNormal = [-dj[1], dj[0]]
 
-		var prj;
-		if (proja >= pc1 && projb <= pc2) {
-			//proj of line completely inside circle
-			prj = proja - pc1;
-		} else if (pc1 >= proja && pc2 <= projb) {
-			//proj of circle completely inside line
-			prj = projb - pc1;
-		} else {
-			var d1 = Math.max(pc1, proja);
-			var d2 = Math.min(pc2, projb);
-			if (d1 >= d2) return false;
-			prj = d2 - d1;
-			if (pc2 > proja && pc2 < projb) {
-				projAxis = math.multiply(projAxis, -1);
-			}
-		}
-		if (prj <= 1e-3) return false;
-		return { projAxis, penetration: prj };
-	}
+	const p1Ball = math.subtract(ball, p1);
 
-	if (math.dot(djNormal, math.subtract(ball, p1)) < 0) {
+	if (math.dot(djNormal, p1Ball) < 0) {
 		djNormal = math.multiply(djNormal, -1);
 	}
+		
+	const projDj = math.dot(p1Ball, dj)
 	
-	var a = checkColl(djNormal);
+	if (projDj <= -radius || projDj >= jointLength + radius) return false
+
+	const projDjNormal = math.dot(p1Ball, djNormal)
+	if (projDjNormal <= -radius || projDjNormal >= radius) return false
 	
-	if (!a) return false;
-	var axis1 = math.subtract(ball, p1);
-	var b = checkColl(axis1);
+	const chordHalfLength = math.sqrt(radius * radius -  projDjNormal * projDjNormal)
+
+	if (projDj - chordHalfLength >= jointLength || projDj + chordHalfLength <= 0) return false
+
+	const p2Ball = math.subtract(ball, p2)
 	
-	if (!b) return false;
-	var axis2 = math.subtract(ball, p2);
-	
-	var c = checkColl(axis2);
-	if (!c) return false;
-	
-	if (p1continuousNormal && math.dot(axis1, dj) < 0) {
-		return { axis: b.projAxis, penetration: b.penetration, type: 'edge_a' }
+	if (p1continuousNormal && projDj < 0) {
+		const normP1Ball = math.norm(p1Ball)
+		return { axis: math.divide(p2Ball, normP1Ball), penetration: radius - normP1Ball, type: 'edge_a' }
 	}
 
-	if (p2continuousNormal && L < math.dot(axis1, dj)) {
-		return { axis: c.projAxis, penetration: c.penetration, type: 'edge_b' }
+	if (p2continuousNormal && jointLength < projDj) {
+		const normP2Ball = math.norm(p2Ball)
+		return { axis: math.divide(p2Ball, normP2Ball), penetration: radius - normP2Ball, type: 'edge_b' }
 	}
-	
-	return { axis: a.projAxis, penetration: a.penetration, type: 'edge_normal' }
+
+	return { axis: djNormal, penetration: radius - projDjNormal, type: 'edge_normal' }
 };
 
 export default lineCircleCollision;
