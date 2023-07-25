@@ -28,11 +28,11 @@ class Demo {
 		// remove wheel solid color
 		ballA.getData().renderObj.fillColor = null;
 		ballA.getData().renderObj.strokeColor = 'black';
-		ballA.getData().renderObj.strokeWidth = 2;
+		ballA.getData().renderObj.strokeWidth = 4;
 
 		ballB.getData().renderObj.fillColor = null;
 		ballB.getData().renderObj.strokeColor = 'black';
-		ballB.getData().renderObj.strokeWidth = 2;
+		ballB.getData().renderObj.strokeWidth = 4;
 
 		const rearAngleToSeat = -Math.PI / 6 * 2;
 		const RR = 30;
@@ -172,7 +172,7 @@ class Demo {
 			nodesP[i].data.config.continuousNormal = v <= 0
 		}
 		for (let i = 1; i < nodesP.length; ++i) {
-			viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'brown', thickness: 3, collidable: true, weightageA: 0.5, weightageB: .5 });
+			viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 2, collidable: true, weightageA: 0.5, weightageB: .5 });
 		}
 		viewController.nodes = [];
 		mouseHandler(viewController);
@@ -247,7 +247,7 @@ class Demo {
 			// pivot = wheel.v2.position;
 			const rotAroundPivot = (pos, angle) => {
 				const vrp = math.subtract(pos, pivot);
-				const np = rotateZ(vrp, angle);
+				const np = math.rotate(vrp, angle);
 				return math.add(pivot, np);
 			};
 			const angle = dir * Math.PI * .8 / 180;

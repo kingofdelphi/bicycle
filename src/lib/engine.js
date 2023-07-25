@@ -43,8 +43,8 @@ class Engine {
 			var delA = -angleDifference * constraint.weightageA;
 			var delB = angleDifference * constraint.weightageB;
 
-			nodeA.position = math.add(ppivot, rotateZ(vpa, delA));
-			nodeB.position = math.add(ppivot, rotateZ(vpb, delB));
+			nodeA.position = math.add(ppivot, math.rotate(vpa, delA));
+			nodeB.position = math.add(ppivot, math.rotate(vpb, delB));
 
 		});
 	}
@@ -157,12 +157,12 @@ class Engine {
 		this.getNodesForCollision().filter(node => node.getData().config.rigid == true).forEach((node) => {
 			// if (math.norm(ball.vel) <= 0) return;
 			// if a circle is connected to a joint, shouldn't check collision with it
-			const joints = collidableJoints.filter(joint => joint.v1 != node && joint.v2 != node);
-			let colInfo = [];
+			const joints = collidableJoints.filter(joint => joint.v1 != node && joint.v2 != node)
+			let colInfo = []
 		
 			joints.forEach(joint => {
 				const { v1, v2 } = joint;
-				const radius = node.data.config.radius;
+				const radius = node.data.config.radius
 				const collision = lineCircleCollision(v1.getPosition(),
 					v2.getPosition(),
 					v1.getData().config.continuousNormal,
@@ -170,12 +170,12 @@ class Engine {
 					node.getPosition(),
 					node.velocity,
 					radius
-				);
+				)
 				if (!collision) return
 				colInfo.push({ joint, collision: collision })
-			});
+			})
 
-			if (!colInfo.length) return;
+			if (!colInfo.length) return
 
 			let bestColl = colInfo[0]
 			
@@ -248,7 +248,9 @@ class Engine {
 			// p - op = (vel + impulse) * dt
 			// 
 
-			node.oldPosition = math.subtract(node.position, math.multiply(math.add(nodeVel, totImpulse), this.dt))
+			const newVel = math.add(nodeVel, totImpulse)
+			node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
+			node.velocity = newVel
 
 			const Im = math.dot(r, r)
 			const T = math.cross(r.concat(0), totImpulse.concat(0))[2]
@@ -278,13 +280,10 @@ class Engine {
 		});
 
 		for (let i = 0; i < 1; ++i) {
-			this.nodes.forEach((node, i) => {
-				node.velocity = math.divide(math.subtract(node.position, node.oldPosition), this.dt)
-			})
 			this.resolveCollisions();
 		}
 
-		var iter = 10;
+		var iter = 4;
 		while (iter--) {
 			this.solveConstraints();
 			this.solveAngularConstraints();
