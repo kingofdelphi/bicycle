@@ -226,7 +226,7 @@ class Demo {
 			}
 			const ci = collisionInfo.collisionInfo;
 			const dir = [-ci.axis[1], ci.axis[0]];
-			const acceleration = 50
+			const acceleration = 40
 			const dv = math.multiply(dir, forward * acceleration * dt);
 
 			this.vehicleVel = math.add(this.vehicleVel, dv);
@@ -278,24 +278,32 @@ class Demo {
 		}
 		if (keys[' ']) {
 			if (colInfo) {
-				const del = [0, -0.5 * this.viewController.engine.config.gravity * dt];
-				wheel.v1.position = math.add(wheel.v1.position, del);
-				wheel.v2.position = math.add(wheel.v2.position, del);
-				const jumpAccln = 500
+				const jumpAccln = 200
 				const deltaWheel = math.subtract(wheel.v2.position, wheel.v1.position)
 				const wheelDir = math.divide(deltaWheel, math.norm(deltaWheel))
 				
 				const jumpImpulse = math.multiply(math.rotate(wheelDir, -Math.PI / 2), jumpAccln * dt)
-				this.vehicleVel = math.add(this.vehicleVel, jumpImpulse)
+
+				this.bicycleNodes.forEach(node => {
+					node.position = math.add(node.position, jumpImpulse)
+				})
+
 			}
 		}
 		if (keys['p']) {
 			console.log(JSON.stringify(this.viewController.nodes));
 		}
-		this.vehicleVel = math.multiply(this.vehicleVel, 0.98);
+		const coefficientOfFriction = 0.1
 		
+		const mag = math.norm(this.vehicleVel)
+		const vehicleVelDir = math.divide(this.vehicleVel, mag == 0 ? 1 : mag)
+		if (1 || colInfo) {
+			// const frictionImpulse = math.min(coefficientOfFriction * this.viewController.engine.config.gravity * dt, mag)
+			// this.vehicleVel = math.subtract(this.vehicleVel, math.multiply(vehicleVelDir, frictionImpulse))
+			this.vehicleVel = math.multiply(this.vehicleVel, 0.98)
+		}
 		const delta = math.multiply(this.vehicleVel, dt)
-		
+		// this.vehicleVel = [0, 0]
 		this.bicycleNodes.forEach(node => {
 			node.position = math.add(node.position, delta)
 		})
@@ -306,28 +314,5 @@ class Demo {
 		this.viewController.focus = math.add(this.viewController.focus, math.multiply(del, 0.1));
 	}
 }
-
-const buildCloth = () => {
-	let x = w / 2;
-	let y = h / 2;
-	let ww = 10;
-	let l = balls.length;
-	let C = 10;
-	for (let i = 0; i < C; ++i) {
-		for (let j = 0; j < C; ++j) {
-			let pos = [x + j * ww, y + i * ww];
-			addNewVertex(pos, i == 0);
-			let k = l + i * C + j;
-			if (j) addNewJoint(k - 1, k);
-			if (i) {
-				addNewJoint(k - C, k);
-				// if (j) addNewJoint(k - C - 1, k);
-				// if (j + 1 < C) addNewJoint(k - C + 1, k);
-			}
-		}
-	}
-};
-
-// buildCloth();
 
 export default Demo;
