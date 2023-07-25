@@ -158,6 +158,12 @@ class Demo {
 		const pb = viewController.createBall([1, 0], cfg);
 		this.collisionLine = viewController.addNewJoint(pa, pb, { thickness: 3, color: 'red', collidable: false });
 		const nodesP = [];
+		const numberOfAverages = 1	
+		for (let iter = 1; iter <= numberOfAverages; ++iter) {
+			for (let i = 1; i + 1 < nodes.length; ++i) {
+				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
+			}
+		}
 		for (let i = 0; i < nodes.length; ++i) {
 			const config = {
 				radius: 0,
@@ -262,12 +268,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-30*dt);
+				rot(-30 * dt);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(30*dt);
+				rot(30 * dt);
 			}
 		}
 		if (keys[' ']) {
@@ -275,6 +281,12 @@ class Demo {
 				const del = [0, -0.5 * this.viewController.engine.config.gravity * dt];
 				wheel.v1.position = math.add(wheel.v1.position, del);
 				wheel.v2.position = math.add(wheel.v2.position, del);
+				const jumpAccln = 500
+				const deltaWheel = math.subtract(wheel.v2.position, wheel.v1.position)
+				const wheelDir = math.divide(deltaWheel, math.norm(deltaWheel))
+				
+				const jumpImpulse = math.multiply(math.rotate(wheelDir, -Math.PI / 2), jumpAccln * dt)
+				this.vehicleVel = math.add(this.vehicleVel, jumpImpulse)
 			}
 		}
 		if (keys['p']) {
