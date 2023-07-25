@@ -187,10 +187,20 @@ class Engine {
 				} else if (t1 !== 'edge_normal' && t2 === 'edge_normal') {
 					bestColl = colInfo[1]
 				}
+				if (t1 === 'edge_normal' && t2 === 'edge_normal') {
+					console.log(math.dot(colInfo[0].collision.axis, colInfo[1].collision.axis))
+					// debugger
+				}
 				// console.log(math.dot(node.velocity, bestColl.collision.axis))
+
 			}
 
 			const collision = bestColl.collision
+
+			if (math.dot(node.velocity, bestColl.collision.axis) >= 0) {
+				console.log('invalid axis')
+				// return
+			}
 
 			const collisionList = this.collisionMap.get(node) || [];
 			collisionList.push({

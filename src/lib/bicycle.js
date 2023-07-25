@@ -206,7 +206,7 @@ class Demo {
 
 		const f = 0.4;
 		const spin = false
-		const addVel = (collisionInfo, f) => {
+		const addVel = (collisionInfo, forward) => {
 			if (spin) {
 				this.wheel.v1.angularVelocity += 10 * f
 				return
@@ -216,13 +216,9 @@ class Demo {
 			}
 			const ci = collisionInfo.collisionInfo;
 			const dir = [-ci.axis[1], ci.axis[0]];
-			const dv = math.multiply(dir, f * dt);
-			const L = math.norm(this.vehicleVel);
-			const u = 8;
-			if (L > u) {
-				this.vehicleVel = math.divide(this.vehicleVel, L / u);
-				return;
-			}
+			const acceleration = 50
+			const dv = math.multiply(dir, forward * acceleration * dt);
+
 			this.vehicleVel = math.add(this.vehicleVel, dv);
 		};
 		if (keys['w'] || keys['ArrowUp']) {
@@ -282,8 +278,9 @@ class Demo {
 		}
 		this.vehicleVel = math.multiply(this.vehicleVel, 0.98);
 		if (wheel != null) {
-			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);
-			wheel.v1.position = math.add(wheel.v1.position, this.vehicleVel);
+			const delta = math.multiply(this.vehicleVel, dt)
+			wheel.v1.position = math.add(wheel.v1.position, delta);
+			wheel.v1.position = math.add(wheel.v1.position, delta);
 		}
 
 		// focus follow
