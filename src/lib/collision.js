@@ -58,7 +58,7 @@ const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, bal
 	
 	if (p1continuousNormal && projDj < 0) {
 		const normP1Ball = math.norm(p1Ball)
-		return { axis: math.divide(p2Ball, normP1Ball), penetration: radius - normP1Ball, type: 'edge_a' }
+		return { axis: math.divide(p1Ball, normP1Ball), penetration: radius - normP1Ball, type: 'edge_a' }
 	}
 
 	if (p2continuousNormal && jointLength < projDj) {

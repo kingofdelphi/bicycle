@@ -12,6 +12,9 @@ class ViewController {
 		config.scale = config.scale || 1;
 		this.config = config;
 		this.focus = [0, 0];
+
+		// for mouse events
+		this.nodes = []
 	}
 
 	getEngine() {

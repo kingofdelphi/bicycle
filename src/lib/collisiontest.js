@@ -18,7 +18,7 @@ class Test {
 
 		this.joint = viewController.addNewJoint(ballA, ballB, { color: 'black', thickness: 1 });
 
-		this.circle = viewController.createBall([30, 30], { color: 'blue', radius: 20 });
+		this.circle = viewController.createBall([60, 100], { color: 'blue', radius: 20 });
 		this.circle.pin();
 
 		mouseHandler(viewController);
@@ -26,12 +26,11 @@ class Test {
 
 	preUpdateCallback(viewController) {
 		const { circle, joint } = this;
-		while (1) {
-			let coll = false;
-			const { v1, v2 } = joint;
-			let c = lineCircleCollision(v1.position, v2.position, circle.position, [0, 0], circle.getData().renderObj.bounds.width / 2);
-			if (!c) break;
-			console.log(c);
+
+		const { v1, v2 } = joint;
+		let c = lineCircleCollision(v1.position, v2.position, true, true, circle.position, [0, 0], circle.getData().renderObj.bounds.width / 2);
+		if (c) {
+			console.table(c)
 			circle.position = math.add(circle.position, math.multiply(c.axis, c.penetration));
 		}
 

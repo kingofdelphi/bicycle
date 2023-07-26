@@ -158,7 +158,7 @@ class Demo {
 		const pb = viewController.createBall([1, 0], cfg);
 		this.collisionLine = viewController.addNewJoint(pa, pb, { thickness: 3, color: 'red', collidable: false });
 		const nodesP = [];
-		const numberOfAverages = 1
+		const numberOfAverages = 0
 		for (let iter = 1; iter <= numberOfAverages; ++iter) {
 			for (let i = 1; i + 1 < nodes.length; ++i) {
 				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
@@ -184,7 +184,7 @@ class Demo {
 		for (let i = 1; i < nodesP.length; ++i) {
 			viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 2, collidable: true, weightageA: 0.5, weightageB: .5 });
 		}
-		viewController.nodes = [];
+		
 		mouseHandler(viewController);
 	};
 

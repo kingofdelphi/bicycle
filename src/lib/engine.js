@@ -240,7 +240,9 @@ class Engine {
 			const contactNormVel = math.multiply(refAxis, math.dot(contactVel, refAxis))
 			const contactTangentVel = math.subtract(contactVel, contactNormVel)
 
-			const impulse = math.multiply(contactNormVel, -1)
+			const coeff_of_restitution = 0.3
+
+			const impulse = math.multiply(contactNormVel, -1 - coeff_of_restitution)
 
 			const contactTangentVelNorm = math.norm(contactTangentVel)
 
@@ -293,7 +295,7 @@ class Engine {
 			this.resolveCollisions();
 		}
 
-		var iter = 4;
+		var iter = 4
 		while (iter--) {
 			this.solveConstraints();
 			this.solveAngularConstraints();
