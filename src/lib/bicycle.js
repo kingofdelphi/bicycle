@@ -67,7 +67,7 @@ class Demo {
 		this.viewController.addNewJoint(ballHandle, ballRear, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
 
 		//actual seat
-		const seatHeight = 10;
+		const seatHeight = 8;
 		const seatPos = math.add(positionRear, [0, -seatHeight]);
 		const ballSeat = this.viewController.createBall(seatPos, { radius: 0, pinned: false });
 		this.viewController.addNewJoint(ballSeat, ballRear, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
@@ -90,7 +90,7 @@ class Demo {
 		this.viewController.addNewJoint(handleCenterBall, ballHandle, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
 		this.viewController.engine.addAngularConstraint(ballB, ballHandle, handleCenterBall, Math.PI, 0, 1);
 
-		const handle_length = 15;
+		const handle_length = 10;
 		const handlePosA = math.add(handleCenterPos, [-handle_length, 0]);
 		const handlePosB = math.add(handleCenterPos, [handle_length, 0]);
 		const ballHandleA = this.viewController.createBall(handlePosA, { radius: 0, pinned: false });
@@ -144,19 +144,26 @@ class Demo {
 		// wallHelper([bounds.width, 0], [bounds.width, bounds.height]);
 		//wallHelper([0, 0], [bounds.width, 0]);
 		// wallHelper([0, 0], [0, bounds.height]);
+		this.addTerrain()
+
 		const lengthPrev = viewController.engine.nodes.length
-		this.buildBicycle();
+		this.buildBicycle()
 
 		const lengthCur = viewController.engine.nodes.length
 		this.bicycleNodes = viewController.engine.nodes.slice(lengthPrev, lengthCur)
+		
+		this.vehicleVel = [0, 0]
 
-		this.vehicleVel = [0, 0];
+		mouseHandler(viewController);
+	}
+
+	addTerrain() {
 
 		const cfg = { pinned: true, rigid: false };
 		cfg.radius = 2;
-		const pa = viewController.createBall([0, 0], cfg);
-		const pb = viewController.createBall([1, 0], cfg);
-		this.collisionLine = viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
+		const pa = this.viewController.createBall([0, 0], cfg);
+		const pb = this.viewController.createBall([1, 0], cfg);
+		this.collisionLine = this.viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
 		const nodesP = [];
 		const numberOfAverages = 1
 		for (let iter = 1; iter <= numberOfAverages; ++iter) {
@@ -169,7 +176,7 @@ class Demo {
 				radius: 0,
 				pinned: true
 			};
-			const ball = viewController.createBall(nodes[i], Object.assign({}, config));
+			const ball = this.viewController.createBall(nodes[i], Object.assign({}, config));
 			nodesP.push(ball);
 		}
 		for (let i = 1; i + 1 < nodesP.length; ++i) {
@@ -183,12 +190,10 @@ class Demo {
 		}
 		for (let i = 1; i < nodesP.length; ++i) {
 			const delta = math.subtract(nodesP[i].position, nodesP[i - 1].position)
-			viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 500 })
-			viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 });
+			this.viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 1000 })
+			this.viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 }, false)
 		}
-		
-		mouseHandler(viewController);
-	};
+	}
 
 	addBigCircle(position) {
 		const config = {

@@ -45,10 +45,10 @@ class ViewController {
 		return node;
 	}
 
-	addNewJoint(v1, v2, config) {
+	addNewJoint(v1, v2, config, create_render_segment = true) {
 		let joint = this.engine.connectJoint(v1, v2);
 		let jointInfo = {
-			renderObj: PaperHelper.createSegment(config),
+			renderObj: create_render_segment ? PaperHelper.createSegment(config) : void 0,
 			config,
 			joint,
 		};
@@ -135,9 +135,11 @@ class ViewController {
 
 		this.engine.getJoints().forEach(joint => {
 			const renderInfo = joint.getData();
-			
-			renderInfo.renderObj.segments[0].point = pos2point(this.worldToViewPort(joint.v1.getPosition()));
-			renderInfo.renderObj.segments[1].point = pos2point(this.worldToViewPort(joint.v2.getPosition()));
+			if (renderInfo.renderObj) {
+				renderInfo.renderObj.segments[0].point = pos2point(this.worldToViewPort(joint.v1.getPosition()));
+				renderInfo.renderObj.segments[1].point = pos2point(this.worldToViewPort(joint.v2.getPosition()));
+			}
+
 		})
 
 		this.terrains.forEach(terrain => {
