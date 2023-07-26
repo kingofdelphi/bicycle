@@ -89,6 +89,7 @@ class Engine {
 			oldPosition: position,
 			data,
 			rotation: 0,
+			mass: 2, // around 2 kgs
 			angularVelocity: 0,
 			getPosition: function () {
 				return this.position;
@@ -230,10 +231,10 @@ class Engine {
 			const refAxis = collision.axis
 			const nodeVel = node.velocity
 			
-			var r = math.multiply(refAxis, -node.getData().config.radius);
+			const radius = node.getData().config.radius
+			const radiusVector = math.multiply(refAxis, -radius);
 
-			const angularVel = math.cross([0, 0, node.angularVelocity], r.concat(0)).slice(0, -1)
-			// const contactVel = math.add(nodeVel, angularVel)
+			const angularVel = math.cross([0, 0, node.angularVelocity], radiusVector.concat(0)).slice(0, -1)
 			const contactVel = math.add(nodeVel, angularVel)
 
 			const coeff_of_friction = 0.99
@@ -242,8 +243,9 @@ class Engine {
 			const contactTangentVel = math.subtract(contactVel, contactNormVel)
 
 			const coeff_of_restitution = 0.3
-
-			const impulse = math.multiply(contactNormVel, -1 - coeff_of_restitution)
+			const momentOfInertia = node.mass * radius * radius
+			const effectiveMass = 1 / node.mass
+			const impulse = math.divide(math.multiply(contactNormVel, -1 - coeff_of_restitution), effectiveMass)
 
 			const contactTangentVelNorm = math.norm(contactTangentVel)
 
@@ -261,16 +263,15 @@ class Engine {
 			// p - op = (vel + impulse) * dt
 			// 
 
-			const newVel = math.add(nodeVel, totImpulse)
+			const newVel = math.add(nodeVel, math.divide(totImpulse, node.mass))
 			node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
 			node.velocity = newVel
 
-			const Im = math.dot(r, r)
-			const T = math.cross(r.concat(0), totImpulse.concat(0))[2]
-			node.angularVelocity += T / Im;
+			const angularImpulse = math.cross(radiusVector.concat(0), totImpulse.concat(0))[2]
+			node.angularVelocity += angularImpulse / momentOfInertia
 
 
-		});
+		})
 	}
 	// a b 0
 	// 0 0 w
@@ -279,7 +280,8 @@ class Engine {
 		if (dt == 0) return;
 		this.dt = dt;
 		this.nodes.forEach((node, i) => {
-			if (node.isPinned()) return;
+			if (node.isPinned()) return
+
 			const f = 0.98
 			let velocity = math.multiply(math.divide(math.subtract(node.position, node.oldPosition), this.dt), f)
 
@@ -290,16 +292,15 @@ class Engine {
 			node.oldPosition = node.position
 			node.velocity = velocity
 			node.position = math.add(node.position, math.multiply(velocity, this.dt))
-		});
+		})
 
 		for (let i = 0; i < 1; ++i) {
-			this.resolveCollisions();
+			this.resolveCollisions()
 		}
 
-		var iter = 4
-		while (iter--) {
-			this.solveConstraints();
-			this.solveAngularConstraints();
+		for (let iter = 0; iter < 4; ++iter) {
+			this.solveConstraints()
+			this.solveAngularConstraints()
 		}
 
 
