@@ -15,6 +15,8 @@ class ViewController {
 
 		// for mouse events
 		this.nodes = []
+
+		this.terrains = []
 	}
 
 	getEngine() {
@@ -52,6 +54,17 @@ class ViewController {
 		};
 		joint.setData(jointInfo);
 		return joint;
+	}
+
+	createTerrain(p1, p2, config) {
+		let terrainInfo = {
+			renderObj: PaperHelper.createRectangle(config),
+			config,
+			p1,
+			p2
+		}
+		this.terrains.push(terrainInfo)
+		return terrainInfo;
 	}
 
 	getScaledPosition(position, origin = [0, 0]) {
@@ -125,7 +138,17 @@ class ViewController {
 			
 			renderInfo.renderObj.segments[0].point = pos2point(this.worldToViewPort(joint.v1.getPosition()));
 			renderInfo.renderObj.segments[1].point = pos2point(this.worldToViewPort(joint.v2.getPosition()));
-		});
+		})
+
+		this.terrains.forEach(terrain => {
+			const renderInfo = terrain.renderObj;
+			
+			renderInfo.segments[0].point = pos2point(this.worldToViewPort(math.add(terrain.p1, [0, 0])))
+			renderInfo.segments[1].point = pos2point(this.worldToViewPort(math.add(terrain.p2, [0, 0])))
+			renderInfo.segments[2].point = pos2point(this.worldToViewPort(math.add(terrain.p2, [0, terrain.config.height])))
+			renderInfo.segments[3].point = pos2point(this.worldToViewPort(math.add(terrain.p1, [0, terrain.config.height])))
+
+		})
 	}
 
 }

@@ -156,9 +156,9 @@ class Demo {
 		cfg.radius = 2;
 		const pa = viewController.createBall([0, 0], cfg);
 		const pb = viewController.createBall([1, 0], cfg);
-		this.collisionLine = viewController.addNewJoint(pa, pb, { thickness: 3, color: 'red', collidable: false });
+		this.collisionLine = viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
 		const nodesP = [];
-		const numberOfAverages = 0
+		const numberOfAverages = 1
 		for (let iter = 1; iter <= numberOfAverages; ++iter) {
 			for (let i = 1; i + 1 < nodes.length; ++i) {
 				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
@@ -182,7 +182,9 @@ class Demo {
 			nodesP[i].data.config.continuousNormal = v <= 0
 		}
 		for (let i = 1; i < nodesP.length; ++i) {
-			viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 2, collidable: true, weightageA: 0.5, weightageB: .5 });
+			const delta = math.subtract(nodesP[i].position, nodesP[i - 1].position)
+			viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 500 })
+			viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 });
 		}
 		
 		mouseHandler(viewController);
@@ -203,9 +205,9 @@ class Demo {
 		const dt = event.delta;
 		const engine = this.viewController.getEngine();
 		const collision = engine.getCollidingObjects(wheel.v1);
-		let colInfo;
-		if (collision.length > 0) {
-			colInfo = collision[0];
+		const colInfo = collision[0];
+		const showCollisionLine = false
+		if (showCollisionLine && collision.length > 0) {
 			this.collisionLine.v1.position = colInfo.joint.v1.position;
 			this.collisionLine.v2.position = colInfo.joint.v2.position;
 			this.collisionLine.updateDistance();

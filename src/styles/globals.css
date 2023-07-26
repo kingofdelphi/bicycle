@@ -18,8 +18,9 @@ flex: 1;
 
 .root {
 display: flex;
-border: 20px solid silver;
+border: 20px solid transparent;
 height: calc(100vh - 40px);
+background: wheat;
 flex-direction: column;
 }
 
