@@ -165,7 +165,7 @@ class Demo {
 		const pb = this.viewController.createBall([1, 0], cfg);
 		this.collisionLine = this.viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
 		const nodesP = [];
-		const numberOfAverages = 1
+		const numberOfAverages = 0
 		for (let iter = 1; iter <= numberOfAverages; ++iter) {
 			for (let i = 1; i + 1 < nodes.length; ++i) {
 				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)

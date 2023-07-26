@@ -30,6 +30,7 @@ class Main {
 	}
 
 	updateGame(event) {
+		console.log(event.delta)
 		this.viewController.update(event.delta);
 	}
 }

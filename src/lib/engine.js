@@ -152,6 +152,71 @@ class Engine {
 		return this.nodes.filter(node => node.getData().config.rigid == true);
 	}
 
+	fixBallJointPenetration(ball, joint, collisionInfo) {
+		const { v1, v2 } = joint
+		const k = v1.isPinned() && v2.isPinned() ? 1 : 0.5
+		const delta = math.multiply(collisionInfo.axis, k * collisionInfo.penetration)
+		ball.position = math.add(ball.position, delta)
+
+		if (!v1.isPinned()) {
+			v1.position = math.subtract(v1.position, delta)
+		}
+
+		if (!v2.isPinned()) {
+			v2.position = math.subtract(v2.position, delta)
+		}
+	}
+
+	applyCollisionImpulses(node, collisionInfo) {
+		const refAxis = collisionInfo.axis
+		const nodeVel = node.velocity
+		
+		const radius = node.getData().config.radius
+		const radiusVector = math.multiply(refAxis, -radius);
+
+		const angularVel = math.cross([0, 0, node.angularVelocity], radiusVector.concat(0)).slice(0, -1)
+		const contactVel = math.add(nodeVel, angularVel)
+
+		const coeff_of_friction = 0.99
+
+		const contactNormVel = math.multiply(refAxis, math.dot(contactVel, refAxis))
+		const contactTangentVel = math.subtract(contactVel, contactNormVel)
+
+		const coeff_of_restitution = 0.5
+		const momentOfInertia = node.mass * radius * radius
+		const effectiveMass = 1 / node.mass
+
+		const impulse = math.divide(math.multiply(contactNormVel, -1 - coeff_of_restitution), effectiveMass)
+
+		let normalImpulse = math.dot(impulse, refAxis)
+
+		if (normalImpulse < 0) {
+			console.error('impulse cannot be negative')
+			return
+		}
+		
+		const contactTangentVelNorm = math.norm(contactTangentVel)
+
+		const contactTangentAxis = math.divide(contactTangentVel, contactTangentVelNorm == 0 ? 1 : contactTangentVelNorm)
+
+		
+		const frictionMg = coeff_of_friction * normalImpulse
+		
+		const frictionalImpulse = math.multiply(contactTangentAxis, -Math.min(frictionMg, contactTangentVelNorm))
+
+		const totImpulse = math.add(frictionalImpulse, impulse)
+
+		// p - op = (vel + impulse) * dt
+
+		const newVel = math.add(nodeVel, math.divide(totImpulse, node.mass))
+
+		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
+		node.velocity = newVel
+
+		const angularImpulse = math.cross(radiusVector.concat(0), totImpulse.concat(0))[2]
+		node.angularVelocity += angularImpulse / momentOfInertia
+	}
+
 	resolveCollisions() {
 		const collidableJoints = this.joints.filter(joint => joint.getData().config.collidable);
 		this.collisionMap.clear()
@@ -174,35 +239,54 @@ class Engine {
 					radius
 				)
 				if (!collision) return
+				
+				if (collision.penetration < 0) {
+					throw 'penetration cannot be negative'
+				}
+				
+
 				colInfo.push({ joint, collision: collision })
 			})
-
+			// let prv = colInfo.length
+			// // colInfo = colInfo.filter(d => d.collision.penetration >= 1e-2)
+			// if (prv !== colInfo.length) {
+			// 	console.log('filtered out')
+			// }
 			if (!colInfo.length) return
 
+
+			if (colInfo.length > 2) {
+				console.error('touched more than 2 joints')
+			}
+			
 			let bestColl = colInfo[0]
 			
-			if (colInfo.length === 2) {
+			const [joint_a, joint_b] = colInfo.map(d => d.joint)
+			
+			const convexEdge = colInfo.length == 2 && 
+			(
+				(joint_a.v2 === joint_b.v1 && joint_a.v2.getData().config.continuousNormal) ||
+				(joint_a.v1 === joint_b.v2 && joint_a.v1.getData().config.continuousNormal)
+			)
+			
+			if (convexEdge) {
 				const [t1, t2] = colInfo.map(d => d.collision.type)
 				console.log(t1, t2)
+
+				if (t1 === 'edge_normal' && t2 === 'edge_normal') {
+					console.error('impossible case')
+				}
+				
 				if (t1 === 'edge_normal' && t2 !== 'edge_normal') {
 					bestColl = colInfo[0]
 				} else if (t1 !== 'edge_normal' && t2 === 'edge_normal') {
 					bestColl = colInfo[1]
 				}
-				if (t1 === 'edge_normal' && t2 === 'edge_normal') {
-					// console.log(math.dot(colInfo[0].collision.axis, colInfo[1].collision.axis))
-					// debugger
-				}
-				// console.log(math.dot(node.velocity, bestColl.collision.axis))
 
 			}
 
 			const collision = bestColl.collision
 
-			if (math.dot(node.velocity, bestColl.collision.axis) >= 0) {
-				console.log('invalid axis')
-				// return
-			}
 
 			const collisionList = this.collisionMap.get(node) || [];
 			collisionList.push({
@@ -215,63 +299,20 @@ class Engine {
 				collisionList
 			);
 	
-			const { v1, v2 } = bestColl.joint
-			let k = v1.isPinned() && v2.isPinned() ? 1 : 0.5;
-			let delta = math.multiply(collision.axis, k * collision.penetration);
-			node.position = math.add(node.position, delta);
+			this.fixBallJointPenetration(node, bestColl.joint, bestColl.collision)
 
-			if (!v1.isPinned()) {
-				v1.position = math.subtract(v1.position, delta)
+
+			if (math.dot(node.velocity, bestColl.collision.axis) >= 0) {
+				console.warn('velocity already separating')
+				return
 			}
 
-			if (!v2.isPinned()) {
-				v2.position = math.subtract(v2.position, delta)
-			}
+			// if (collision.penetration <= 0.0001) return
 
-			const refAxis = collision.axis
-			const nodeVel = node.velocity
-			
-			const radius = node.getData().config.radius
-			const radiusVector = math.multiply(refAxis, -radius);
-
-			const angularVel = math.cross([0, 0, node.angularVelocity], radiusVector.concat(0)).slice(0, -1)
-			const contactVel = math.add(nodeVel, angularVel)
-
-			const coeff_of_friction = 0.99
-
-			const contactNormVel = math.multiply(refAxis, math.dot(contactVel, refAxis))
-			const contactTangentVel = math.subtract(contactVel, contactNormVel)
-
-			const coeff_of_restitution = 0.3
-			const momentOfInertia = node.mass * radius * radius
-			const effectiveMass = 1 / node.mass
-			const impulse = math.divide(math.multiply(contactNormVel, -1 - coeff_of_restitution), effectiveMass)
-
-			const contactTangentVelNorm = math.norm(contactTangentVel)
-
-			const contactTangentAxis = math.divide(contactTangentVel, contactTangentVelNorm)
-
-			const normalImpulse = math.abs(math.dot(impulse, refAxis))
-			
-			const frictionMg = coeff_of_friction * normalImpulse
-			
-			const frictionalImpulse = contactTangentVelNorm > 0 ? 
-				math.multiply(contactTangentAxis, -Math.min(frictionMg, contactTangentVelNorm))
-			: [0, 0]
-							
-			const totImpulse = math.add(frictionalImpulse, impulse)
-			// p - op = (vel + impulse) * dt
-			// 
-
-			const newVel = math.add(nodeVel, math.divide(totImpulse, node.mass))
-			node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
-			node.velocity = newVel
-
-			const angularImpulse = math.cross(radiusVector.concat(0), totImpulse.concat(0))[2]
-			node.angularVelocity += angularImpulse / momentOfInertia
-
+			this.applyCollisionImpulses(node, bestColl.collision)
 
 		})
+
 	}
 	// a b 0
 	// 0 0 w
