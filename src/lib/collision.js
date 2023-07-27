@@ -58,11 +58,20 @@ const lineCircleCollision = (p1, p2, p1continuousNormal, p2continuousNormal, bal
 	
 	if (p1continuousNormal && projDj < 0) {
 		const normP1Ball = math.norm(p1Ball)
+		if (radius <= normP1Ball) {
+			console.log('chordHalfLength', chordHalfLength)
+			return false
+		}
 		return { axis: math.divide(p1Ball, normP1Ball), penetration: radius - normP1Ball, type: 'edge_a' }
 	}
 
 	if (p2continuousNormal && jointLength < projDj) {
 		const normP2Ball = math.norm(p2Ball)
+		if (radius <= normP2Ball) {
+			console.log('chordHalfLength', chordHalfLength)
+			return false
+		}
+
 		return { axis: math.divide(p2Ball, normP2Ball), penetration: radius - normP2Ball, type: 'edge_b' }
 	}
 

@@ -168,47 +168,41 @@ class Engine {
 	}
 
 	applyCollisionImpulses(node, collisionInfo) {
-		const refAxis = collisionInfo.axis
-		const nodeVel = node.velocity
+		const normalAxis = collisionInfo.axis
+		const tangentAxis = math.rotate(normalAxis, Math.PI / 2)
 		
 		const radius = node.getData().config.radius
-		const radiusVector = math.multiply(refAxis, -radius);
+		const radiusVector = math.multiply(normalAxis, -radius)
 
 		const angularVel = math.cross([0, 0, node.angularVelocity], radiusVector.concat(0)).slice(0, -1)
-		const contactVel = math.add(nodeVel, angularVel)
+		const contactVel = math.add(node.velocity, angularVel)
 
 		const coeff_of_friction = 0.99
 
-		const contactNormVel = math.multiply(refAxis, math.dot(contactVel, refAxis))
-		const contactTangentVel = math.subtract(contactVel, contactNormVel)
+		const contactNormVel = math.dot(contactVel, normalAxis)
+		
+		if (contactNormVel >= 0) {
+			console.error('objects are separating')
+			return
+		}
 
-		const coeff_of_restitution = 0.5
+		const contactTangentVel = math.dot(contactVel, tangentAxis)
+
+		const coeff_of_restitution = 0.3
 		const momentOfInertia = node.mass * radius * radius
 		const effectiveMass = 1 / node.mass
 
-		const impulse = math.divide(math.multiply(contactNormVel, -1 - coeff_of_restitution), effectiveMass)
-
-		let normalImpulse = math.dot(impulse, refAxis)
-
-		if (normalImpulse < 0) {
-			console.error('impulse cannot be negative')
-			return
-		}
-		
-		const contactTangentVelNorm = math.norm(contactTangentVel)
-
-		const contactTangentAxis = math.divide(contactTangentVel, contactTangentVelNorm == 0 ? 1 : contactTangentVelNorm)
-
-		
+		const normalImpulse = contactNormVel * (-1 - coeff_of_restitution) / effectiveMass
+				
 		const frictionMg = coeff_of_friction * normalImpulse
 		
-		const frictionalImpulse = math.multiply(contactTangentAxis, -Math.min(frictionMg, contactTangentVelNorm))
+		const frictionalImpulse = math.multiply(tangentAxis, -Math.max(-frictionMg, Math.min(frictionMg, contactTangentVel)))
 
-		const totImpulse = math.add(frictionalImpulse, impulse)
+		const totImpulse = math.add(frictionalImpulse, math.multiply(normalAxis, normalImpulse))
 
 		// p - op = (vel + impulse) * dt
 
-		const newVel = math.add(nodeVel, math.divide(totImpulse, node.mass))
+		const newVel = math.add(node.velocity, math.divide(totImpulse, node.mass))
 
 		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
 		node.velocity = newVel
@@ -274,7 +268,7 @@ class Engine {
 				console.log(t1, t2)
 
 				if (t1 === 'edge_normal' && t2 === 'edge_normal') {
-					console.error('impossible case')
+					throw 'impossible case'
 				}
 				
 				if (t1 === 'edge_normal' && t2 !== 'edge_normal') {
