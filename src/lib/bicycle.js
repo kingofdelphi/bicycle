@@ -191,7 +191,7 @@ class Demo {
 		}
 		for (let i = 1; i < nodesP.length; ++i) {
 			const delta = math.subtract(nodesP[i].position, nodesP[i - 1].position)
-			this.viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 10 })
+			this.viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 1000 })
 			this.viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 }, false)
 		}
 	}

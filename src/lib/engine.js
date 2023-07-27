@@ -247,38 +247,66 @@ class Engine {
 
 
 			if (colInfo.length > 2) {
-				console.error('touched more than 2 joints')
+				console.error('touched more than 2 joints', colInfo.length)
 			}
 			
 			// filter joints that are the best for collision resolution
-			const [joint_a, joint_b] = colInfo.map(d => d.joint)
+			const joints = colInfo.map(d => d.joint)
 			
-			const convexEdge = colInfo.length == 2 && 
-			(
-				(joint_a.v2 === joint_b.v1 && joint_a.v2.getData().config.continuousNormal) ||
-				(joint_a.v1 === joint_b.v2 && joint_a.v1.getData().config.continuousNormal)
-			)
-			
-			if (convexEdge) {
-				const [t1, t2] = colInfo.map(d => d.collisionInfo.type)
-				console.log(t1, t2)
+			// joints are connected sequentially, (a -> b -> c), (d -> e -> f), to disconnected joint components
+			const pairs = joints.length === 1 ? [[0]] : []
 
-				if (t1 === 'edge_normal' && t2 === 'edge_normal') {
-					throw 'impossible case'
+			for (let i = 1; i < joints.length; i++) {
+				const convexEdges = 
+					joints[i - 1].v2 === joints[i].v1 && joints[i].v1.getData().config.continuousNormal
+				if (convexEdges) {
+					pairs.push([i - 1, i])
+					++i
+				} else {
+					pairs.push([i - 1])
 				}
+				if (i + 1 === joints.length) {
+					pairs.push([i])
+				}
+			}
+			
+			const bestCollisions = []
+			for (const pair of pairs) {
+				if (pair.length === 1) {
+					bestCollisions.push(colInfo[pair[0]])
+					continue
+				}
+
+				const col1 = colInfo[pair[0]]
+				const col2 = colInfo[pair[1]]
 				
-				if (t1 === 'edge_normal' && t2 !== 'edge_normal') {
-					colInfo = [colInfo[0]]
-				} else if (t1 !== 'edge_normal' && t2 === 'edge_normal') {
-					colInfo = [colInfo[1]]
-				}
+				bestCollisions.push(this.getBestEdgeFromConvexPairCollision(col1, col2))
 
 			}
-
-			this.handleBallJointsCollision(node, colInfo)
+			
+			
+			this.handleBallJointsCollision(node, bestCollisions)
 
 		})
 
+	}
+
+	getBestEdgeFromConvexPairCollision(colInfo1, colInfo2) {
+		const t1 = colInfo1.collisionInfo.type
+		const t2 = colInfo2.collisionInfo.type
+
+		console.log(t1, t2)
+
+		if (t1 === 'edge_normal' && t2 === 'edge_normal') {
+			console.error('got two edge normals for convex edge')
+		}
+		if (t1 === 'edge_normal' && t2 !== 'edge_normal') {
+			return colInfo1
+		} else if (t1 !== 'edge_normal' && t2 === 'edge_normal') {
+			return colInfo2
+		}
+		
+		return colInfo1 // any one will work
 	}
 
 	handleBallJointsCollision(ball, collisions) {
