@@ -10,6 +10,7 @@ class Engine {
 			gravity: 500
 		};
 		this.collisionMap = new Map();
+		this.ballJointSeparationFactor = 0.5
 	}
 
 	setConfig(config) {
@@ -65,8 +66,8 @@ class Engine {
 				nodeA.position = math.add(pa, math.multiply(v, 2));
 			} else {
 				const { weightageA = 0.5, weightageB = 0.5 } = joint.getData().config;
-				nodeA.position = math.add(pa, math.multiply(v, weightageA));
-				nodeB.position = math.add(pb, math.multiply(v, -weightageB));
+				nodeA.position = math.add(pa, math.multiply(v, weightageA * 1));
+				nodeB.position = math.add(pb, math.multiply(v, -weightageB * 1));
 			}
 		});
 	}
@@ -155,7 +156,7 @@ class Engine {
 	fixBallJointPenetration(ball, joint, collisionInfo) {
 		const { v1, v2 } = joint
 		const k = v1.isPinned() && v2.isPinned() ? 1 : 0.5
-		const delta = math.multiply(collisionInfo.axis, k * collisionInfo.penetration * 0.5)
+		const delta = math.multiply(collisionInfo.axis, k * collisionInfo.penetration * this.ballJointSeparationFactor)
 		ball.position = math.add(ball.position, delta)
 
 		if (!v1.isPinned()) {

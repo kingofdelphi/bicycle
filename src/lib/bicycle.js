@@ -20,7 +20,8 @@ class Demo {
 		const positionB = [130, 300];
 		const ballA = this.viewController.createBall(positionA, Object.assign({}, config, { color: null }));
 		const ballB = this.viewController.createBall(positionB, Object.assign({}, config, { color: null }));
-
+		// this.wheel = { v1: ballA, v2: ballA } 
+		// return
 		const thickness = 2;
 		this.wheel = this.viewController.addNewJoint(ballA, ballB, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 });
 		this.wheel.getData().renderObj.visible = false;
@@ -190,7 +191,7 @@ class Demo {
 		}
 		for (let i = 1; i < nodesP.length; ++i) {
 			const delta = math.subtract(nodesP[i].position, nodesP[i - 1].position)
-			this.viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 1000 })
+			this.viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 10 })
 			this.viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 }, false)
 		}
 	}
@@ -225,14 +226,16 @@ class Demo {
 		const spin = false
 		const addVel = (collisionInfo, forward) => {
 			if (spin) {
-				this.wheel.v1.angularVelocity += 10 * f
+				this.wheel.v1.angularVelocity += 100 * dt * f
 				return
 			}
 			if (!collisionInfo) {
 				return
 			}
 			const ci = collisionInfo.collisionInfo;
-			const dir = [-ci.axis[1], ci.axis[0]];
+			const dir = math.rotate(ci.axis, Math.PI / 2)
+			// const v12 = math.subtract(wheel.v2.position, wheel.v1.position)
+			// const dir = math.divide(v12, math.norm(v12))
 			const acceleration = 40
 			const dv = math.multiply(dir, forward * acceleration * dt);
 
