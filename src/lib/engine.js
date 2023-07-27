@@ -155,7 +155,7 @@ class Engine {
 	fixBallJointPenetration(ball, joint, collisionInfo) {
 		const { v1, v2 } = joint
 		const k = v1.isPinned() && v2.isPinned() ? 1 : 0.5
-		const delta = math.multiply(collisionInfo.axis, k * collisionInfo.penetration)
+		const delta = math.multiply(collisionInfo.axis, k * collisionInfo.penetration * 0.5)
 		ball.position = math.add(ball.position, delta)
 
 		if (!v1.isPinned()) {
@@ -239,13 +239,9 @@ class Engine {
 				}
 				
 
-				colInfo.push({ joint, collision: collision })
+				colInfo.push({ joint, collisionInfo: collision })
 			})
-			// let prv = colInfo.length
-			// // colInfo = colInfo.filter(d => d.collision.penetration >= 1e-2)
-			// if (prv !== colInfo.length) {
-			// 	console.log('filtered out')
-			// }
+
 			if (!colInfo.length) return
 
 
@@ -253,8 +249,7 @@ class Engine {
 				console.error('touched more than 2 joints')
 			}
 			
-			let bestColl = colInfo[0]
-			
+			// filter joints that are the best for collision resolution
 			const [joint_a, joint_b] = colInfo.map(d => d.joint)
 			
 			const convexEdge = colInfo.length == 2 && 
@@ -264,7 +259,7 @@ class Engine {
 			)
 			
 			if (convexEdge) {
-				const [t1, t2] = colInfo.map(d => d.collision.type)
+				const [t1, t2] = colInfo.map(d => d.collisionInfo.type)
 				console.log(t1, t2)
 
 				if (t1 === 'edge_normal' && t2 === 'edge_normal') {
@@ -272,39 +267,45 @@ class Engine {
 				}
 				
 				if (t1 === 'edge_normal' && t2 !== 'edge_normal') {
-					bestColl = colInfo[0]
+					colInfo = [colInfo[0]]
 				} else if (t1 !== 'edge_normal' && t2 === 'edge_normal') {
-					bestColl = colInfo[1]
+					colInfo = [colInfo[1]]
 				}
 
 			}
 
-			const collision = bestColl.collision
+			this.handleBallJointsCollision(node, colInfo)
 
+		})
 
-			const collisionList = this.collisionMap.get(node) || [];
+	}
+
+	handleBallJointsCollision(ball, collisions) {
+		const collisionList = this.collisionMap.get(ball) || []
+
+		collisions.forEach(collision => {
+			const { joint, collisionInfo } = collision
 			collisionList.push({
-				joint: bestColl.joint,
-				collisionInfo: collision
-			});
-
+				joint: joint,
+				collisionInfo: collisionInfo
+			})
+	
 			this.collisionMap.set(
-				node,
+				ball,
 				collisionList
 			);
 	
-			this.fixBallJointPenetration(node, bestColl.joint, bestColl.collision)
-
-
-			if (math.dot(node.velocity, bestColl.collision.axis) >= 0) {
+			this.fixBallJointPenetration(ball, joint, collisionInfo)
+	
+	
+			if (math.dot(ball.velocity, collisionInfo.axis) >= 0) {
 				console.warn('velocity already separating')
 				return
 			}
-
+	
 			// if (collision.penetration <= 0.0001) return
-
-			this.applyCollisionImpulses(node, bestColl.collision)
-
+	
+			this.applyCollisionImpulses(ball, collisionInfo)
 		})
 
 	}

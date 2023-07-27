@@ -263,7 +263,7 @@ class Demo {
 				const np = math.rotate(vrp, angle);
 				return math.add(pivot, np);
 			};
-			const angle = dir * Math.PI * .8 / 180;
+			const angle = dir * Math.PI / 180;
 			// const addVel = math.subtract(newPosition, wheel.v2.position);
 			const wheel1NewPos = rotAroundPivot(wheel.v1.position, angle);
 			const wheel2NewPos = rotAroundPivot(wheel.v2.position, angle);
@@ -275,12 +275,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-30 * dt);
+				rot(-25 * dt);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(30 * dt);
+				rot(25 * dt);
 			}
 		}
 		if (keys[' ']) {
