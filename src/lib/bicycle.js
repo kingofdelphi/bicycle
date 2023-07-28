@@ -19,11 +19,14 @@ class Demo {
 		const positionA = [80, 300];
 		const positionB = [130, 300];
 		const ballA = this.viewController.createBall(positionA, Object.assign({}, config, { color: null }));
-		const ballB = this.viewController.createBall(positionB, Object.assign({}, config, { color: null }));
-		// this.wheel = { v1: ballA, v2: ballA } 
+		this.wheel = { v1: ballA, v2: ballA } 
 		// return
+
+		const ballB = this.viewController.createBall(positionB, Object.assign({}, config, { color: null }))
+		
 		const thickness = 2;
 		this.wheel = this.viewController.addNewJoint(ballA, ballB, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 });
+		// return
 		this.wheel.getData().renderObj.visible = false;
 
 		// remove wheel solid color
@@ -163,13 +166,24 @@ class Demo {
 		const pa = this.viewController.createBall([0, 0], cfg);
 		const pb = this.viewController.createBall([1, 0], cfg);
 		this.collisionLine = this.viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
-		const nodesP = [];
 		const numberOfAverages = 0
+		// while (nodes.length>1) nodes.pop()
 		for (let iter = 1; iter <= numberOfAverages; ++iter) {
 			for (let i = 1; i + 1 < nodes.length; ++i) {
 				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
 			}
 		}
+		const lst = nodes[nodes.length - 1]
+		const steps = 100
+		const numcycles = 4
+		for (let i = 0; i < steps; ++i) {
+			const pos = [200 + i * 50, Math.sin(i / steps * (numcycles * 2 * Math.PI)) * 180]
+			const nd = math.add(lst, pos)
+			nodes.push(nd)
+		}
+
+		const nodesP = [];
+
 		for (let i = 0; i < nodes.length; ++i) {
 			const config = {
 				radius: 0,

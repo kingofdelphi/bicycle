@@ -30,7 +30,7 @@ class Main {
 	}
 
 	updateGame(event) {
-		// console.log(event.delta)
+		// console.log({ 'FPS': Math.round(1 / event.delta) })
 		this.viewController.update(event.delta);
 	}
 }
