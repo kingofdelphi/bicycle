@@ -153,8 +153,6 @@ class Demo {
 		const lengthCur = viewController.engine.nodes.length
 		this.bicycleNodes = viewController.engine.nodes.slice(lengthPrev, lengthCur)
 		
-		this.vehicleVel = [0, 0]
-
 		mouseHandler(viewController);
 	}
 
@@ -203,7 +201,7 @@ class Demo {
 			pinned: false,
 			radius: 20
 		};
-		this.viewController.createBall(position, config);
+		this.viewController.createBall(position, config)
 	}
 
 	preUpdateCallback(event) {
@@ -213,6 +211,7 @@ class Demo {
 		const collision = engine.getCollidingObjects(wheel.v1);
 		const colInfo = collision[0];
 		const showCollisionLine = false
+
 		if (showCollisionLine && collision.length > 0) {
 			this.collisionLine.v1.position = colInfo.joint.v1.position;
 			this.collisionLine.v2.position = colInfo.joint.v2.position;
@@ -221,42 +220,31 @@ class Demo {
 		} else {
 			this.collisionLine.getData().renderObj.visible = false;
 		}
+		
+		const addVel = (forward) => {
+			if (!wheel) return
 
-		const f = 0.4;
-		const spin = false
-		const addVel = (collisionInfo, forward) => {
-			if (spin) {
-				this.wheel.v1.angularVelocity += 100 * dt * f
-				return
-			}
-			if (!collisionInfo) {
-				return
-			}
-			const ci = collisionInfo.collisionInfo;
-			const dir = math.rotate(ci.axis, Math.PI / 2)
-			// const v12 = math.subtract(wheel.v2.position, wheel.v1.position)
-			// const dir = math.divide(v12, math.norm(v12))
-			const acceleration = 40
-			const dv = math.multiply(dir, forward * acceleration * dt);
+			this.wheel.v1.angularVelocity += 50 * dt * forward
+			this.wheel.v1.angularVelocity  = Math.min(50, Math.max(-50, this.wheel.v1.angularVelocity))
 
-			this.vehicleVel = math.add(this.vehicleVel, dv);
-		};
+		}
+
 		if (keys['w'] || keys['ArrowUp']) {
-			if (wheel != null) {
-				addVel(colInfo, f);
-			}
+			addVel(1);
 		}
+		
 		if (keys['s'] || keys['ArrowDown']) {
-			if (wheel != null) {
-				addVel(colInfo, -f);
-			}
+			addVel(-1);
 		}
+		
 		if (keys['z']) {
 			this.viewController.config.scale += 0.01;
 		}
+		
 		if (keys['x']) {
 			this.viewController.config.scale -= 0.01;
 		}
+
 		const rot = (dir) => {
 			let pivot = math.add(wheel.v1.position, wheel.v2.position);
 			pivot = math.multiply(pivot, .5);
@@ -267,7 +255,7 @@ class Demo {
 				return math.add(pivot, np);
 			};
 			const angle = dir * Math.PI / 180;
-			// const addVel = math.subtract(newPosition, wheel.v2.position);
+
 			const wheel1NewPos = rotAroundPivot(wheel.v1.position, angle);
 			const wheel2NewPos = rotAroundPivot(wheel.v2.position, angle);
 
@@ -286,6 +274,7 @@ class Demo {
 				rot(25 * dt);
 			}
 		}
+
 		if (keys[' ']) {
 			if (colInfo) {
 				const jumpAccln = 200
@@ -300,24 +289,10 @@ class Demo {
 
 			}
 		}
+
 		if (keys['p']) {
 			console.log(JSON.stringify(this.viewController.nodes));
 		}
-		const coefficientOfFriction = 0.1
-		
-		const mag = math.norm(this.vehicleVel)
-		const vehicleVelDir = math.divide(this.vehicleVel, mag == 0 ? 1 : mag)
-		if (1 || colInfo) {
-			// const frictionImpulse = math.min(coefficientOfFriction * this.viewController.engine.config.gravity * dt, mag)
-			// this.vehicleVel = math.subtract(this.vehicleVel, math.multiply(vehicleVelDir, frictionImpulse))
-			this.vehicleVel = math.multiply(this.vehicleVel, 0.98)
-		}
-		const delta = math.multiply(this.vehicleVel, dt)
-		// this.vehicleVel = [0, 0]
-		// console.log(this.vehicleVel)
-		this.bicycleNodes.forEach(node => {
-			node.position = math.add(node.position, delta)
-		})
 
 		// focus follow
 		const dest = math.add(wheel.v1.position, [120, -80]);

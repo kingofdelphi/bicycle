@@ -194,16 +194,17 @@ class Engine {
 		const effectiveMass = 1 / node.mass
 
 		const normalImpulse = contactNormVel * (-1 - coeff_of_restitution) / effectiveMass
+		const tangentImpulse = contactTangentVel * (-1 - coeff_of_restitution) / effectiveMass
 				
-		const frictionMg = coeff_of_friction * normalImpulse
+		const frictionMg = math.min(math.max(coeff_of_friction * math.abs(tangentImpulse), 0), 50 / effectiveMass)
 		
 		const frictionalImpulse = math.multiply(tangentAxis, -Math.max(-frictionMg, Math.min(frictionMg, contactTangentVel)))
 
 		const totImpulse = math.add(frictionalImpulse, math.multiply(normalAxis, normalImpulse))
 
 		// p - op = (vel + impulse) * dt
-
-		const newVel = math.add(node.velocity, math.divide(totImpulse, node.mass))
+		const deltaV = math.divide(totImpulse, node.mass)
+		const newVel = math.add(node.velocity, deltaV)
 
 		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
 		node.velocity = newVel
