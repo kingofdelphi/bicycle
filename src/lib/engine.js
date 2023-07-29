@@ -1,5 +1,5 @@
 import * as math from 'mathjs';
-import lineCircleCollision, from './collision';
+import lineCircleCollision from './collision';
 
 class Engine {
 	constructor() {
