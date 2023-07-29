@@ -1,5 +1,4 @@
 import mouseHandler from './mousehandler';
-import keys from './keys';
 import lineCircleCollision from './collision';
 import * as math from 'mathjs';
 

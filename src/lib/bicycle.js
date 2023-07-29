@@ -1,10 +1,9 @@
 import mouseHandler from './mousehandler';
-import * as paper from 'paper';
 import keys from './keys';
-import * as PaperHelper from './paperhelper';
 import * as math from 'mathjs';
-import { rotateZ } from './collision';
 import nodes from './level';
+import { clamp } from './util';
+import { drawCircle } from './canvas';
 
 class Demo {
 	buildBicycle() {
@@ -14,10 +13,12 @@ class Demo {
 			radius: 2
 		};
 		config.rigid = true;
-		config.radius = 14;
+		config.radius = 16;
 		config.pinned = false;
 		const positionA = [80, 300];
-		const positionB = [130, 300];
+		const positionB = [135, 300];
+		this.viewController.createPedals('left')
+
 		const ballA = this.viewController.createBall(positionA, Object.assign({}, config, { color: null }));
 		this.wheel = { v1: ballA, v2: ballA } 
 		// return
@@ -26,17 +27,18 @@ class Demo {
 		
 		const thickness = 2;
 		this.wheel = this.viewController.addNewJoint(ballA, ballB, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 });
+		this.viewController.wheel = this.wheel
 		// return
 		this.wheel.getData().renderObj.visible = false;
 
 		// remove wheel solid color
-		ballA.getData().renderObj.fillColor = null;
-		ballA.getData().renderObj.strokeColor = 'black';
-		ballA.getData().renderObj.strokeWidth = 4;
+		ballA.getData().config.fillColor = null;
+		ballA.getData().config.strokeColor = 'black';
+		ballA.getData().config.strokeWidth = 4;
 
-		ballB.getData().renderObj.fillColor = null;
-		ballB.getData().renderObj.strokeColor = 'black';
-		ballB.getData().renderObj.strokeWidth = 4;
+		ballB.getData().config.fillColor = null;
+		ballB.getData().config.strokeColor = 'black';
+		ballB.getData().config.strokeWidth = 4;
 
 		const rearAngleToSeat = -Math.PI / 6 * 2;
 		const RR = 30;
@@ -57,7 +59,9 @@ class Demo {
 
 		// pedal joint
 		const pedalPos = math.add(positionA, [config.radius + 12, 0]);
-		const ballPedal = this.viewController.createBall(pedalPos, { radius: 0, pinned: false });
+		const ballPedal = this.viewController.createBall(pedalPos, { radius: 0, pinned: false })
+		this.viewController.ballPedal = ballPedal
+
 		this.viewController.addNewJoint(ballA, ballPedal, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
 		this.viewController.engine.addAngularConstraint(ballB, ballA, ballPedal, 0, 0, 1);
 
@@ -104,6 +108,9 @@ class Demo {
 
 		this.viewController.engine.addAngularConstraint(ballHandle, handleCenterBall, ballHandleA, Math.PI / 2 + Math.PI / 6, 0, 1);
 		this.viewController.engine.addAngularConstraint(ballHandleA, handleCenterBall, ballHandleB, Math.PI, 0, 1);
+
+		this.viewController.createPedals('right')
+
 	}
 
 	postInit(viewController) {
@@ -143,7 +150,7 @@ class Demo {
 
 		// createJoints();
 
-		const bounds = paper.view.getSize();
+		// const bounds = getCanvasBounds()
 		// wallHelper([0, bounds.height], [bounds.width, bounds.height]);
 		// wallHelper([bounds.width, 0], [bounds.width, bounds.height]);
 		//wallHelper([0, 0], [bounds.width, 0]);
@@ -221,6 +228,7 @@ class Demo {
 	preUpdateCallback(event) {
 		let wheel = this.wheel;
 		const dt = event.delta;
+		if (!dt) return
 		const engine = this.viewController.getEngine();
 		const collision = engine.getCollidingObjects(wheel.v1);
 		const colInfo = collision[0];
@@ -235,20 +243,15 @@ class Demo {
 			this.collisionLine.getData().renderObj.visible = false;
 		}
 		
-		const addVel = (forward) => {
-			if (!wheel) return
-
-			this.wheel.v1.angularVelocity += 50 * dt * forward
-			this.wheel.v1.angularVelocity  = Math.min(50, Math.max(-50, this.wheel.v1.angularVelocity))
-
-		}
+		
+		let pedaling = null
 
 		if (keys['w'] || keys['ArrowUp']) {
-			addVel(1);
+			pedaling = 'forward'
 		}
 		
 		if (keys['s'] || keys['ArrowDown']) {
-			addVel(-1);
+			pedaling = 'backward'
 		}
 		
 		if (keys['z']) {
@@ -280,12 +283,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-25 * dt);
+				rot(-30 * dt);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(25 * dt);
+				rot(30 * dt);
 			}
 		}
 
@@ -308,10 +311,50 @@ class Demo {
 			console.log(JSON.stringify(this.viewController.nodes));
 		}
 
+
+		const pedal = (direction) => {
+			if (!wheel) return
+
+			const dir = direction === 'forward' ? 1 : -1
+
+			const MAX_ANGULAR = 50
+			//
+
+			const prevAngular = this.wheel.v1.angularVelocity
+			
+			this.wheel.v1.angularVelocity += 10 * dt * dir
+			// this.wheel.v2.angularVelocity += 50 * dt * dir
+
+			if (colInfo) {
+				const dd = math.rotate(colInfo.collisionInfo.axis, Math.PI / 2)
+				this.bicycleNodes.forEach(nd => {
+					if (nd === wheel.v1)
+					// nd.oldPosition = math.add(nd.oldPosition, math.multiply(dd, -20 * dt * dir))
+					nd.position = math.add(nd.position, math.multiply(dd, 30 * dt * dir))
+
+				})
+			}
+
+			// this.wheel.v1.angularVelocity = clamp(this.wheel.v1.angularVelocity, -MAX_ANGULAR, MAX_ANGULAR)
+			// this.wheel.v2.angularVelocity = clamp(this.wheel.v2.angularVelocity, -MAX_ANGULAR, MAX_ANGULAR)
+			this.viewController.pedal.rotation += (this.wheel.v1.angularVelocity - prevAngular) * dt
+		}
+
+		if (pedaling != null) {
+			pedal(pedaling)
+		}
+
 		// focus follow
 		const dest = math.add(wheel.v1.position, [120, -80]);
 		const del = math.subtract(dest, this.viewController.focus); 
-		this.viewController.focus = math.add(this.viewController.focus, math.multiply(del, 0.1));
+		this.viewController.focus = math.add(this.viewController.focus, math.multiply(del, 0.1))
+		
+		this.bicycleNodes.forEach(node => {
+			node.angularVelocity *= 0.99
+		})
+
+	
+
 	}
 }
 

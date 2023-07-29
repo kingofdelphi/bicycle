@@ -1,5 +1,5 @@
 import * as math from 'mathjs';
-import lineCircleCollision, { rotateZ } from './collision';
+import lineCircleCollision, from './collision';
 
 class Engine {
 	constructor() {
@@ -10,7 +10,7 @@ class Engine {
 			gravity: 500
 		};
 		this.collisionMap = new Map();
-		this.ballJointSeparationFactor = 0.5
+		this.ballJointSeparationFactor = 0.6
 	}
 
 	setConfig(config) {
@@ -189,21 +189,21 @@ class Engine {
 
 		const contactTangentVel = math.dot(contactVel, tangentAxis)
 
-		const coeff_of_restitution = 0.3
+		const coeff_of_restitution = 0.
 		const momentOfInertia = node.mass * radius * radius
 		const effectiveMass = 1 / node.mass
 
 		const normalImpulse = contactNormVel * (-1 - coeff_of_restitution) / effectiveMass
-		const tangentImpulse = contactTangentVel * (-1 - coeff_of_restitution) / effectiveMass
+		const tangentImpulse = -contactTangentVel / effectiveMass
 				
-		const frictionMg = math.min(math.max(coeff_of_friction * math.abs(tangentImpulse), 0), 50 / effectiveMass)
+		const frictionMg = math.min(coeff_of_friction * normalImpulse, math.abs(tangentImpulse))
 		
 		const frictionalImpulse = math.multiply(tangentAxis, -Math.max(-frictionMg, Math.min(frictionMg, contactTangentVel)))
 
 		const totImpulse = math.add(frictionalImpulse, math.multiply(normalAxis, normalImpulse))
 
 		// p - op = (vel + impulse) * dt
-		const deltaV = math.divide(totImpulse, node.mass)
+		const deltaV = math.divide(math.subtract(totImpulse, frictionalImpulse), node.mass)
 		const newVel = math.add(node.velocity, deltaV)
 
 		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))

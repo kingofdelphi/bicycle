@@ -1,6 +1,5 @@
-import * as PaperHelper from './paperhelper';
 import * as math from 'mathjs';
-import { pos2point, point2pos } from './util';
+import { point2pos } from './util';
 
 const getMode = () => {
 	return document.querySelector('.mode-container input[name="mode"]:checked').value;
@@ -18,8 +17,7 @@ const MouseHandler = (viewController) => {
 		let chosen;
 		engine.getNodes().forEach((node) => {
 			let ball = node.data;
-			let ballPos = [ball.renderObj.position.x, ball.renderObj.position.y];
-			let dist = math.distance(ballPos, pos);
+			let dist = math.distance(ball.renderObj.position, pos);
 			if (dist < mindist) {
 				chosen = node;
 				mindist = dist;
@@ -43,7 +41,10 @@ const MouseHandler = (viewController) => {
 
 	let downPos;
 	let selVertex = null;
-	const connectSegment = PaperHelper.createSegment();
+	const connectSegment = {
+		vertex1: [0, 0],
+		vertex2: [0, 0]
+	}
 
 	const getMousePos = (evt) => {
 		let rect = canvas.getBoundingClientRect();
@@ -65,12 +66,12 @@ const MouseHandler = (viewController) => {
 				viewController.nodes.push(selVertex.getPosition());
 			}
 			connectSegment.visible = true;
-			connectSegment.segments[0].point = curPos;
-			connectSegment.segments[1].point = downPos;
+			connectSegment.vertex1 = curPos
+			connectSegment.vertex2 = downPos
 		}
 		if (mode == 'pull') {
 			selVertex = getNearestBall(curPos);
-			if (math.distance(point2pos(selVertex.getData().renderObj.position), curPos) > 20) {
+			if (math.distance(selVertex.getData().renderObj.position, curPos) > 20) {
 				selVertex = null;
 			}
 		}
@@ -85,7 +86,7 @@ const MouseHandler = (viewController) => {
 
 	let shouldConnectToExistingNode = (destPos) => {
 		let nearest = getNearestBall(destPos);
-		let dist = math.distance(point2pos(nearest.getData().renderObj.position), destPos);
+		let dist = math.distance(nearest.getData().renderObj.position, destPos)
 		return dist < 10;
 	};
 
@@ -109,8 +110,8 @@ const MouseHandler = (viewController) => {
 		}
 		if (mode == 'connect') {
 			if (selVertex != null) {
-				const pos = shouldConnectToExistingNode(curPos) ? point2pos(getNearestBall(curPos).getData().renderObj.position) : curPos;
-				connectSegment.segments[1].point = pos;
+				const pos = shouldConnectToExistingNode(curPos) ? getNearestBall(curPos).getData().renderObj.position : curPos;
+				connectSegment.vertex2 = pos;
 			}
 		}
 	});

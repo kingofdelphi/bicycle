@@ -1,10 +1,7 @@
-import * as PaperHelper from './paperhelper';
 import Engine from './engine';
 import * as math from 'mathjs';
-import * as paper from 'paper';
-import { rotateZ } from './collision';
 
-import { pos2point, point2pos } from './util';
+import { drawCircle, drawLine, drawTrapezoid, getCanvasBounds } from './canvas';
 
 class ViewController {
 	init(config = {}) {
@@ -17,29 +14,49 @@ class ViewController {
 		this.nodes = []
 
 		this.terrains = []
+
+		this.pedal = {
+			leftPedal: {
+				
+			},
+			rightPedal: {
+
+			},
+			rotation: 0
+		}
+
+
 	}
 
 	getEngine() {
 		return this.engine;
 	}
 
+	createPedals(type) {
+		if (type == 'left') {
+			this.pedal.leftPedal.line = {
+				color: 'black', thickness: 2
+			}
+			this.pedal.leftPedal.legSupport = { color: 'black', thickness: 3, strokeCap: 'round' }
+		} else {
+			this.pedal.rightPedal.line = {
+				color: 'black', thickness: 2
+			}
+			this.pedal.rightPedal.legSupport = { color: 'black', thickness: 3, strokeCap: 'round' }
+
+		}
+	}
+
 	createBall(position, config) {
 		let node = this.engine.addNode(position, config);
 		let color = config.pinned ? 'green' : config.color;
 		let nconfig = Object.assign({}, config, { color });
-		let ball = PaperHelper.createBallObj(position, nconfig);
-		ball = {
-			renderObj: ball, 
+		const ball = {
+			renderObj: {
+				position: [0, 0]
+			},
 			node,
-			config
-		};
-		if (config.rigid) {
-			const numSpokes = 6
-			ball.rotationObjs = []
-			for (let i = 0; i < numSpokes; ++i) {
-				const segment = PaperHelper.createSegment({ color: 'black', thickness: 1 });
-				ball.rotationObjs.push(segment)
-			}
+			config: nconfig
 		}
 		node.setData(ball);
 		return node;
@@ -48,7 +65,7 @@ class ViewController {
 	addNewJoint(v1, v2, config, create_render_segment = true) {
 		let joint = this.engine.connectJoint(v1, v2);
 		let jointInfo = {
-			renderObj: create_render_segment ? PaperHelper.createSegment(config) : void 0,
+			renderObj: { visible: true },
 			config,
 			joint,
 		};
@@ -58,7 +75,6 @@ class ViewController {
 
 	createTerrain(p1, p2, config) {
 		let terrainInfo = {
-			renderObj: PaperHelper.createRectangle(config),
 			config,
 			p1,
 			p2
@@ -75,21 +91,20 @@ class ViewController {
 		return finalPos;
 	}
 
+	getViewPortCenter() {
+		const bounds = getCanvasBounds()
+
+		return [bounds[0] / 2, bounds[1] / 2];
+
+	}
+
 	worldToViewPort(position) {
-		const bounds = paper.view.getSize();
-
-		const center = [bounds.width / 2, bounds.height / 2];
-
 		const pos = math.subtract(this.getScaledPosition(position), this.getScaledPosition(this.focus));
-		return math.add(center, pos);
+		return math.add(this.getViewPortCenter(), pos);
 	}
 
 	viewPortToWorld(position) {
-		const bounds = paper.view.getSize();
-
-		const center = [bounds.width / 2, bounds.height / 2];
-
-		let pos = math.subtract(position, center);
+		let pos = math.subtract(position, this.getViewPortCenter());
 		pos = math.divide(pos, this.config.scale);
 		return math.add(pos, this.focus);
 	}
@@ -100,57 +115,105 @@ class ViewController {
 		// zoom scale
 		const { scale } = this.config;
 
+
 		this.engine.getNodes().forEach(node => {
-			const renderInfo = node.getData();
-			var pos = node.getPosition();
-			var viewPortPos = this.worldToViewPort(pos);
-			renderInfo.renderObj.position = pos2point(viewPortPos);
+			const renderInfo = node.getData()
+			var pos = node.getPosition()
+			var viewPortPos = this.worldToViewPort(pos)
 
-			const radius = renderInfo.config.radius;
-			const curRadius = renderInfo.renderObj.getBounds().width / 2;
-			renderInfo.renderObj.scale(scale * radius / curRadius);
+			const radius = renderInfo.config.radius
 
+			renderInfo.renderObj.position = viewPortPos
+			drawCircle(viewPortPos, scale * radius, renderInfo.config)
+			
 			if (renderInfo.config.rigid) {
-				const circleLines = renderInfo.rotationObjs;
-				const count = circleLines.length
-				const delta = 2 * Math.PI / count
-				let off = 0
-				const r = [curRadius, 0]
+				const numSpokes = 8
+				const delta = 2 * Math.PI / numSpokes
+				const r = [radius, 0]
 
-				for (const circleLine of circleLines) {
+				for (let off = 0; off < numSpokes; ++off) {
 					const angle = off * delta + node.getRotation()
-					off += 1
 					
 					const v1 = math.rotate(r, angle)
 					const v2 = math.rotate(r, angle + Math.PI)
 					
-					const v1Scaled = math.add(viewPortPos, v1);
-					circleLine.segments[0].point = pos2point(v1Scaled);
+					const v1Scaled = math.add(viewPortPos, v1)
+					const v2Scaled = math.add(viewPortPos, v2)
 
-					const v2Scaled = math.add(viewPortPos, v2);
-					circleLine.segments[1].point = pos2point(v2Scaled);
+					drawLine(v1Scaled, v2Scaled, node.getData())
+
 				}
 			}
 		});
-
+		
 		this.engine.getJoints().forEach(joint => {
 			const renderInfo = joint.getData();
-			if (renderInfo.renderObj) {
-				renderInfo.renderObj.segments[0].point = pos2point(this.worldToViewPort(joint.v1.getPosition()));
-				renderInfo.renderObj.segments[1].point = pos2point(this.worldToViewPort(joint.v2.getPosition()));
+			
+			if (!renderInfo.renderObj.visible) {
+				return
 			}
 
+			const v1 = this.worldToViewPort(joint.v1.getPosition())
+			const v2 = this.worldToViewPort(joint.v2.getPosition())
+
+			drawLine(v1, v2, renderInfo.config)
+			
+
 		})
+		
+		// return
 
 		this.terrains.forEach(terrain => {
-			const renderInfo = terrain.renderObj;
+			const v1 = this.worldToViewPort(math.add(terrain.p1, [0, 0]))
+			const v2 = this.worldToViewPort(math.add(terrain.p2, [0, 0]))
+			const v3 = this.worldToViewPort(math.add(terrain.p2, [0, terrain.config.height]))
+			const v4 = this.worldToViewPort(math.add(terrain.p1, [0, terrain.config.height]))
 			
-			renderInfo.segments[0].point = pos2point(this.worldToViewPort(math.add(terrain.p1, [0, 0])))
-			renderInfo.segments[1].point = pos2point(this.worldToViewPort(math.add(terrain.p2, [0, 0])))
-			renderInfo.segments[2].point = pos2point(this.worldToViewPort(math.add(terrain.p2, [0, terrain.config.height])))
-			renderInfo.segments[3].point = pos2point(this.worldToViewPort(math.add(terrain.p1, [0, terrain.config.height])))
-
+			drawTrapezoid(v1, v2, v3, v4, terrain.config)
 		})
+		
+		// return
+
+		const pedalPos = math.rotate([10, 0], this.pedal.rotation)
+		const LEG_LEN = 5
+
+		let wheelDelta = math.subtract(this.wheel.v2.position, this.wheel.v1.position)
+
+		wheelDelta = math.divide(wheelDelta, math.norm(wheelDelta))
+
+		const leftPos = math.add(this.ballPedal.getPosition(), pedalPos)
+
+		drawLine(
+			this.worldToViewPort(this.ballPedal.getPosition()),
+			this.worldToViewPort(leftPos),
+			this.pedal.leftPedal.line
+		)
+	
+		const delLeft = math.multiply(wheelDelta, -LEG_LEN)
+		const delRight = math.multiply(wheelDelta, LEG_LEN)
+
+		drawLine(
+			this.worldToViewPort(math.add(leftPos, delLeft)),
+			this.worldToViewPort(math.add(leftPos, delRight)),
+			this.pedal.leftPedal.legSupport
+
+		)
+
+		const rightPos = (math.add(this.ballPedal.getPosition(), math.rotate(pedalPos, Math.PI)))
+
+		drawLine(
+			this.worldToViewPort(this.ballPedal.getPosition()),
+			this.worldToViewPort(rightPos),
+			this.pedal.rightPedal.line
+
+		)
+
+		drawLine(
+			this.worldToViewPort(math.add(rightPos, delLeft)),
+			this.worldToViewPort(math.add(rightPos, delRight)),
+			this.pedal.rightPedal.legSupport
+		)
+
 	}
 
 }

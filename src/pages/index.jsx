@@ -26,6 +26,7 @@ export default function Home() {
 			<label htmlFor='circle'>CIRCLE</label>
 			<label>Navigation: <strong>WSAD or Arrow Keys</strong></label>
 			<label>Zoom In = <strong>Z</strong>, Zoom Out = <strong>X</strong></label>
+			<label style={{marginLeft: '10rem'}}>FPS: <span id='fps'></span></label>
 		</div>
 		<div id='canvas-wrapper'>
 			<canvas id="canvas"></canvas>
