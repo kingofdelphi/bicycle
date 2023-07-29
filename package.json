@@ -15,7 +15,6 @@
     "@types/react-dom": "18.2.6",
     "mathjs": "^11.8.2",
     "next": "13.4.9",
-    "paper": "^0.12.17",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "5.1.6"
