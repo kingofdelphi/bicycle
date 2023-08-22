@@ -10,7 +10,7 @@ class Engine {
 			gravity: 500
 		};
 		this.collisionMap = new Map();
-		this.ballJointSeparationFactor = 0.6
+		this.ballJointSeparationFactor = 1
 	}
 
 	setConfig(config) {

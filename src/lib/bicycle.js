@@ -337,7 +337,7 @@ class Demo {
 
 			// this.wheel.v1.angularVelocity = clamp(this.wheel.v1.angularVelocity, -MAX_ANGULAR, MAX_ANGULAR)
 			// this.wheel.v2.angularVelocity = clamp(this.wheel.v2.angularVelocity, -MAX_ANGULAR, MAX_ANGULAR)
-			this.viewController.pedal.rotation += (this.wheel.v1.angularVelocity - prevAngular) * dt
+			this.viewController.pedal.rotation += Math.max(this.wheel.v1.angularVelocity - prevAngular, 2) * dt
 		}
 
 		if (pedaling != null) {
@@ -348,12 +348,7 @@ class Demo {
 		const dest = math.add(wheel.v1.position, [120, -80]);
 		const del = math.subtract(dest, this.viewController.focus); 
 		this.viewController.focus = math.add(this.viewController.focus, math.multiply(del, 0.1))
-		
-		this.bicycleNodes.forEach(node => {
-			node.angularVelocity *= 0.99
-		})
 
-	
 
 	}
 }
