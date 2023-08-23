@@ -17,39 +17,6 @@ class Engine {
 		this.config = config;
 	}
 
-	solveAngularConstraints() {
-		this.angularConstraints.forEach(constraint => {
-			var nodeA = constraint.nodeA;
-			var pivot = constraint.pivot;
-			var nodeB = constraint.nodeB;
-			var pa = nodeA.position;
-			var pb = nodeB.position;
-			var ppivot = pivot.position;
-
-			var vpa = math.subtract(pa, ppivot);
-			var vpb = math.subtract(pb, ppivot);
-
-			var xAngleA = Math.atan2(vpa[1], vpa[0]);
-			if (xAngleA < 0) xAngleA += 2 * Math.PI;
-
-			var xAngleB = Math.atan2(vpb[1], vpb[0]);
-			if (xAngleB < 0) xAngleB += 2 * Math.PI;
-
-			var angle = xAngleB - xAngleA;
-			if (angle < 0) {
-				angle += 2 * Math.PI;
-			}
-			var angleDifference = constraint.angle - angle;
-
-			var delA = -angleDifference * constraint.weightageA;
-			var delB = angleDifference * constraint.weightageB;
-
-			nodeA.position = math.add(ppivot, math.rotate(vpa, delA));
-			nodeB.position = math.add(ppivot, math.rotate(vpb, delB));
-
-		});
-	}
-
 	solveConstraints() {
 		this.joints.forEach(joint => {
 			var nodeA = joint.v1;
@@ -366,7 +333,6 @@ class Engine {
 
 		for (let iter = 0; iter < 4; ++iter) {
 			this.solveConstraints()
-			this.solveAngularConstraints()
 		}
 
 

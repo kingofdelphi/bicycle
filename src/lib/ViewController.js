@@ -175,16 +175,108 @@ class ViewController {
 		// return
 
 		const pedalPos = math.rotate([10, 0], this.pedal.rotation)
-		const LEG_LEN = 5
-
 		let wheelDelta = math.subtract(this.wheel.v2.position, this.wheel.v1.position)
 
-		wheelDelta = math.divide(wheelDelta, math.norm(wheelDelta))
+		const wheelLength = math.norm(wheelDelta)
+		wheelDelta = math.divide(wheelDelta, wheelLength)
 
-		const leftPos = math.add(this.ballPedal.getPosition(), pedalPos)
+		const pedalCenter = math.divide(math.add(this.wheel.v1.position, this.wheel.v2.position), 2)
+
+		const wheelRadius = this.wheel.v1.data.config.radius
+
+		const cfg = { thickness: 2 }
 
 		drawLine(
-			this.worldToViewPort(this.ballPedal.getPosition()),
+			this.worldToViewPort(pedalCenter),
+			this.worldToViewPort(this.wheel.v1.position),
+			cfg
+		)
+
+		const wheelAng = math.atan2(wheelDelta[1], wheelDelta[0])
+		
+		const frameCenter = math.add(this.wheel.v1.position, math.rotate([wheelRadius + 20, 0], -Math.PI / 4 + wheelAng))
+
+		drawLine(
+			this.worldToViewPort(this.wheel.v1.position),
+			this.worldToViewPort(frameCenter),
+			cfg
+		)
+
+		drawLine(
+			this.worldToViewPort(pedalCenter),
+			this.worldToViewPort(frameCenter),
+			cfg
+		)
+		
+		const seatHeight = 14
+
+		const seatPos = math.add(frameCenter, math.rotate([seatHeight, 0], wheelAng - 110 * Math.PI / 180))
+		
+		drawLine(
+			this.worldToViewPort(frameCenter),
+			this.worldToViewPort(seatPos),
+			cfg
+		)
+		
+		drawLine(
+			this.worldToViewPort(seatPos),
+			this.worldToViewPort(math.add(seatPos, math.rotate([10, 0], wheelAng))),
+			cfg
+		)
+		drawLine(
+			this.worldToViewPort(seatPos),
+			this.worldToViewPort(math.add(seatPos, math.rotate([-10, 0], wheelAng))),
+			cfg
+		)
+		
+		const frameFront = math.add(this.wheel.v2.position, math.rotate([wheelRadius + seatHeight, 0], wheelAng - 110 * Math.PI / 180))
+
+
+		drawLine(
+			this.worldToViewPort(this.wheel.v2.position),
+			this.worldToViewPort(frameFront),
+			cfg
+		)
+
+		drawLine(
+			this.worldToViewPort(frameCenter),
+			this.worldToViewPort(frameFront),
+			cfg
+		)
+
+		drawLine(
+			this.worldToViewPort(pedalCenter),
+			this.worldToViewPort(frameFront),
+			cfg
+		)
+
+		const handlePos = math.add(frameFront, math.rotate([10, 0], wheelAng - 110 * Math.PI / 180))
+
+		drawLine(
+			this.worldToViewPort(handlePos),
+			this.worldToViewPort(frameFront),
+			cfg
+		)
+		
+		drawLine(
+			this.worldToViewPort(handlePos),
+			this.worldToViewPort(math.add(handlePos, math.rotate([10, 0], wheelAng + Math.PI / 10))),
+			cfg
+		)
+
+		drawLine(
+			this.worldToViewPort(handlePos),
+			this.worldToViewPort(math.add(handlePos, math.rotate([-10, 0], wheelAng + Math.PI / 10))),
+			cfg
+		)
+
+		const LEG_LEN = 5
+
+	
+		const leftPos = math.add(pedalCenter, pedalPos)
+
+		drawLine(
+			this.worldToViewPort(pedalCenter),
 			this.worldToViewPort(leftPos),
 			this.pedal.leftPedal.line
 		)
@@ -199,13 +291,12 @@ class ViewController {
 
 		)
 
-		const rightPos = (math.add(this.ballPedal.getPosition(), math.rotate(pedalPos, Math.PI)))
+		const rightPos = (math.add(pedalCenter, math.rotate(pedalPos, Math.PI)))
 
 		drawLine(
-			this.worldToViewPort(this.ballPedal.getPosition()),
+			this.worldToViewPort(pedalCenter),
 			this.worldToViewPort(rightPos),
 			this.pedal.rightPedal.line
-
 		)
 
 		drawLine(
