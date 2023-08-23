@@ -124,6 +124,7 @@ class ViewController {
 			const radius = renderInfo.config.radius
 
 			renderInfo.renderObj.position = viewPortPos
+			
 			drawCircle(viewPortPos, scale * radius, renderInfo.config)
 			
 			if (renderInfo.config.rigid) {

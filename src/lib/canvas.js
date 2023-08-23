@@ -4,7 +4,7 @@ const ctx = canvas.getContext('2d');
 
 export const drawCircle = (position, radius, config) => {
     ctx.beginPath();
-    ctx.arc(position[0], position[1], radius, 0, 2 * Math.PI);
+    ctx.arc(position[0], position[1], radius, 0, 2 * Math.PI)
     ctx.lineWidth = config.strokeWidth
     ctx.strokeStyle = 'black'
     ctx.stroke()

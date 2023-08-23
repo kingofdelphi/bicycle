@@ -19,11 +19,11 @@ class Demo {
 		const positionB = math.add(positionA, [2 * config.radius + 40, 0]);
 		this.viewController.createPedals('left')
 
-		const ballA = this.viewController.createBall(positionA, Object.assign({}, config, { color: null }));
+		const ballA = this.viewController.createBall(positionA, { ...config, strokeWidth: 5 })
 		this.wheel = { v1: ballA, v2: ballA } 
 		// return
 
-		const ballB = this.viewController.createBall(positionB, Object.assign({}, config, { color: null }))
+		const ballB = this.viewController.createBall(positionB, { ...config, strokeWidth: 5 })
 		
 		const thickness = 2;
 		this.wheel = this.viewController.addNewJoint(ballA, ballB, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 });
@@ -32,14 +32,6 @@ class Demo {
 		this.wheel.getData().renderObj.visible = false;
 		this.viewController.createPedals('right')
 
-		// remove wheel solid color
-		ballA.getData().config.fillColor = null;
-		ballA.getData().config.strokeColor = 'black';
-		ballA.getData().config.strokeWidth = 4;
-
-		ballB.getData().config.fillColor = null;
-		ballB.getData().config.strokeColor = 'black';
-		ballB.getData().config.strokeWidth = 4;
 	}
 
 	postInit(viewController) {
