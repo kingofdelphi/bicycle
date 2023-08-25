@@ -1,4 +1,4 @@
-import * as math from 'mathjs';
+import * as math from './math';
 import lineCircleCollision from './collision';
 
 class Engine {
@@ -145,7 +145,7 @@ class Engine {
 		const angularVel = math.cross([0, 0, node.angularVelocity], radiusVector.concat(0)).slice(0, -1)
 		const contactVel = math.add(node.velocity, angularVel)
 
-		const coeff_of_friction = 0.99
+		const coeff_of_friction = 0.7
 
 		const contactNormVel = math.dot(contactVel, normalAxis)
 		
@@ -156,7 +156,7 @@ class Engine {
 
 		const contactTangentVel = math.dot(contactVel, tangentAxis)
 
-		const coeff_of_restitution = 0.
+		const coeff_of_restitution = 0.2
 		const momentOfInertia = node.mass * radius * radius
 		const effectiveMass = 1 / node.mass
 
@@ -165,12 +165,12 @@ class Engine {
 				
 		const frictionMg = math.min(coeff_of_friction * normalImpulse, math.abs(tangentImpulse))
 		
-		const frictionalImpulse = math.multiply(tangentAxis, -Math.max(-frictionMg, Math.min(frictionMg, contactTangentVel)))
+		const frictionalImpulse = math.multiply(tangentAxis, -math.clamp(contactTangentVel, -frictionMg, frictionMg))
 
 		const totImpulse = math.add(frictionalImpulse, math.multiply(normalAxis, normalImpulse))
 
 		// p - op = (vel + impulse) * dt
-		const deltaV = math.divide(math.subtract(totImpulse, frictionalImpulse), node.mass)
+		const deltaV = math.divide(totImpulse, node.mass)
 		const newVel = math.add(node.velocity, deltaV)
 
 		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))

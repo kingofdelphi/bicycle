@@ -1,5 +1,5 @@
 import Engine from './engine';
-import * as math from 'mathjs';
+import * as math from './math';
 
 import { drawCircle, drawLine, drawTrapezoid, getCanvasBounds } from './canvas';
 

@@ -1,8 +1,7 @@
 import mouseHandler from './mousehandler';
 import keys from './keys';
-import * as math from 'mathjs';
+import * as math from './math';
 import nodes from './level';
-import { clamp } from './util';
 import { drawCircle } from './canvas';
 
 class Demo {
@@ -204,12 +203,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-30 * dt);
+				rot(-15 * dt);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(30 * dt);
+				rot(15 * dt);
 			}
 		}
 
@@ -238,27 +237,19 @@ class Demo {
 
 			const dir = direction === 'forward' ? 1 : -1
 
-			const MAX_ANGULAR = 50
-			//
-
-			const prevAngular = this.wheel.v1.angularVelocity
-			
-			this.wheel.v1.angularVelocity += 10 * dt * dir
-			// this.wheel.v2.angularVelocity += 50 * dt * dir
+			this.wheel.v1.angularVelocity += 5 * dt * dir
 
 			if (colInfo) {
 				const dd = math.rotate(colInfo.collisionInfo.axis, Math.PI / 2)
 				this.bicycleNodes.forEach(nd => {
 					if (nd === wheel.v1)
 					// nd.oldPosition = math.add(nd.oldPosition, math.multiply(dd, -20 * dt * dir))
-					nd.position = math.add(nd.position, math.multiply(dd, 30 * dt * dir))
+					nd.position = math.add(nd.position, math.multiply(dd, 20 * dt * dir))
 
 				})
 			}
 
-			// this.wheel.v1.angularVelocity = clamp(this.wheel.v1.angularVelocity, -MAX_ANGULAR, MAX_ANGULAR)
-			// this.wheel.v2.angularVelocity = clamp(this.wheel.v2.angularVelocity, -MAX_ANGULAR, MAX_ANGULAR)
-			this.viewController.pedal.rotation += Math.max(this.wheel.v1.angularVelocity - prevAngular, 2) * dt
+			this.viewController.pedal.rotation += 5 * dir * dt
 		}
 
 		if (pedaling != null) {
