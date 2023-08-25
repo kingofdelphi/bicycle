@@ -1,14 +1,15 @@
 import * as math from './math';
+import { Vec } from './math'
 
 interface BoundingBox {
-  position: number[];
+  position: Vec;
   width: number;
   height: number;
 }
 
-const lineToBBox = (p1: number[], p2: number[]): BoundingBox => {
-  const minPos = [Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1])];
-  const maxPos = [Math.max(p1[0], p2[0]), Math.max(p1[1], p2[1])];
+const lineToBBox = (p1: Vec, p2: Vec): BoundingBox => {
+  const minPos: Vec = [Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1])];
+  const maxPos: Vec = [Math.max(p1[0], p2[0]), Math.max(p1[1], p2[1])];
   return {
     position: minPos,
     width: maxPos[0] - minPos[0],
@@ -16,7 +17,7 @@ const lineToBBox = (p1: number[], p2: number[]): BoundingBox => {
   };
 };
 
-const circleToBBox = (pos: number[], radius: number): BoundingBox => {
+const circleToBBox = (pos: Vec, radius: number): BoundingBox => {
   return {
     position: [pos[0] - radius, pos[1] - radius],
     width: 2 * radius,
@@ -33,12 +34,12 @@ const boundingBoxCollision = (rectA: BoundingBox, rectB: BoundingBox): boolean =
 };
 
 const lineCircleCollision = (
-  p1: number[],
-  p2: number[],
+  p1: Vec,
+  p2: Vec,
   p1continuousNormal: boolean,
   p2continuousNormal: boolean,
-  ball: number[],
-  vel: number[],
+  ball: Vec,
+  vel: Vec,
   radius: number
 ) => {
   if (p1continuousNormal == null) p1continuousNormal = true;
@@ -50,7 +51,7 @@ const lineCircleCollision = (
   const jointLength = math.norm(dj);
 
   dj = math.divide(dj, jointLength);
-  let djNormal = [-dj[1], dj[0]];
+  let djNormal: Vec = [-dj[1], dj[0]];
 
   const p1Ball = math.subtract(ball, p1);
 

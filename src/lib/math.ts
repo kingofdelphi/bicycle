@@ -1,5 +1,5 @@
-type Vec = [number, number]
-type Vec3 = [number, number, number]
+export type Vec = [number, number]
+export type Vec3 = [number, number, number]
 
 export const add = (a: Vec, b: Vec): Vec => [a[0] + b[0], a[1] + b[1]]
 export const subtract = (a: Vec, b: Vec): Vec => [a[0] - b[0], a[1] - b[1]]
