@@ -238,8 +238,9 @@ class Demo {
 			const dir = direction === 'forward' ? 1 : -1
 
 			this.wheel.v1.angularVelocity += 5 * dt * dir
-
-			if (colInfo) {
+			
+			// console.log('Back wheel collision', collision.length);
+			collision.forEach(colInfo => {					
 				const dd = math.rotate(colInfo.collisionInfo.axis, Math.PI / 2)
 				this.bicycleNodes.forEach(nd => {
 					if (nd === wheel.v1)
@@ -247,8 +248,8 @@ class Demo {
 					nd.position = math.add(nd.position, math.multiply(dd, 20 * dt * dir))
 
 				})
-			}
-
+			})
+		
 			this.viewController.pedal.rotation += 5 * dir * dt
 		}
 
