@@ -173,7 +173,6 @@ class Engine {
 		const deltaV = math.divide(math.subtract(totImpulse, frictionalImpulse), node.mass)
 		const newVel = math.add(node.velocity, deltaV)
 
-		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
 		node.velocity = newVel
 
 		const angularImpulse = math.cross(radiusVector.concat(0), totImpulse.concat(0))[2]
@@ -313,18 +312,17 @@ class Engine {
 		if (dt == 0) return;
 		this.dt = dt;
 		this.nodes.forEach((node, i) => {
-			if (node.isPinned()) return
+			if (node.isPinned()) {
+				node.velocity = [0, 0]
+				return
+			}
 
-			const f = 0.98
-			let velocity = math.multiply(math.divide(math.subtract(node.position, node.oldPosition), this.dt), f)
+			node.velocity ||= [0, 0]
 
-			velocity = math.add(velocity, [0, this.config.gravity * this.dt])
-
-			node.rotation += node.angularVelocity * this.dt * f
+			node.rotation += node.angularVelocity * this.dt
 			
-			node.oldPosition = node.position
-			node.velocity = velocity
-			node.position = math.add(node.position, math.multiply(velocity, this.dt))
+			node.velocity = math.add(node.velocity, [0, this.config.gravity * this.dt])
+			node.position = math.add(node.position, math.multiply(node.velocity, this.dt))
 		})
 
 		for (let i = 0; i < 1; ++i) {

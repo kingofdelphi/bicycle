@@ -173,7 +173,7 @@ class ViewController {
 			drawTrapezoid(v1, v2, v3, v4, terrain.config)
 		})
 		
-		// return
+		return
 
 		const pedalPos = math.rotate([10, 0], this.pedal.rotation)
 		let wheelDelta = math.subtract(this.wheel.v2.position, this.wheel.v1.position)

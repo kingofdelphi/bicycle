@@ -20,7 +20,7 @@ class Demo {
 
 		const ballA = this.viewController.createBall(positionA, { ...config, strokeWidth: 5 })
 		this.wheel = { v1: ballA, v2: ballA } 
-		// return
+		return
 
 		const ballB = this.viewController.createBall(positionB, { ...config, strokeWidth: 5 })
 		
@@ -245,7 +245,7 @@ class Demo {
 				this.bicycleNodes.forEach(nd => {
 					if (nd === wheel.v1)
 					// nd.oldPosition = math.add(nd.oldPosition, math.multiply(dd, -20 * dt * dir))
-					nd.position = math.add(nd.position, math.multiply(dd, 20 * dt * dir))
+					nd.velocity = math.add(nd.velocity, math.multiply(dd, 500 * dt * dir))
 
 				})
 			})
