@@ -1,6 +1,6 @@
 import mouseHandler from './mousehandler';
 import lineCircleCollision from './collision';
-import * as math from 'mathjs';
+import * as math from './math';
 
 class Test {
 	postInit(viewController) {

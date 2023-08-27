@@ -23,7 +23,7 @@ class Main {
 		const onFrame = () => {
 			// Get a reference to the canvas renderObject
 			// Create an empty project and a view for the canvas:
-			const event = { delta: 1 / 30 }
+			const event = { delta: 1 / 60 }
 			world.preUpdateCallback(event)
 			this.updateGame(event)
 			window.requestAnimationFrame(onFrame)

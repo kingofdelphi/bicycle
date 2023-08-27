@@ -1,10 +1,12 @@
-import * as math from 'mathjs';
+import * as math from './math';
 import lineCircleCollision from './collision';
 
 class Engine {
 	constructor() {
 		this.nodes = [];
 		this.joints = [];
+		this.bicycleJoints = []
+
 		this.angularConstraints = [];
 		this.config = {
 			gravity: 500
@@ -51,7 +53,7 @@ class Engine {
 	}
 
 	solveConstraints() {
-		this.joints.forEach(joint => {
+		this.bicycleJoints.forEach(joint => {
 			var nodeA = joint.v1;
 			var nodeB = joint.v2;
 			var pa = nodeA.position;
@@ -178,7 +180,7 @@ class Engine {
 		const angularVel = math.cross([0, 0, node.angularVelocity], radiusVector.concat(0)).slice(0, -1)
 		const contactVel = math.add(node.velocity, angularVel)
 
-		const coeff_of_friction = 0.99
+		const coeff_of_friction = 0.9
 
 		const contactNormVel = math.dot(contactVel, normalAxis)
 		
@@ -189,21 +191,21 @@ class Engine {
 
 		const contactTangentVel = math.dot(contactVel, tangentAxis)
 
-		const coeff_of_restitution = 0.
+		const coeff_of_restitution = 0.1
 		const momentOfInertia = node.mass * radius * radius
 		const effectiveMass = 1 / node.mass
 
-		const normalImpulse = contactNormVel * (-1 - coeff_of_restitution) / effectiveMass
+		const normalImpulse = -contactNormVel * (1 + coeff_of_restitution) / effectiveMass
 		const tangentImpulse = -contactTangentVel / effectiveMass
 				
-		const frictionMg = math.min(coeff_of_friction * normalImpulse, math.abs(tangentImpulse))
+		const frictionMg = coeff_of_friction * normalImpulse
 		
-		const frictionalImpulse = math.multiply(tangentAxis, -Math.max(-frictionMg, Math.min(frictionMg, contactTangentVel)))
+		const frictionalImpulse = math.multiply(tangentAxis, math.clamp(tangentImpulse, -frictionMg, frictionMg))
 
 		const totImpulse = math.add(frictionalImpulse, math.multiply(normalAxis, normalImpulse))
 
 		// p - op = (vel + impulse) * dt
-		const deltaV = math.divide(math.subtract(totImpulse, frictionalImpulse), node.mass)
+		const deltaV = math.divide(totImpulse, node.mass)
 		const newVel = math.add(node.velocity, deltaV)
 
 		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
@@ -214,17 +216,20 @@ class Engine {
 	}
 
 	resolveCollisions() {
-		const collidableJoints = this.joints.filter(joint => joint.getData().config.collidable);
 		this.collisionMap.clear()
+		
+		const indxL = this.viewController.getFirstTerrainNotInViewPort()
+		const indxR = this.viewController.getSecondTerrainNotInViewPort()
 
-		this.getNodesForCollision().filter(node => node.getData().config.rigid == true).forEach((node) => {
+		this.bicycleNodes.forEach((node) => {
 			// if (math.norm(ball.vel) <= 0) return;
 			// if a circle is connected to a joint, shouldn't check collision with it
 			let colInfo = []
 		
-			collidableJoints.forEach(joint => {
+			for (let i = indxL + 1; i < indxR; ++i) {
+				const joint = this.viewController.terrainJoints[i]
 				const { v1, v2 } = joint;
-				if (v1 === node || v2 === node) return
+				
 				const radius = node.data.config.radius
 				const collision = lineCircleCollision(v1.getPosition(),
 					v2.getPosition(),
@@ -234,7 +239,7 @@ class Engine {
 					node.velocity,
 					radius
 				)
-				if (!collision) return
+				if (!collision) continue
 				
 				if (collision.penetration < 0) {
 					throw 'penetration cannot be negative'
@@ -242,7 +247,7 @@ class Engine {
 				
 
 				colInfo.push({ joint, collisionInfo: collision })
-			})
+			}
 
 			if (!colInfo.length) return
 
@@ -348,7 +353,7 @@ class Engine {
 		this.nodes.forEach((node, i) => {
 			if (node.isPinned()) return
 
-			const f = 0.98
+			const f = 1
 			let velocity = math.multiply(math.divide(math.subtract(node.position, node.oldPosition), this.dt), f)
 
 			velocity = math.add(velocity, [0, this.config.gravity * this.dt])

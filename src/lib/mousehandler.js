@@ -1,5 +1,4 @@
-import * as math from 'mathjs';
-import { point2pos } from './util';
+import * as math from './math';
 
 const getMode = () => {
 	return document.querySelector('.mode-container input[name="mode"]:checked').value;

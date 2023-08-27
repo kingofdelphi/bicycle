@@ -1,6 +1,6 @@
 import mouseHandler from './mousehandler';
 import keys from './keys';
-import * as math from 'mathjs';
+import * as math from './math';
 import nodes from './level';
 import { clamp } from './util';
 import { drawCircle } from './canvas';
@@ -13,10 +13,10 @@ class Demo {
 			radius: 2
 		};
 		config.rigid = true;
-		config.radius = 16;
+		config.radius = 22;
 		config.pinned = false;
 		const positionA = [80, 300];
-		const positionB = [135, 300];
+		const positionB = math.add(positionA, [2 * config.radius + 34, 0])
 		this.viewController.createPedals('left')
 
 		const ballA = this.viewController.createBall(positionA, Object.assign({}, config, { color: null }));
@@ -25,89 +25,90 @@ class Demo {
 
 		const ballB = this.viewController.createBall(positionB, Object.assign({}, config, { color: null }))
 		
-		const thickness = 2;
+		const thickness = 2
 		this.wheel = this.viewController.addNewJoint(ballA, ballB, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 });
 		this.viewController.wheel = this.wheel
 		// return
-		this.wheel.getData().renderObj.visible = false;
+		this.wheel.getData().renderObj.visible = false
 
 		// remove wheel solid color
-		ballA.getData().config.fillColor = null;
-		ballA.getData().config.strokeColor = 'black';
-		ballA.getData().config.strokeWidth = 4;
+		ballA.getData().config.fillColor = null
+		ballA.getData().config.strokeColor = 'black'
+		ballA.getData().config.strokeWidth = 4
 
-		ballB.getData().config.fillColor = null;
-		ballB.getData().config.strokeColor = 'black';
-		ballB.getData().config.strokeWidth = 4;
+		ballB.getData().config.fillColor = null
+		ballB.getData().config.strokeColor = 'black'
+		ballB.getData().config.strokeWidth = 4
 
-		const rearAngleToSeat = -Math.PI / 6 * 2;
-		const RR = 30;
-		const positionRear = math.add(positionA, math.multiply([Math.cos(rearAngleToSeat), Math.sin(rearAngleToSeat)], RR));
-		const ballRear = this.viewController.createBall(positionRear, { radius: 0, pinned: false });
+		const rearAngleToSeat = -Math.PI / 6 * 2
+		const RR = 38;
+		const positionRear = math.add(positionA, math.multiply([Math.cos(rearAngleToSeat), Math.sin(rearAngleToSeat)], RR))
+		const ballRear = this.viewController.createBall(positionRear, { radius: 0, pinned: false })
 
 		// back wheel to seat
-		this.viewController.addNewJoint(ballA, ballRear, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
-		this.viewController.engine.addAngularConstraint(ballB, ballA, ballRear, rearAngleToSeat, 0, 1);
+		this.viewController.addNewJoint(ballA, ballRear, { thickness, collidable: true, weightageA: 0, weightageB: 1 })
+		this.viewController.engine.addAngularConstraint(ballB, ballA, ballRear, rearAngleToSeat, 0, 1)
 
 		// front wheel to handle
-		const frontWheelToHandle = -Math.PI / 6 * 2.2;
-		const RR2 = 23;
-		const handlePos = math.add(positionB, math.multiply([Math.cos(frontWheelToHandle), Math.sin(frontWheelToHandle)], RR2));
-		const ballHandle = this.viewController.createBall(handlePos, { radius: 0, pinned: false });
-		this.viewController.addNewJoint(ballB, ballHandle, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
-		this.viewController.engine.addAngularConstraint(ballA, ballB, ballHandle, -frontWheelToHandle, 0, 1);
+		const frontWheelToHandle = -Math.PI / 6 * 2.2
+		const RR2 = 26
+		const handlePos = math.add(positionB, math.multiply([Math.cos(frontWheelToHandle), Math.sin(frontWheelToHandle)], RR2))
+		const ballHandle = this.viewController.createBall(handlePos, { radius: 0, pinned: false })
+		this.viewController.addNewJoint(ballB, ballHandle, { thickness, collidable: true, weightageA: 0, weightageB: 1 })
+		this.viewController.engine.addAngularConstraint(ballA, ballB, ballHandle, -frontWheelToHandle, 0, 1)
 
 		// pedal joint
-		const pedalPos = math.add(positionA, [config.radius + 12, 0]);
+		const pedalPos = math.add(positionA, [config.radius + 20, 0])
 		const ballPedal = this.viewController.createBall(pedalPos, { radius: 0, pinned: false })
 		this.viewController.ballPedal = ballPedal
 
-		this.viewController.addNewJoint(ballA, ballPedal, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
-		this.viewController.engine.addAngularConstraint(ballB, ballA, ballPedal, 0, 0, 1);
+		this.viewController.addNewJoint(ballA, ballPedal, { thickness, collidable: true, weightageA: 0, weightageB: 1 })
+		this.viewController.engine.addAngularConstraint(ballB, ballA, ballPedal, 0, 0, 1)
 
 		// joint to handle
-		this.viewController.addNewJoint(ballPedal, ballHandle, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
+		this.viewController.addNewJoint(ballPedal, ballHandle, { thickness, collidable: true, weightageA: 0, weightageB: 1 })
 
 		//pedal to rear seat
-		this.viewController.addNewJoint(ballPedal, ballRear, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
+		this.viewController.addNewJoint(ballPedal, ballRear, { thickness, collidable: true, weightageA: 0, weightageB: 1 })
 
 		//front handle to rear seat
-		this.viewController.addNewJoint(ballHandle, ballRear, { thickness, collidable: true, weightageA: 0, weightageB: 1 });
+		this.viewController.addNewJoint(ballHandle, ballRear, { thickness, collidable: true, weightageA: 0, weightageB: 1 })
 
 		//actual seat
-		const seatHeight = 8;
-		const seatPos = math.add(positionRear, [0, -seatHeight]);
-		const ballSeat = this.viewController.createBall(seatPos, { radius: 0, pinned: false });
-		this.viewController.addNewJoint(ballSeat, ballRear, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
-		this.viewController.engine.addAngularConstraint(ballPedal, ballRear, ballSeat, Math.PI, 0, 1);
-		const seat_radius = 6;
-		const seatPosA = math.add(seatPos, [-seat_radius, 0]);
-		const seatPosB = math.add(seatPos, [seat_radius, 0]);
-		const ballSeatA = this.viewController.createBall(seatPosA, { radius: 0, pinned: false });
-		const ballSeatB = this.viewController.createBall(seatPosB, { radius: 0, pinned: false });
-		this.viewController.addNewJoint(ballSeatA, ballSeat, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
-		this.viewController.addNewJoint(ballSeatB, ballSeat, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
-		this.viewController.engine.addAngularConstraint(ballRear, ballSeat, ballSeatA, Math.PI / 2 + Math.PI / 6, 0, 1);
-		this.viewController.engine.addAngularConstraint(ballSeatA, ballSeat, ballSeatB, Math.PI, 0, 1);
+		const seatHeight = 8
+		const seatPos = math.add(positionRear, [0, -seatHeight])
+		const ballSeat = this.viewController.createBall(seatPos, { radius: 0, pinned: false })
+		this.viewController.addNewJoint(ballSeat, ballRear, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.engine.addAngularConstraint(ballPedal, ballRear, ballSeat, Math.PI, 0, 1)
+
+		const seat_radius = 6
+		const seatPosA = math.add(seatPos, [-seat_radius, 0])
+		const seatPosB = math.add(seatPos, [seat_radius, 0])
+		const ballSeatA = this.viewController.createBall(seatPosA, { radius: 0, pinned: false })
+		const ballSeatB = this.viewController.createBall(seatPosB, { radius: 0, pinned: false })
+		this.viewController.addNewJoint(ballSeatA, ballSeat, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.addNewJoint(ballSeatB, ballSeat, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.engine.addAngularConstraint(ballRear, ballSeat, ballSeatA, Math.PI / 2 + Math.PI / 6, 0, 1)
+		this.viewController.engine.addAngularConstraint(ballSeatA, ballSeat, ballSeatB, Math.PI, 0, 1)
 
 
 		// actual front handle 
-		const handle_height = 10;
-		const handleCenterPos = math.add(handlePos, [0, -handle_height]);
-		const handleCenterBall = this.viewController.createBall(handleCenterPos, { radius: 0, pinned: false });
-		this.viewController.addNewJoint(handleCenterBall, ballHandle, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
-		this.viewController.engine.addAngularConstraint(ballB, ballHandle, handleCenterBall, Math.PI, 0, 1);
+		const handle_height = 14
+		const handleCenterPos = math.add(handlePos, [0, -handle_height])
+		const handleCenterBall = this.viewController.createBall(handleCenterPos, { radius: 0, pinned: false })
+		this.viewController.addNewJoint(handleCenterBall, ballHandle, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.engine.addAngularConstraint(ballB, ballHandle, handleCenterBall, Math.PI, 0, 1)
 
-		const handle_length = 10;
-		const handlePosA = math.add(handleCenterPos, [-handle_length, 0]);
-		const handlePosB = math.add(handleCenterPos, [handle_length, 0]);
-		const ballHandleA = this.viewController.createBall(handlePosA, { radius: 0, pinned: false });
-		const ballHandleB = this.viewController.createBall(handlePosB, { radius: 0, pinned: false });
-		this.viewController.addNewJoint(ballHandleA, handleCenterBall, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
-		this.viewController.addNewJoint(ballHandleB, handleCenterBall, { thickness, collidable: true, weightageA: 1, weightageB: 0 });
+		const handle_length = 10
+		const handlePosA = math.add(handleCenterPos, [-handle_length, 0])
+		const handlePosB = math.add(handleCenterPos, [handle_length, 0])
+		const ballHandleA = this.viewController.createBall(handlePosA, { radius: 0, pinned: false })
+		const ballHandleB = this.viewController.createBall(handlePosB, { radius: 0, pinned: false })
+		this.viewController.addNewJoint(ballHandleA, handleCenterBall, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.addNewJoint(ballHandleB, handleCenterBall, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
 
-		this.viewController.engine.addAngularConstraint(ballHandle, handleCenterBall, ballHandleA, Math.PI / 2 + Math.PI / 6, 0, 1);
-		this.viewController.engine.addAngularConstraint(ballHandleA, handleCenterBall, ballHandleB, Math.PI, 0, 1);
+		this.viewController.engine.addAngularConstraint(ballHandle, handleCenterBall, ballHandleA, Math.PI / 2 + Math.PI / 6, 0, 1)
+		this.viewController.engine.addAngularConstraint(ballHandleA, handleCenterBall, ballHandleB, Math.PI, 0, 1)
 
 		this.viewController.createPedals('right')
 
@@ -158,11 +159,14 @@ class Demo {
 		this.addTerrain()
 
 		const lengthPrev = viewController.engine.nodes.length
+		const jointsPrev = viewController.engine.joints.length
+
 		this.buildBicycle()
+		viewController.engine.bicycleJoints = viewController.engine.joints.slice(jointsPrev, viewController.engine.joints.length)
 
 		const lengthCur = viewController.engine.nodes.length
 		this.bicycleNodes = viewController.engine.nodes.slice(lengthPrev, lengthCur)
-		
+		viewController.engine.bicycleNodes = this.bicycleNodes
 		mouseHandler(viewController);
 	}
 
@@ -208,10 +212,14 @@ class Demo {
 			const v = math.cross(dab.concat(0), dam.concat(0))[2]
 			nodesP[i].data.config.continuousNormal = v <= 0
 		}
+
+		this.viewController.terrainJoints = []
+
 		for (let i = 1; i < nodesP.length; ++i) {
-			const delta = math.subtract(nodesP[i].position, nodesP[i - 1].position)
 			this.viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 1000 })
-			this.viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 }, false)
+			const joint = this.viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 }, false)
+
+			this.viewController.terrainJoints.push(joint)
 		}
 	}
 
@@ -283,12 +291,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-30 * dt);
+				rot(-20 * dt);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(30 * dt);
+				rot(20 * dt);
 			}
 		}
 
@@ -317,26 +325,19 @@ class Demo {
 
 			const dir = direction === 'forward' ? 1 : -1
 
-			const MAX_ANGULAR = 50
-			//
-
 			const prevAngular = this.wheel.v1.angularVelocity
 			
-			this.wheel.v1.angularVelocity += 10 * dt * dir
-			// this.wheel.v2.angularVelocity += 50 * dt * dir
+			this.wheel.v1.angularVelocity += 5 * dt * dir
 
 			if (colInfo) {
 				const dd = math.rotate(colInfo.collisionInfo.axis, Math.PI / 2)
 				this.bicycleNodes.forEach(nd => {
 					if (nd === wheel.v1)
-					// nd.oldPosition = math.add(nd.oldPosition, math.multiply(dd, -20 * dt * dir))
-					nd.position = math.add(nd.position, math.multiply(dd, 30 * dt * dir))
+					nd.position = math.add(nd.position, math.multiply(dd, 9 * dt * dir))
 
 				})
 			}
 
-			// this.wheel.v1.angularVelocity = clamp(this.wheel.v1.angularVelocity, -MAX_ANGULAR, MAX_ANGULAR)
-			// this.wheel.v2.angularVelocity = clamp(this.wheel.v2.angularVelocity, -MAX_ANGULAR, MAX_ANGULAR)
 			this.viewController.pedal.rotation += Math.max(this.wheel.v1.angularVelocity - prevAngular, 2) * dt
 		}
 

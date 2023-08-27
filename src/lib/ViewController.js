@@ -1,11 +1,13 @@
 import Engine from './engine';
-import * as math from 'mathjs';
+import * as math from './math';
 
 import { drawCircle, drawLine, drawTrapezoid, getCanvasBounds } from './canvas';
 
 class ViewController {
 	init(config = {}) {
-		this.engine = new Engine();
+		this.engine = new Engine()
+		this.engine.viewController = this
+
 		config.scale = config.scale || 1;
 		this.config = config;
 		this.focus = [0, 0];
@@ -109,6 +111,38 @@ class ViewController {
 		return math.add(pos, this.focus);
 	}
 
+	getFirstTerrainNotInViewPort() {
+		let low = -1
+		let high = this.terrains.length - 1
+
+		while (low < high) {
+			const mid = Math.floor((low + high + 1) / 2)
+			const x = this.worldToViewPort(this.terrains[mid].p2)[0]
+			if (x < 0)
+				low = mid
+			else high = mid - 1
+		}
+
+		return low
+	}
+	
+	getSecondTerrainNotInViewPort() {
+		const bounds = getCanvasBounds()
+
+		let low = 0
+		let high = this.terrains.length
+
+		while (low < high) {
+			const mid = Math.floor((low + high) / 2)
+			const x = this.worldToViewPort(this.terrains[mid].p1)[0]
+			if (x > bounds[0])
+				high = mid
+			else low = mid + 1
+		}
+
+		return high
+	}
+
 	update(dt) {
 		this.engine.update(dt);
 
@@ -146,7 +180,7 @@ class ViewController {
 			}
 		});
 		
-		this.engine.getJoints().forEach(joint => {
+		this.engine.bicycleJoints.forEach(joint => {
 			const renderInfo = joint.getData();
 			
 			if (!renderInfo.renderObj.visible) {
@@ -162,15 +196,19 @@ class ViewController {
 		})
 		
 		// return
+		const indxL = this.getFirstTerrainNotInViewPort()
+		const indxR = this.getSecondTerrainNotInViewPort()
+		
+		for (let i = indxL + 1; i < indxR; ++i) {		
+			const terrain = this.terrains[i]
 
-		this.terrains.forEach(terrain => {
 			const v1 = this.worldToViewPort(math.add(terrain.p1, [0, 0]))
 			const v2 = this.worldToViewPort(math.add(terrain.p2, [0, 0]))
 			const v3 = this.worldToViewPort(math.add(terrain.p2, [0, terrain.config.height]))
 			const v4 = this.worldToViewPort(math.add(terrain.p1, [0, terrain.config.height]))
 			
 			drawTrapezoid(v1, v2, v3, v4, terrain.config)
-		})
+		}
 		
 		// return
 
