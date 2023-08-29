@@ -291,12 +291,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-20 * dt);
+				rot(-5 * dt);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(20 * dt);
+				rot(5 * dt);
 			}
 		}
 
