@@ -9,7 +9,7 @@ class Engine {
 
 		this.angularConstraints = [];
 		this.config = {
-			gravity: 500
+			gravity: 600
 		};
 		this.collisionMap = new Map();
 		this.ballJointSeparationFactor = 1
@@ -42,7 +42,8 @@ class Engine {
 				angle += 2 * Math.PI;
 			}
 			var angleDifference = constraint.angle - angle;
-
+			
+			console.log(constraint)
 			var delA = -angleDifference * constraint.weightageA;
 			var delB = angleDifference * constraint.weightageB;
 
@@ -67,7 +68,8 @@ class Engine {
 			} else if (nodeB.isPinned()) {
 				nodeA.position = math.add(pa, math.multiply(v, 2));
 			} else {
-				const { weightageA = 0.5, weightageB = 0.5 } = joint.getData().config;
+				let { weightageA = 0.5, weightageB = 0.5 } = joint.getData().config;
+		
 				nodeA.position = math.add(pa, math.multiply(v, weightageA * 1));
 				nodeB.position = math.add(pb, math.multiply(v, -weightageB * 1));
 			}
@@ -208,8 +210,8 @@ class Engine {
 		const deltaV = math.divide(totImpulse, node.mass)
 		const newVel = math.add(node.velocity, deltaV)
 
-		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
-		node.velocity = newVel
+		// node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
+		// node.velocity = newVel
 
 		const angularImpulse = math.cross(radiusVector.concat(0), totImpulse.concat(0))[2]
 		node.angularVelocity += angularImpulse / momentOfInertia
@@ -369,9 +371,9 @@ class Engine {
 			this.resolveCollisions()
 		}
 
-		for (let iter = 0; iter < 4; ++iter) {
+		for (let iter = 0; iter < 10; ++iter) {
 			this.solveConstraints()
-			this.solveAngularConstraints()
+			// this.solveAngularConstraints()
 		}
 
 

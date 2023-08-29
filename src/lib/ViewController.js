@@ -178,7 +178,7 @@ class ViewController {
 
 				}
 			}
-		});
+		})
 		
 		this.engine.bicycleJoints.forEach(joint => {
 			const renderInfo = joint.getData();
@@ -190,8 +190,7 @@ class ViewController {
 			const v1 = this.worldToViewPort(joint.v1.getPosition())
 			const v2 = this.worldToViewPort(joint.v2.getPosition())
 
-			drawLine(v1, v2, renderInfo.config)
-			
+			drawLine(v1, v2, renderInfo.config)			
 
 		})
 		
@@ -210,7 +209,7 @@ class ViewController {
 			drawTrapezoid(v1, v2, v3, v4, terrain.config)
 		}
 		
-		// return
+		return
 
 		const pedalPos = math.rotate([10, 0], this.pedal.rotation)
 		const LEG_LEN = 5
