@@ -177,13 +177,9 @@ class Demo {
 		const pa = this.viewController.createBall([0, 0], cfg);
 		const pb = this.viewController.createBall([1, 0], cfg);
 		this.collisionLine = this.viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
-		const numberOfAverages = 0
+		const numberOfAverages = 2
 		// while (nodes.length>1) nodes.pop()
-		for (let iter = 1; iter <= numberOfAverages; ++iter) {
-			for (let i = 1; i + 1 < nodes.length; ++i) {
-				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
-			}
-		}
+
 		const lst = nodes[nodes.length - 1]
 		const steps = 100
 		const numcycles = 4
@@ -192,7 +188,11 @@ class Demo {
 			const nd = math.add(lst, pos)
 			nodes.push(nd)
 		}
-
+		for (let iter = 1; iter <= numberOfAverages; ++iter) {
+			for (let i = 1; i + 1 < nodes.length; ++i) {
+				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
+			}
+		}
 		const nodesP = [];
 
 		for (let i = 0; i < nodes.length; ++i) {
@@ -203,6 +203,7 @@ class Demo {
 			const ball = this.viewController.createBall(nodes[i], Object.assign({}, config));
 			nodesP.push(ball);
 		}
+		
 		for (let i = 1; i + 1 < nodesP.length; ++i) {
 			const a = nodesP[i - 1].position
 			const b = nodesP[i + 1].position
@@ -291,12 +292,12 @@ class Demo {
 
 		if (keys['a'] || keys['ArrowLeft']) {
 			if (wheel != null) {
-				rot(-5 * dt);
+				rot(-12.5 * dt);
 			}
 		}
 		if (keys['d'] || keys['ArrowRight']) {
 			if (wheel != null) {
-				rot(5 * dt);
+				rot(12.5 * dt);
 			}
 		}
 
