@@ -18,8 +18,7 @@ flex: 1;
 
 .root {
 display: flex;
-border: 20px solid transparent;
-height: calc(100vh - 40px);
+height: calc(100vh);
 background: wheat;
 flex-direction: column;
 }
@@ -27,4 +26,5 @@ flex-direction: column;
 .mode-container {
 padding: 10px;
 border-bottom: 1px solid black;
+display: none;
 }
