@@ -8,6 +8,10 @@ export const drawCircle = (position, radius, config) => {
     ctx.lineWidth = config.strokeWidth
     ctx.strokeStyle = 'black'
     ctx.stroke()
+    if (config.fillColor) {
+        ctx.fillStyle = config.fillColor
+        ctx.fill()
+    }
 }
 
 export const clearCanvas = () => {
@@ -17,12 +21,14 @@ export const clearCanvas = () => {
 export const drawLine = (pos1, pos2, config) => {
     // Start a new Path
     ctx.beginPath();
+    ctx.strokeStyle = config.color || 'black'
+
     ctx.moveTo(pos1[0], pos1[1]);
     ctx.lineTo(pos2[0], pos2[1]);
-    ctx.strokeStyle = 'black'
     ctx.lineWidth = config?.thickness || 1
+    ctx.lineCap = 'round'
 
-    ctx.stroke();
+    ctx.stroke()
 }
 
 export const drawTrapezoid = (a, b, c, d, config) => {

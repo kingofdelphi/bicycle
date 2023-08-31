@@ -149,8 +149,7 @@ class ViewController {
 		// zoom scale
 		const { scale } = this.config;
 
-
-		this.engine.getNodes().forEach(node => {
+		this.engine.bicycleNodes.forEach(node => {
 			const renderInfo = node.getData()
 			var pos = node.getPosition()
 			var viewPortPos = this.worldToViewPort(pos)
@@ -163,7 +162,11 @@ class ViewController {
 			if (renderInfo.config.rigid) {
 				const numSpokes = 8
 				const delta = 2 * Math.PI / numSpokes
-				const r = [radius, 0]
+				const r = [radius * scale, 0]
+
+				const centerBallRadius = 1.5
+
+				drawCircle(viewPortPos, scale * centerBallRadius, renderInfo.config)
 
 				for (let off = 0; off < numSpokes; ++off) {
 					const angle = off * delta + node.getRotation()
@@ -208,6 +211,7 @@ class ViewController {
 			const v4 = this.worldToViewPort(math.add(terrain.p1, [0, terrain.config.height]))
 			
 			drawTrapezoid(v1, v2, v3, v4, terrain.config)
+			drawLine(v1, v2, { color : '#5b6137', thickness: 2 })
 		}
 		
 		// return

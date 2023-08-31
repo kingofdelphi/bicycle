@@ -78,6 +78,7 @@ class Demo {
 		const seatHeight = 8
 		const seatPos = math.add(positionRear, [0, -seatHeight])
 		const ballSeat = this.viewController.createBall(seatPos, { radius: 0, pinned: false })
+		this.viewController.ballSeat = ballSeat
 		this.viewController.addNewJoint(ballSeat, ballRear, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
 		this.viewController.engine.addAngularConstraint(ballPedal, ballRear, ballSeat, Math.PI, 0, 1)
 
@@ -86,8 +87,8 @@ class Demo {
 		const seatPosB = math.add(seatPos, [seat_radius, 0])
 		const ballSeatA = this.viewController.createBall(seatPosA, { radius: 0, pinned: false })
 		const ballSeatB = this.viewController.createBall(seatPosB, { radius: 0, pinned: false })
-		this.viewController.addNewJoint(ballSeatA, ballSeat, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
-		this.viewController.addNewJoint(ballSeatB, ballSeat, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.addNewJoint(ballSeatA, ballSeat, { thickness: 4, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.addNewJoint(ballSeatB, ballSeat, { thickness: 4, collidable: true, weightageA: 1, weightageB: 0 })
 		this.viewController.engine.addAngularConstraint(ballRear, ballSeat, ballSeatA, Math.PI / 2 + Math.PI / 6, 0, 1)
 		this.viewController.engine.addAngularConstraint(ballSeatA, ballSeat, ballSeatB, Math.PI, 0, 1)
 
@@ -104,8 +105,8 @@ class Demo {
 		const handlePosB = math.add(handleCenterPos, [handle_length, 0])
 		const ballHandleA = this.viewController.createBall(handlePosA, { radius: 0, pinned: false })
 		const ballHandleB = this.viewController.createBall(handlePosB, { radius: 0, pinned: false })
-		this.viewController.addNewJoint(ballHandleA, handleCenterBall, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
-		this.viewController.addNewJoint(ballHandleB, handleCenterBall, { thickness, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.addNewJoint(ballHandleA, handleCenterBall, { thickness: 4, collidable: true, weightageA: 1, weightageB: 0 })
+		this.viewController.addNewJoint(ballHandleB, handleCenterBall, { thickness: 4, collidable: true, weightageA: 1, weightageB: 0 })
 
 		this.viewController.engine.addAngularConstraint(ballHandle, handleCenterBall, ballHandleA, Math.PI / 2 + Math.PI / 6, 0, 1)
 		this.viewController.engine.addAngularConstraint(ballHandleA, handleCenterBall, ballHandleB, Math.PI, 0, 1)
@@ -116,46 +117,7 @@ class Demo {
 
 	postInit(viewController) {
 		this.viewController = viewController;
-		const wallHelper = (positionA, positionB) => {
-			const config = {
-				pinned: true,
-				color: 'black',
-				radius: 2
-			};
 
-			const ballA = viewController.createBall(positionA, Object.assign({}, config));
-			const ballB = viewController.createBall(positionB, config);
-
-			return viewController.addNewJoint(ballA, ballB, { thickness: 1, collidable: true });
-		};
-		const createJoints = () => {
-			let ballsAdded = [];
-			const K = 10;
-			const L = 40;
-			for (let i = 0; i < K; ++i) {
-				let position = [100, 70 + i * L];
-				const config = {
-					pinned: i == 0 || i == K - 1,
-					color: 'black',
-					radius: 2
-				};
-				let ball = viewController.createBall(position, config);
-				ballsAdded.push(ball);
-			}
-			for (let i = 1; i < K; ++i) {
-				viewController.addNewJoint(ballsAdded[i - 1], ballsAdded[i], { collidable: true, color: 'grey', thickness: 2 });
-			}
-			let lastNode = ballsAdded.slice(-1)[0];
-			lastNode.setPosition([300, 170]);
-		}
-
-		// createJoints();
-
-		// const bounds = getCanvasBounds()
-		// wallHelper([0, bounds.height], [bounds.width, bounds.height]);
-		// wallHelper([bounds.width, 0], [bounds.width, bounds.height]);
-		//wallHelper([0, 0], [bounds.width, 0]);
-		// wallHelper([0, 0], [0, bounds.height]);
 		this.addTerrain()
 
 		const lengthPrev = viewController.engine.nodes.length
@@ -178,7 +140,6 @@ class Demo {
 		const pb = this.viewController.createBall([1, 0], cfg);
 		this.collisionLine = this.viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
 		const numberOfAverages = 2
-		// while (nodes.length>1) nodes.pop()
 
 		const lst = nodes[nodes.length - 1]
 		const steps = 100
@@ -339,8 +300,6 @@ class Demo {
 			if (!wheel) return
 
 			const dir = direction === 'forward' ? 1 : -1
-
-			const prevAngular = this.wheel.v1.angularVelocity
 			
 			this.wheel.v1.angularVelocity += 5 * dt * dir
 
@@ -353,7 +312,7 @@ class Demo {
 				})
 			}
 
-			this.viewController.pedal.rotation += Math.max(this.wheel.v1.angularVelocity - prevAngular, 2) * dt
+			this.viewController.pedal.rotation +=  4 * dt * dir
 		}
 
 		if (pedaling != null) {
