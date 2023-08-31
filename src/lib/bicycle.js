@@ -272,38 +272,52 @@ class Demo {
 		}
 
 		const rot = (dir) => {
-			let pivot = math.add(wheel.v1.position, wheel.v2.position);
-			pivot = math.multiply(pivot, .5);
+			const pivotMid = math.divide(math.add(wheel.v1.position, wheel.v2.position), 2)
+
+			let pivotType
+
+			if (dir == 'left') {
+				pivotType = colInfo ? 'left' : 'mid'
+			} else {
+				pivotType = engine.getCollidingObjects(wheel.v2)[0] ? 'right' : 'mid'
+			}
+
+			const pivot = pivotMid
+			let angle = (dir === 'left' ? -1 : 1) * dt * Math.PI / 180;
+
+			if (pivotType === 'left' || pivotType === 'right') {
+				angle *= 12
+			} else {
+				angle *= 6
+			}
+
 			// pivot = wheel.v2.position;
 			const rotAroundPivot = (pos, angle) => {
-				const vrp = math.subtract(pos, pivot);
-				const np = math.rotate(vrp, angle);
-				return math.add(pivot, np);
-			};
-			const angle = dir * Math.PI / 180;
+				const vrp = math.subtract(pos, pivot)
+				const np = math.rotate(vrp, angle)
+				return math.add(pivot, np)
+			}
 
-			const wheel1NewPos = rotAroundPivot(wheel.v1.position, angle);
-			const wheel2NewPos = rotAroundPivot(wheel.v2.position, angle);
 
-			wheel.v1.position = wheel1NewPos;
+			const wheel1NewPos = rotAroundPivot(wheel.v1.position, angle)
+			const wheel2NewPos = rotAroundPivot(wheel.v2.position, angle)
 
-			wheel.v2.position = wheel2NewPos;
+			wheel.v1.position = wheel1NewPos
+
+			wheel.v2.position = wheel2NewPos
 		};
 
 		if (keys['a'] || keys['ArrowLeft']) {
-			if (wheel != null) {
-				rot(-12.5 * dt);
-			}
+			rot('left')
 		}
+
 		if (keys['d'] || keys['ArrowRight']) {
-			if (wheel != null) {
-				rot(12.5 * dt);
-			}
+			rot('right')
 		}
 
 		if (keys[' ']) {
 			if (colInfo) {
-				const jumpAccln = 200
+				const jumpAccln = 150
 				const deltaWheel = math.subtract(wheel.v2.position, wheel.v1.position)
 				const wheelDir = math.divide(deltaWheel, math.norm(deltaWheel))
 				
