@@ -19,11 +19,14 @@ class Main {
 		this.viewController = new ViewController();
 		this.viewController.init();
 		world.postInit(this.viewController);
-
+		let last = new Date().getTime() / 1000
 		const onFrame = () => {
 			// Get a reference to the canvas renderObject
 			// Create an empty project and a view for the canvas:
-			const event = { delta: 1 / 60 }
+			const current = new Date().getTime() / 1000
+			const elapsed = current - last
+			const event = { delta: elapsed }
+			last = current
 			world.preUpdateCallback(event)
 			this.updateGame(event)
 			window.requestAnimationFrame(onFrame)
