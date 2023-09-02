@@ -1,5 +1,5 @@
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+export const canvas = document.getElementById('canvas');
+export const ctx = canvas.getContext('2d');
 
 
 export const drawCircle = (position, radius, config) => {
@@ -42,11 +42,3 @@ export const drawTrapezoid = (a, b, c, d, config) => {
 }
 
 export const getCanvasBounds = () => [canvas.width, canvas.height]
-
-
-export {
-	canvas,
-	ctx,
-    
-}
-

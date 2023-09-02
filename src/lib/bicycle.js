@@ -31,19 +31,19 @@ class Demo {
 		
 		this.viewController.wheel = this.wheel
 
-		const ballA1 = this.viewController.createBall(math.subtract(positionA, [0, 40]), Object.assign({}, config, { color: null, radius: 0 }));
+		const ballA1 = this.viewController.createBall(math.subtract(positionA, [0, 20]), Object.assign({}, config, { color: null, radius: 0 }));
 
 		// this.wheel = { v1: ballA, v2: ballA } 
 		// return
 
-		const ballB1 = this.viewController.createBall(math.subtract(positionB, [0, 40]), Object.assign({}, config, { color: null, radius: 0 }))
+		const ballB1 = this.viewController.createBall(math.subtract(positionB, [0, 20]), Object.assign({}, config, { color: null, radius: 0 }))
 		this.viewController.addNewJoint(ballA1, ballB1, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 })
 		this.viewController.addNewJoint(ballA, ballA1, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 })
 		this.viewController.addNewJoint(ballB, ballB1, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 })
 		this.viewController.addNewJoint(ballA, ballB1, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 })
 		this.viewController.addNewJoint(ballB, ballA1, { thickness, collidable: true, weightageA: 0.5, weightageB: .5 })
 
-		// return
+		return
 		this.wheel.getData().renderObj.visible = false
 
 		// remove wheel solid color

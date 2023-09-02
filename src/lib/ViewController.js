@@ -1,6 +1,6 @@
 import Engine from './engine';
 import * as math from './math';
-
+import { canvas, ctx } from './canvas'
 import { drawCircle, drawLine, drawTrapezoid, getCanvasBounds } from './canvas';
 
 class ViewController {
@@ -198,15 +198,27 @@ class ViewController {
 		const indxL = this.getFirstTerrainNotInViewPort()
 		const indxR = this.getSecondTerrainNotInViewPort()
 		
-		for (let i = indxL + 1; i < indxR; ++i) {		
-			const terrain = this.terrains[i]
+		if (indxL + 1 < indxR) {
+			ctx.beginPath();
+			const start = this.worldToViewPort(math.add(this.terrains[indxL + 1].p1, [0, 0]))
+			ctx.moveTo(start[0], start[1]);
+			ctx.strokeStyle = 'black'
+			ctx.fillStyle = 'green'
+			ctx.lineWidth = 1
+			let end
+			for (let i = indxL + 1; i < indxR; ++i) {		
+				const terrain = this.terrains[i]
 
-			const v1 = this.worldToViewPort(math.add(terrain.p1, [0, 0]))
-			const v2 = this.worldToViewPort(math.add(terrain.p2, [0, 0]))
-			const v3 = this.worldToViewPort(math.add(terrain.p2, [0, terrain.config.height]))
-			const v4 = this.worldToViewPort(math.add(terrain.p1, [0, terrain.config.height]))
-			
-			drawTrapezoid(v1, v2, v3, v4, terrain.config)
+				end = this.worldToViewPort(math.add(terrain.p2, [0, 0]))
+				
+				ctx.lineTo(end[0], end[1]);
+			}
+			ctx.lineTo(end[0], end[1] + 1000)
+
+			ctx.lineTo(start[0], start[1] + 1000)
+			ctx.stroke();
+
+			ctx.fill()
 		}
 		
 		return

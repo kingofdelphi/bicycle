@@ -210,8 +210,8 @@ class Engine {
 		const deltaV = math.divide(totImpulse, node.mass)
 		const newVel = math.add(node.velocity, deltaV)
 
-		// node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
-		// node.velocity = newVel
+		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
+		node.velocity = newVel
 
 		const angularImpulse = math.cross(radiusVector.concat(0), totImpulse.concat(0))[2]
 		node.angularVelocity += angularImpulse / momentOfInertia
