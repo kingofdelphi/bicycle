@@ -2,7 +2,7 @@
 import Bicycle from './bicycle';
 import Test from './collisiontest';
 import ViewController from './ViewController';
-import { clearCanvas, drawCircle } from './canvas';
+import { clearCanvas, ctx, getCanvasBounds } from './canvas';
 
 const root = document.getElementById('canvas-wrapper');
 const w = root.clientWidth;
@@ -20,6 +20,10 @@ class Main {
 		this.viewController.init();
 		world.postInit(this.viewController);
 		let last
+
+		const NUM_FRAMES = 20
+
+		let frames = new Array(NUM_FRAMES).fill(0)
 
 		let restartClock = true
 
@@ -40,14 +44,29 @@ class Main {
 			last = current
 			world.preUpdateCallback(event)
 			this.updateGame(event)
+
+			for (let i = 0; i + 1 < NUM_FRAMES; ++i) {
+				frames[i] = frames[i + 1]
+			}
+
+			frames[NUM_FRAMES - 1] = elapsed
+			
+			let totTime = 0
+			for (let i = 0; i < NUM_FRAMES; ++i) {
+				totTime += frames[i]
+			}
+			const fps = Math.floor(NUM_FRAMES / (totTime == 0 ? 1 : totTime))
+
+			ctx.fillStyle = 'red'
+			ctx.font = "30px Arial";
+
+			ctx.fillText(`FPS: ${fps}`, getCanvasBounds()[0] - 200, 50)
 			window.requestAnimationFrame(onFrame)
 		}
 		window.requestAnimationFrame(onFrame)
 	}
 
 	updateGame(event) {
-		const fps = '' + Math.round(1 / event.delta)
-		fpsElem.innerHTML = fps
 		clearCanvas()
 		this.viewController.update(event.delta)
 	}
