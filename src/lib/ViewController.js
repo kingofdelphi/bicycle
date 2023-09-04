@@ -17,6 +17,8 @@ class ViewController {
 
 		this.terrains = []
 
+		this.terrainJoints = []
+
 		this.pedal = {
 			leftPedal: {
 				
@@ -143,8 +145,80 @@ class ViewController {
 		return high
 	}
 
+
+	addNewTerrain(nodes) {
+		const nodesP = []
+
+		let slice = false
+		
+		if (this.terrainJoints.length) {
+			nodesP.push(this.terrainJoints.at(-1).v2)
+			slice = true
+			nodes = [nodesP[0].position].concat(nodes)
+		}
+
+		const numberOfAverages = 2
+		for (let iter = 1; iter <= numberOfAverages; ++iter) {
+			for (let i = 1; i + 1 < nodes.length; ++i) {
+				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
+			}
+		}
+		
+		if (slice) {
+			nodes.shift()
+		}
+		
+		for (let i = 0; i < nodes.length; ++i) {
+			const config = {
+				radius: 0,
+				pinned: true
+			};
+			const ball = this.createBall(nodes[i], Object.assign({}, config));
+			nodesP.push(ball);
+		}
+		
+		for (let i = 1; i + 1 < nodesP.length; ++i) {
+			const a = nodesP[i - 1].position
+			const b = nodesP[i + 1].position
+			const m = nodesP[i].position
+			const dab = math.subtract(b, a) // a ---> b
+			const dam = math.subtract(m, a)
+			const v = math.cross(dab.concat(0), dam.concat(0))[2]
+			nodesP[i].data.config.continuousNormal = v <= 0
+		}
+
+		for (let i = 1; i < nodesP.length; ++i) {
+			this.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)' })
+			const joint = this.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 }, false)
+
+			this.terrainJoints.push(joint)
+		}
+	}
+
+	dynamicTerrain() {
+		const indxR = this.getSecondTerrainNotInViewPort() - 1
+		const MIN_WINDOW = 50
+		if (indxR + MIN_WINDOW >= this.terrains.length) {
+			const numcycles = 1
+			const result = []
+			const amplitude = Math.random() * 300 + 50
+
+			const start = math.add(this.terrains.at(-1).p2, [0, -amplitude])
+
+			for (let i = 0; i < MIN_WINDOW; ++i) {
+				const pos = [i * 50, Math.cos(i / (MIN_WINDOW - 1) * (numcycles * 2 * Math.PI)) * amplitude]
+				const nd = math.add(start, pos)
+				result.push(nd)
+			}
+			this.addNewTerrain(result)
+			
+		}
+	}
+
 	update(dt) {
 		this.engine.update(dt);
+
+		this.dynamicTerrain()
 
 		// zoom scale
 		const { scale } = this.config;

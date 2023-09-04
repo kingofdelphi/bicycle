@@ -139,50 +139,8 @@ class Demo {
 		const pa = this.viewController.createBall([0, 0], cfg);
 		const pb = this.viewController.createBall([1, 0], cfg);
 		this.collisionLine = this.viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
-		const numberOfAverages = 2
-
-		const lst = nodes[nodes.length - 1]
-		const steps = 100
-		const numcycles = 4
-		for (let i = 0; i < steps; ++i) {
-			const pos = [200 + i * 50, Math.sin(i / steps * (numcycles * 2 * Math.PI)) * 180]
-			const nd = math.add(lst, pos)
-			nodes.push(nd)
-		}
-		for (let iter = 1; iter <= numberOfAverages; ++iter) {
-			for (let i = 1; i + 1 < nodes.length; ++i) {
-				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
-			}
-		}
-		const nodesP = [];
-
-		for (let i = 0; i < nodes.length; ++i) {
-			const config = {
-				radius: 0,
-				pinned: true
-			};
-			const ball = this.viewController.createBall(nodes[i], Object.assign({}, config));
-			nodesP.push(ball);
-		}
 		
-		for (let i = 1; i + 1 < nodesP.length; ++i) {
-			const a = nodesP[i - 1].position
-			const b = nodesP[i + 1].position
-			const m = nodesP[i].position
-			const dab = math.subtract(b, a) // a ---> b
-			const dam = math.subtract(m, a)
-			const v = math.cross(dab.concat(0), dam.concat(0))[2]
-			nodesP[i].data.config.continuousNormal = v <= 0
-		}
-
-		this.viewController.terrainJoints = []
-
-		for (let i = 1; i < nodesP.length; ++i) {
-			this.viewController.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)', height: 1000 })
-			const joint = this.viewController.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 }, false)
-
-			this.viewController.terrainJoints.push(joint)
-		}
+		this.viewController.addNewTerrain(nodes)
 	}
 
 	addBigCircle(position) {

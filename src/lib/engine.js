@@ -253,7 +253,7 @@ class Engine {
 
 
 			if (colInfo.length > 2) {
-				console.error('touched more than 2 joints', colInfo.length)
+				console.info('touched more than 2 joints', colInfo.length)
 			}
 			
 			// filter joints that are the best for collision resolution
