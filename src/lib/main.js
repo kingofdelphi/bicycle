@@ -19,11 +19,22 @@ class Main {
 		this.viewController = new ViewController();
 		this.viewController.init();
 		world.postInit(this.viewController);
-		let last = new Date().getTime() / 1000
-		const onFrame = () => {
+		let last
+
+		let restartClock = true
+
+		window.onfocus = function() {
+			restartClock = true
+		}
+
+		const onFrame = (timestamp) => {
 			// Get a reference to the canvas renderObject
 			// Create an empty project and a view for the canvas:
-			const current = new Date().getTime() / 1000
+			if (last == null || restartClock) {
+				last = timestamp / 1000
+				restartClock = false
+			}
+			const current = timestamp / 1000
 			const elapsed = current - last
 			const event = { delta: elapsed }
 			last = current
