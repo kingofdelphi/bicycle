@@ -19,7 +19,7 @@ input[type=radio] ~ label {
 .root {
   display: flex;
   height: calc(100vh);
-  background: wheat;
+  background: linear-gradient(0deg, transparent, orange);
   flex-direction: column;
   overflow: hidden;
 }

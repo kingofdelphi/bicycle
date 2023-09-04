@@ -207,8 +207,8 @@ class ViewController {
 
 			ctx.beginPath();
 			ctx.moveTo(start[0], start[1]);
-			ctx.strokeStyle = 'black'
-			ctx.fillStyle = '#C2B280'
+			ctx.strokeStyle = '#926829'
+			ctx.fillStyle = '#eab64f'
 			ctx.lineWidth = 2
 
 			let end
