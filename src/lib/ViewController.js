@@ -199,14 +199,16 @@ class ViewController {
 		const indxR = this.getSecondTerrainNotInViewPort() - 1
 		const MIN_WINDOW = 50
 		if (indxR + MIN_WINDOW >= this.terrains.length) {
-			const numcycles = 1
+			const numcycles = Math.random() < 0.5 ? 0.5 : 1
 			const result = []
-			const amplitude = Math.random() * 300 + 50
+			const amplitude = (Math.random() * 300 + 50) * (Math.random() < 0.6 ? -1 : 1)
+
+			const GAP = Math.random() * 25 + 25
 
 			const start = math.add(this.terrains.at(-1).p2, [0, -amplitude])
 
 			for (let i = 0; i < MIN_WINDOW; ++i) {
-				const pos = [i * 50, Math.cos(i / (MIN_WINDOW - 1) * (numcycles * 2 * Math.PI)) * amplitude]
+				const pos = [i * GAP, Math.cos(i / (MIN_WINDOW - 1) * (numcycles * 2 * Math.PI)) * amplitude]
 				const nd = math.add(start, pos)
 				result.push(nd)
 			}
