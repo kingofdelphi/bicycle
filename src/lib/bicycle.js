@@ -257,6 +257,8 @@ class Demo {
 		const pedal = (direction) => {
 			if (!wheel) return
 
+			console.log(dt)
+
 			const dir = direction === 'forward' ? 1 : -1
 			
 			this.wheel.v1.angularVelocity += 5 * dt * dir

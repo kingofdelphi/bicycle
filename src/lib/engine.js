@@ -208,7 +208,6 @@ class Engine {
 		const deltaV = math.divide(totImpulse, node.mass)
 		const newVel = math.add(node.velocity, deltaV)
 
-		node.oldPosition = math.subtract(node.position, math.multiply(newVel, this.dt))
 		node.velocity = newVel
 
 		const angularImpulse = math.cross(radiusVector.concat(0), totImpulse.concat(0))[2]
@@ -346,34 +345,51 @@ class Engine {
 	}
 	// a b 0
 	// 0 0 w
+	computeVelocities(dt) {
+
+		this.nodes.forEach((node, i) => {
+			if (node.isPinned()) return
+
+			const dp = math.subtract(node.position, node.oldPosition)
+			let velocity = math.divide(dp, dt)
+
+			velocity = math.add(velocity, [0, this.config.gravity * dt])
+			node.velocity = velocity
+			node.oldPosition = node.position
+		})
+	}
 
 	update(dt) {
-		if (dt == 0) return;
 		this.dt = dt;
 		this.nodes.forEach((node, i) => {
 			if (node.isPinned()) return
 
-			const f = 1
-			let velocity = math.multiply(math.divide(math.subtract(node.position, node.oldPosition), this.dt), f)
-
-			velocity = math.add(velocity, [0, this.config.gravity * this.dt])
-
-			node.rotation += node.angularVelocity * this.dt * f
+			node.rotation += node.angularVelocity * this.dt
 			
-			node.oldPosition = node.position
-			node.velocity = velocity
-			node.position = math.add(node.position, math.multiply(velocity, this.dt))
+			node.position = math.add(node.position, math.multiply(node.velocity, this.dt))
 		})
 
 		for (let i = 0; i < 1; ++i) {
 			this.resolveCollisions()
 		}
 
+		this.nodes.forEach((node, i) => {
+			if (node.isPinned()) return
+
+			node.beforeConstraintPosition = node.position
+		})
+
 		for (let iter = 0; iter < 4; ++iter) {
 			this.solveConstraints()
 			this.solveAngularConstraints()
 		}
 
+		this.nodes.forEach((node, i) => {
+			if (node.isPinned()) return
+
+			node.velocity = math.add(node.velocity, math.divide(math.subtract(node.position, node.beforeConstraintPosition), this.dt))
+		})
+		
 
 	}
 

@@ -217,11 +217,7 @@ class ViewController {
 		}
 	}
 
-	update(dt) {
-		this.engine.update(dt);
-
-		this.dynamicTerrain()
-
+	render() {
 		// zoom scale
 		const { scale } = this.config;
 
@@ -303,7 +299,7 @@ class ViewController {
 			ctx.fill()
 		}
 		
-		// return
+		return
 
 		const pedalPos = math.rotate([10, 0], this.pedal.rotation)
 		const LEG_LEN = 5
@@ -319,7 +315,7 @@ class ViewController {
 			this.worldToViewPort(leftPos),
 			this.pedal.leftPedal.line
 		)
-	
+
 		const delLeft = math.multiply(wheelDelta, -LEG_LEN)
 		const delRight = math.multiply(wheelDelta, LEG_LEN)
 
@@ -344,6 +340,28 @@ class ViewController {
 			this.worldToViewPort(math.add(rightPos, delRight)),
 			this.pedal.rightPedal.legSupport
 		)
+	}
+
+	update(dt) {
+		if (dt <= 0) return
+
+		this.dynamicTerrain()
+
+		this.engine.computeVelocities(dt)
+
+		const subSteps = 20
+		const subDt = dt / subSteps
+		for (let i = 0; i < subSteps; ++i) {
+			this.engine.update(subDt);
+		}
+
+		this.nodes.forEach((node, i) => {
+			if (node.isPinned()) return
+
+			node.oldPosition = math.subtract(node.position, math.multiply(node.velocity, this.dt))
+		})
+
+		this.render()
 
 	}
 
