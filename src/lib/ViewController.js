@@ -1,5 +1,6 @@
 import Engine from './engine';
 import * as math from './math';
+import { Wheel } from './circle'
 
 import { drawCircle, drawLine, getCanvasBounds, ctx } from './canvas';
 
@@ -57,7 +58,8 @@ class ViewController {
 		let nconfig = Object.assign({}, config, { color });
 		const ball = {
 			renderObj: {
-				position: [0, 0]
+				position: [0, 0],
+				wheel: new Wheel(config.radius)
 			},
 			node,
 			config: nconfig
@@ -234,30 +236,14 @@ class ViewController {
 
 			renderInfo.renderObj.position = viewPortPos
 			drawCircle(viewPortPos, scale * radius, renderInfo.config)
+			const wheel = renderInfo.renderObj.wheel
+			wheel.spokeLinesIndices.forEach(indices => {
+				const v1 = math.add(pos, math.multiply(math.rotate(wheel.spokeVertices[indices[0]], node.getRotation()), scale))
+				const v2 = math.add(pos, math.multiply(math.rotate(wheel.spokeVertices[indices[1]], node.getRotation()), scale))
+				drawLine(this.worldToViewPort(v1), this.worldToViewPort(v2), node.getData())
+			})
 			
-			if (renderInfo.config.rigid) {
-				const numSpokes = 8
-				const delta = 2 * Math.PI / numSpokes
-				const r = [radius * scale, 0]
-
-				const centerBallRadius = 1.5
-
-				drawCircle(viewPortPos, scale * centerBallRadius, renderInfo.config)
-
-				for (let off = 0; off < numSpokes; ++off) {
-					const angle = off * delta + node.getRotation()
-					
-					const v1 = math.rotate(r, angle)
-					const v2 = math.rotate(r, angle + Math.PI)
-					
-					const v1Scaled = math.add(viewPortPos, v1)
-					const v2Scaled = math.add(viewPortPos, v2)
-
-					drawLine(v1Scaled, v2Scaled, node.getData())
-
-				}
-			}
-		});
+		})
 		
 		this.engine.bicycleJoints.forEach(joint => {
 			const renderInfo = joint.getData();
