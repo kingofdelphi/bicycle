@@ -1,8 +1,8 @@
 import Engine from './engine';
 import * as math from './math';
-import { Wheel } from './circle'
+import { Wheel } from './wheel'
 
-import { drawCircle, drawLine, getCanvasBounds, ctx } from './canvas';
+import { drawLine, getCanvasBounds, ctx } from './canvas';
 
 class ViewController {
 	init(config = {}) {
@@ -229,36 +229,27 @@ class ViewController {
 
 		this.engine.bicycleNodes.forEach(node => {
 			const renderInfo = node.getData()
-			var pos = node.getPosition()
-			var viewPortPos = this.worldToViewPort(pos)
-
-			const radius = renderInfo.config.radius
+			const worldPos = node.getPosition()
+			const viewPortPos = this.worldToViewPort(worldPos)
 
 			renderInfo.renderObj.position = viewPortPos
-			drawCircle(viewPortPos, scale * radius, renderInfo.config)
 			const wheel = renderInfo.renderObj.wheel
-			wheel.spokeLinesIndices.forEach(indices => {
-				const v1 = math.add(pos, math.rotate(wheel.spokeVertices[indices[0]], node.getRotation()))
-				const v2 = math.add(pos, math.rotate(wheel.spokeVertices[indices[1]], node.getRotation()))
-				drawLine(this.worldToViewPort(v1), this.worldToViewPort(v2), node.getData())
-			})
+			wheel.render((pos) => this.worldToViewPort(math.add(worldPos, math.rotate(pos, node.getRotation()))), renderInfo.config)
 			
 		})
+
+		const frameNodes = {}
+
+		console.log(this.bicycleFrameNodes)
+
+		for (const [vertId, node] of Object.entries(this.bicycleFrameNodes)) {
+			frameNodes[vertId] = node.getPosition()
+		}
 		
-		this.engine.bicycleJoints.forEach(joint => {
-			const renderInfo = joint.getData();
-			
-			if (!renderInfo.renderObj.visible) {
-				return
-			}
+		this.bicycleFrame.setPosition(frameNodes)
 
-			const v1 = this.worldToViewPort(joint.v1.getPosition())
-			const v2 = this.worldToViewPort(joint.v2.getPosition())
+		this.bicycleFrame.render((pos) => this.worldToViewPort(pos), { thickness: 2 })
 
-			drawLine(v1, v2, renderInfo.config)
-			
-
-		})
 		
 		// return
 		const indxL = this.getFirstTerrainNotInViewPort()

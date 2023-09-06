@@ -2,6 +2,7 @@ import mouseHandler from './mousehandler';
 import keys from './keys';
 import * as math from './math';
 import nodes from './level';
+import { BicycleFrame } from './bicycle_frame'
 
 class Demo {
 	buildBicycle() {
@@ -110,7 +111,21 @@ class Demo {
 		this.viewController.engine.addAngularConstraint(ballHandleA, handleCenterBall, ballHandleB, Math.PI, 0, 1)
 
 		this.viewController.createPedals('right')
-
+		
+		this.viewController.bicycleFrame = new BicycleFrame()
+		this.viewController.bicycleFrameNodes = {
+			A: ballPedal,
+			B: ballA,
+			C: ballRear,
+			D: ballHandle,
+			E: ballSeat,
+			F: handleCenterBall,
+			G: ballB,
+			H: ballHandleA,
+			I: ballHandleB,
+			J: ballSeatA,
+			K: ballSeatB
+		}
 	}
 
 	postInit(viewController) {
