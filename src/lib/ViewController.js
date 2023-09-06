@@ -238,8 +238,8 @@ class ViewController {
 			drawCircle(viewPortPos, scale * radius, renderInfo.config)
 			const wheel = renderInfo.renderObj.wheel
 			wheel.spokeLinesIndices.forEach(indices => {
-				const v1 = math.add(pos, math.multiply(math.rotate(wheel.spokeVertices[indices[0]], node.getRotation()), scale))
-				const v2 = math.add(pos, math.multiply(math.rotate(wheel.spokeVertices[indices[1]], node.getRotation()), scale))
+				const v1 = math.add(pos, math.rotate(wheel.spokeVertices[indices[0]], node.getRotation()))
+				const v2 = math.add(pos, math.rotate(wheel.spokeVertices[indices[1]], node.getRotation()))
 				drawLine(this.worldToViewPort(v1), this.worldToViewPort(v2), node.getData())
 			})
 			
