@@ -2,8 +2,6 @@ import mouseHandler from './mousehandler';
 import keys from './keys';
 import * as math from './math';
 import nodes from './level';
-import { clamp } from './util';
-import { drawCircle } from './canvas';
 
 class Demo {
 	buildBicycle() {
