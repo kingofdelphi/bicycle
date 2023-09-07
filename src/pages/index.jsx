@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
   <Head>
-    <title>physics</title>
+    <title>Bicycle</title>
   </Head>
     <div className="root">
 		<div className='mode-container'>

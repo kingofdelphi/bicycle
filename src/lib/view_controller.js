@@ -122,7 +122,7 @@ class ViewController {
 	}
 
 
-	addNewTerrain(nodes) {
+	addNewTerrain(nodes, numberOfAverages = 0) {
 		const nodesP = []
 
 		let slice = false
@@ -133,7 +133,6 @@ class ViewController {
 			nodes = [nodesP[0].position].concat(nodes)
 		}
 
-		const numberOfAverages = 2
 		for (let iter = 1; iter <= numberOfAverages; ++iter) {
 			for (let i = 1; i + 1 < nodes.length; ++i) {
 				nodes[i] = math.divide(math.add(nodes[i - 1], nodes[i + 1]), 2)
