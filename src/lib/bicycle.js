@@ -4,6 +4,7 @@ import * as math from './math';
 import nodes from './level';
 import { BicycleFrame } from './bicycle_frame'
 import { Pedal } from './pedal'
+import { PositionMap } from './position_map';
 
 class Demo {
 	buildBicycle() {
@@ -15,65 +16,22 @@ class Demo {
 		config.rigid = true;
 		config.radius = 22;
 		config.pinned = false;
-		const positionA = [80, 300];
-		const positionB = math.add(positionA, [2 * config.radius + 34, 0])
-
-		const frameB = this.viewController.createWheel(positionA, { ...config })
-		this.wheel = { v1: frameB, v2: frameB } 
-		// return
-
-		const frameG = this.viewController.createWheel(positionB, { ...config })
-		
-
-		const rearAngleToSeat = -Math.PI / 6 * 2
-		const RR = 38;
-		const positionRear = math.add(positionA, math.multiply([Math.cos(rearAngleToSeat), Math.sin(rearAngleToSeat)], RR))
-		const frameC = this.viewController.createNode(positionRear)
-
-
-		const frontWheelToHandle = -Math.PI / 6 * 2.2
-		const RR2 = 26
-		const handlePos = math.add(positionB, math.multiply([Math.cos(frontWheelToHandle), Math.sin(frontWheelToHandle)], RR2))
-		const frameD = this.viewController.createNode(handlePos)
-	
-		// pedal joint
-		const pedalPos = math.add(positionA, [config.radius + 20, 0])
-		const frameA = this.viewController.createNode(pedalPos)
-
-		const seatHeight = 8
-		const seatPos = math.add(positionRear, [0, -seatHeight])
-		const frameE = this.viewController.createNode(seatPos)
-
-		const seat_radius = 6
-		const seatPosA = math.add(seatPos, [-seat_radius, 0])
-		const seatPosB = math.add(seatPos, [seat_radius, 0])
-		const frameJ = this.viewController.createNode(seatPosA)
-		const frameK = this.viewController.createNode(seatPosB)
-
-		const handle_height = 14
-		const handleCenterPos = math.add(handlePos, [0, -handle_height])
-		const frameF = this.viewController.createNode(handleCenterPos)
-
-		const handle_length = 10
-		const handlePosA = math.add(handleCenterPos, [-handle_length, 0])
-		const handlePosB = math.add(handleCenterPos, [handle_length, 0])
-		const frameH = this.viewController.createNode(handlePosA)
-		const frameI = this.viewController.createNode(handlePosB)
 		
 		this.viewController.bicycleFrame = new BicycleFrame()
-		this.viewController.bicycleFrameNodes = {
-			A: frameA,
-			B: frameB,
-			C: frameC,
-			D: frameD,
-			E: frameE,
-			F: frameF,
-			G: frameG,
-			H: frameH,
-			I: frameI,
-			J: frameJ,
-			K: frameK,
-		}
+
+		this.viewController.bicycleFrameNodes = {}
+
+		const frame = this.viewController.bicycleFrameNodes
+
+		'ABCDEFGHIJK'.split('').forEach(vertId => {
+			const initialPosition = PositionMap[vertId]
+
+			const obj = vertId == 'B' || vertId == 'G' ? 
+				this.viewController.createWheel(initialPosition, { ...config }) : this.viewController.createNode(initialPosition)
+
+			this.viewController.bicycleFrameNodes[vertId] = obj
+		})
+		
 
 		const joints = [
 			{ id: 'BG', weightageA: 0.5, weightageB: 0.5 },
@@ -104,15 +62,20 @@ class Demo {
 			}
 		})
 
-		this.viewController.engine.addAngularConstraint(frameG, frameB, frameC, rearAngleToSeat, 0, 1)
-		this.viewController.engine.addAngularConstraint(frameB, frameG, frameD, -frontWheelToHandle, 0, 1)
-		this.viewController.engine.addAngularConstraint(frameG, frameB, frameA, 0, 0, 1)
-		this.viewController.engine.addAngularConstraint(frameA, frameC, frameE, Math.PI, 0, 1)
-		this.viewController.engine.addAngularConstraint(frameC, frameE, frameJ, Math.PI / 2 + Math.PI / 6, 0, 1)
-		this.viewController.engine.addAngularConstraint(frameJ, frameE, frameK, Math.PI, 0, 1)
-		this.viewController.engine.addAngularConstraint(frameG, frameD, frameF, Math.PI, 0, 1)
-		this.viewController.engine.addAngularConstraint(frameD, frameF, frameH, Math.PI / 2 + Math.PI / 6, 0, 1)
-		this.viewController.engine.addAngularConstraint(frameH, frameF, frameI, Math.PI, 0, 1)
+		// 
+		 
+		const rearAngleToSeat = -Math.PI / 6 * 2
+		const frontWheelToHandle = -Math.PI / 6 * 2.2
+
+		this.viewController.engine.addAngularConstraint(frame.G, frame.B, frame.C, rearAngleToSeat, 0, 1)
+		this.viewController.engine.addAngularConstraint(frame.B, frame.G, frame.D, -frontWheelToHandle, 0, 1)
+		this.viewController.engine.addAngularConstraint(frame.G, frame.B, frame.A, 0, 0, 1)
+		this.viewController.engine.addAngularConstraint(frame.A, frame.C, frame.E, Math.PI, 0, 1)
+		this.viewController.engine.addAngularConstraint(frame.C, frame.E, frame.J, Math.PI / 2 + Math.PI / 6, 0, 1)
+		this.viewController.engine.addAngularConstraint(frame.J, frame.E, frame.K, Math.PI, 0, 1)
+		this.viewController.engine.addAngularConstraint(frame.G, frame.D, frame.F, Math.PI, 0, 1)
+		this.viewController.engine.addAngularConstraint(frame.D, frame.F, frame.H, Math.PI / 2 + Math.PI / 6, 0, 1)
+		this.viewController.engine.addAngularConstraint(frame.H, frame.F, frame.I, Math.PI, 0, 1)
 
 
 		this.viewController.pedal = new Pedal()
@@ -254,6 +217,14 @@ class Demo {
 
 		if (keys['p']) {
 			console.log(JSON.stringify(this.viewController.nodes));
+		}
+
+		if (keys['f']) {
+			const r = {}
+			for (const [k, v] of Object.entries(this.viewController.bicycleFrameNodes)) {
+				r[k] = v.position
+			}
+			console.log(r)
 		}
 
 
