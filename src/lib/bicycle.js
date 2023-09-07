@@ -18,102 +18,103 @@ class Demo {
 		const positionA = [80, 300];
 		const positionB = math.add(positionA, [2 * config.radius + 34, 0])
 
-		const ballA = this.viewController.createWheel(positionA, { ...config })
-		this.wheel = { v1: ballA, v2: ballA } 
+		const frameB = this.viewController.createWheel(positionA, { ...config })
+		this.wheel = { v1: frameB, v2: frameB } 
 		// return
 
-		const ballB = this.viewController.createWheel(positionB, { ...config })
+		const frameG = this.viewController.createWheel(positionB, { ...config })
 		
-		this.wheel = this.viewController.addNewJoint(ballA, ballB, { collidable: true, weightageA: 0.5, weightageB: .5 });
-		this.viewController.wheel = this.wheel
-		// return
-		this.wheel.getData().renderObj.visible = false
 
 		const rearAngleToSeat = -Math.PI / 6 * 2
 		const RR = 38;
 		const positionRear = math.add(positionA, math.multiply([Math.cos(rearAngleToSeat), Math.sin(rearAngleToSeat)], RR))
-		const ballRear = this.viewController.createNode(positionRear)
+		const frameC = this.viewController.createNode(positionRear)
 
-		// back wheel to seat
-		this.viewController.addNewJoint(ballA, ballRear, { collidable: true, weightageA: 0, weightageB: 1 })
-		this.viewController.engine.addAngularConstraint(ballB, ballA, ballRear, rearAngleToSeat, 0, 1)
 
-		// front wheel to handle
 		const frontWheelToHandle = -Math.PI / 6 * 2.2
 		const RR2 = 26
 		const handlePos = math.add(positionB, math.multiply([Math.cos(frontWheelToHandle), Math.sin(frontWheelToHandle)], RR2))
-		const ballHandle = this.viewController.createNode(handlePos)
-		this.viewController.addNewJoint(ballB, ballHandle, { collidable: true, weightageA: 0, weightageB: 1 })
-		this.viewController.engine.addAngularConstraint(ballA, ballB, ballHandle, -frontWheelToHandle, 0, 1)
-
+		const frameD = this.viewController.createNode(handlePos)
+	
 		// pedal joint
 		const pedalPos = math.add(positionA, [config.radius + 20, 0])
-		const ballPedal = this.viewController.createNode(pedalPos)
-		this.viewController.ballPedal = ballPedal
+		const frameA = this.viewController.createNode(pedalPos)
 
-		this.viewController.addNewJoint(ballA, ballPedal, { collidable: true, weightageA: 0, weightageB: 1 })
-		this.viewController.engine.addAngularConstraint(ballB, ballA, ballPedal, 0, 0, 1)
-
-		// joint to handle
-		this.viewController.addNewJoint(ballPedal, ballHandle, { collidable: true, weightageA: 0, weightageB: 1 })
-
-		//pedal to rear seat
-		this.viewController.addNewJoint(ballPedal, ballRear, { collidable: true, weightageA: 0, weightageB: 1 })
-
-		//front handle to rear seat
-		this.viewController.addNewJoint(ballHandle, ballRear, { collidable: true, weightageA: 0, weightageB: 1 })
-
-		//actual seat
 		const seatHeight = 8
 		const seatPos = math.add(positionRear, [0, -seatHeight])
-		const ballSeat = this.viewController.createNode(seatPos)
-		this.viewController.ballSeat = ballSeat
-		this.viewController.addNewJoint(ballSeat, ballRear, { collidable: true, weightageA: 1, weightageB: 0 })
-		this.viewController.engine.addAngularConstraint(ballPedal, ballRear, ballSeat, Math.PI, 0, 1)
+		const frameE = this.viewController.createNode(seatPos)
 
 		const seat_radius = 6
 		const seatPosA = math.add(seatPos, [-seat_radius, 0])
 		const seatPosB = math.add(seatPos, [seat_radius, 0])
-		const ballSeatA = this.viewController.createNode(seatPosA)
-		const ballSeatB = this.viewController.createNode(seatPosB)
-		this.viewController.addNewJoint(ballSeatA, ballSeat, { collidable: true, weightageA: 1, weightageB: 0 })
-		this.viewController.addNewJoint(ballSeatB, ballSeat, { collidable: true, weightageA: 1, weightageB: 0 })
-		this.viewController.engine.addAngularConstraint(ballRear, ballSeat, ballSeatA, Math.PI / 2 + Math.PI / 6, 0, 1)
-		this.viewController.engine.addAngularConstraint(ballSeatA, ballSeat, ballSeatB, Math.PI, 0, 1)
+		const frameJ = this.viewController.createNode(seatPosA)
+		const frameK = this.viewController.createNode(seatPosB)
 
-
-		// actual front handle 
 		const handle_height = 14
 		const handleCenterPos = math.add(handlePos, [0, -handle_height])
-		const handleCenterBall = this.viewController.createNode(handleCenterPos)
-		this.viewController.addNewJoint(handleCenterBall, ballHandle, { collidable: true, weightageA: 1, weightageB: 0 })
-		this.viewController.engine.addAngularConstraint(ballB, ballHandle, handleCenterBall, Math.PI, 0, 1)
+		const frameF = this.viewController.createNode(handleCenterPos)
 
 		const handle_length = 10
 		const handlePosA = math.add(handleCenterPos, [-handle_length, 0])
 		const handlePosB = math.add(handleCenterPos, [handle_length, 0])
-		const ballHandleA = this.viewController.createNode(handlePosA)
-		const ballHandleB = this.viewController.createNode(handlePosB)
-		this.viewController.addNewJoint(ballHandleA, handleCenterBall, { thickness: 4, collidable: true, weightageA: 1, weightageB: 0 })
-		this.viewController.addNewJoint(ballHandleB, handleCenterBall, { thickness: 4, collidable: true, weightageA: 1, weightageB: 0 })
-
-		this.viewController.engine.addAngularConstraint(ballHandle, handleCenterBall, ballHandleA, Math.PI / 2 + Math.PI / 6, 0, 1)
-		this.viewController.engine.addAngularConstraint(ballHandleA, handleCenterBall, ballHandleB, Math.PI, 0, 1)
+		const frameH = this.viewController.createNode(handlePosA)
+		const frameI = this.viewController.createNode(handlePosB)
 		
 		this.viewController.bicycleFrame = new BicycleFrame()
 		this.viewController.bicycleFrameNodes = {
-			A: ballPedal,
-			B: ballA,
-			C: ballRear,
-			D: ballHandle,
-			E: ballSeat,
-			F: handleCenterBall,
-			G: ballB,
-			H: ballHandleA,
-			I: ballHandleB,
-			J: ballSeatA,
-			K: ballSeatB
+			A: frameA,
+			B: frameB,
+			C: frameC,
+			D: frameD,
+			E: frameE,
+			F: frameF,
+			G: frameG,
+			H: frameH,
+			I: frameI,
+			J: frameJ,
+			K: frameK,
 		}
+
+		const joints = [
+			{ id: 'BG', weightageA: 0.5, weightageB: 0.5 },
+			{ id: 'BC', weightageA: 0, weightageB: 1 },
+			{ id: 'GD', weightageA: 0, weightageB: 1 },
+			{ id: 'BA', weightageA: 0, weightageB: 1 },
+			{ id: 'AD', weightageA: 0, weightageB: 1 },
+			{ id: 'AC', weightageA: 0, weightageB: 1 },
+			{ id: 'DC', weightageA: 0, weightageB: 1 },
+			{ id: 'EC', weightageA: 1, weightageB: 0 },
+			{ id: 'JE', weightageA: 1, weightageB: 0 },
+			{ id: 'KE', weightageA: 1, weightageB: 0 },
+			{ id: 'FD', weightageA: 1, weightageB: 0 },
+			{ id: 'HF', weightageA: 1, weightageB: 0 },
+			{ id: 'IF', weightageA: 1, weightageB: 0 },
+		]
+
+		joints.forEach(joint => {
+			const jointObj = this.viewController.addNewJoint(
+				this.viewController.bicycleFrameNodes[joint.id[0]],
+				this.viewController.bicycleFrameNodes[joint.id[1]],
+				{ collidable: true, weightageA: joint.weightageA, weightageB: joint.weightageB }
+			)
+			if (joint.id === 'BG') {
+				this.wheel = jointObj
+				this.viewController.wheel = this.wheel
+				this.wheel.data.renderObj.visible = false
+			}
+		})
+
+		this.viewController.engine.addAngularConstraint(frameG, frameB, frameC, rearAngleToSeat, 0, 1)
+		this.viewController.engine.addAngularConstraint(frameB, frameG, frameD, -frontWheelToHandle, 0, 1)
+		this.viewController.engine.addAngularConstraint(frameG, frameB, frameA, 0, 0, 1)
+		this.viewController.engine.addAngularConstraint(frameA, frameC, frameE, Math.PI, 0, 1)
+		this.viewController.engine.addAngularConstraint(frameC, frameE, frameJ, Math.PI / 2 + Math.PI / 6, 0, 1)
+		this.viewController.engine.addAngularConstraint(frameJ, frameE, frameK, Math.PI, 0, 1)
+		this.viewController.engine.addAngularConstraint(frameG, frameD, frameF, Math.PI, 0, 1)
+		this.viewController.engine.addAngularConstraint(frameD, frameF, frameH, Math.PI / 2 + Math.PI / 6, 0, 1)
+		this.viewController.engine.addAngularConstraint(frameH, frameF, frameI, Math.PI, 0, 1)
+
+
 		this.viewController.pedal = new Pedal()
 	}
 
