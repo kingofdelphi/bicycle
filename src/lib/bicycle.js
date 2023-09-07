@@ -32,6 +32,16 @@ class Demo {
 			this.viewController.bicycleFrameNodes[vertId] = obj
 		})
 		
+        /*
+          J--E--K   H--F--I
+              \        \
+               C--------D
+               /\      / \
+              /  \    /   \
+             /    \  /     \
+            B------A        G
+
+        */
 
 		const joints = [
 			{ id: 'BG', weightageA: 0.5, weightageB: 0.5 },
@@ -50,20 +60,31 @@ class Demo {
 		]
 
 		joints.forEach(joint => {
-			const jointObj = this.viewController.addNewJoint(
+			this.viewController.addNewJoint(
 				this.viewController.bicycleFrameNodes[joint.id[0]],
 				this.viewController.bicycleFrameNodes[joint.id[1]],
 				{ collidable: true, weightageA: joint.weightageA, weightageB: joint.weightageB }
 			)
-			if (joint.id === 'BG') {
-				this.wheel = jointObj
-				this.viewController.wheel = this.wheel
-				this.wheel.data.renderObj.visible = false
-			}
 		})
 
-		// 
-		 
+		this.viewController.wheel = this.wheel = {
+			v1: frame.B,
+			v2: frame.G,
+			data: { renderObj: { visible : false } }
+		}
+		
+		/*
+
+          J--E--K   H--F--I
+              \        \
+               C--------D
+               /\      / \
+              /  \    /   \
+             /    \  /     \
+            B------A        G
+
+        */
+
 		const rearAngleToSeat = -Math.PI / 6 * 2
 		const frontWheelToHandle = -Math.PI / 6 * 2.2
 
