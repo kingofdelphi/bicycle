@@ -127,7 +127,7 @@ class Demo {
 		const pb = this.viewController.createNode([1, 0], cfg);
 		this.collisionLine = this.viewController.addNewJoint(pa, pb, { thickness: 3, color: 'green', collidable: false });
 		
-		this.viewController.addNewTerrain(nodes)
+		this.viewController.addNewTerrain(nodes, 1)
 	}
 
 	addBigCircle(position) {
