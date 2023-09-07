@@ -45,12 +45,12 @@ class Demo {
 
 		const joints = [
 			{ id: 'BG', weightageA: 0.5, weightageB: 0.5 },
-			{ id: 'BC', weightageA: 0, weightageB: 1 },
-			{ id: 'GD', weightageA: 0, weightageB: 1 },
-			{ id: 'BA', weightageA: 0, weightageB: 1 },
-			{ id: 'AD', weightageA: 0, weightageB: 1 },
-			{ id: 'AC', weightageA: 0, weightageB: 1 },
-			{ id: 'DC', weightageA: 0, weightageB: 1 },
+			{ id: 'BC', weightageA: 0.5, weightageB: 0.5 },
+			{ id: 'GD', weightageA: 0.5, weightageB: 0.5 },
+			{ id: 'BA', weightageA: 0.5, weightageB: 0.5 },
+			{ id: 'AD', weightageA: 0.5, weightageB: 0.5 },
+			{ id: 'AC', weightageA: 0.5, weightageB: 0.5 },
+			{ id: 'DC', weightageA: 0.5, weightageB: 0.5 },
 			{ id: 'EC', weightageA: 1, weightageB: 0 },
 			{ id: 'JE', weightageA: 1, weightageB: 0 },
 			{ id: 'KE', weightageA: 1, weightageB: 0 },
@@ -192,9 +192,9 @@ class Demo {
 			let angle = (dir === 'left' ? -1 : 1) * dt * Math.PI / 180;
 
 			if (pivotType === 'left' || pivotType === 'right') {
-				angle *= 12
+				angle *= 20
 			} else {
-				angle *= 6
+				angle *= 10
 			}
 
 			// pivot = wheel.v2.position;
