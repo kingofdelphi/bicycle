@@ -1,7 +1,7 @@
 
 import Bicycle from './bicycle';
 import Test from './collisiontest';
-import ViewController from './ViewController';
+import ViewController from './view_controller';
 import { clearCanvas, ctx, getCanvasBounds } from './canvas';
 
 const root = document.getElementById('canvas-wrapper');

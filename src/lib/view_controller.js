@@ -20,36 +20,10 @@ class ViewController {
 
 		this.terrainJoints = []
 
-		this.pedal = {
-			leftPedal: {
-				
-			},
-			rightPedal: {
-
-			},
-			rotation: 0
-		}
-
-
 	}
 
 	getEngine() {
 		return this.engine;
-	}
-
-	createPedals(type) {
-		if (type == 'left') {
-			this.pedal.leftPedal.line = {
-				color: 'black', thickness: 2
-			}
-			this.pedal.leftPedal.legSupport = { color: 'black', thickness: 3, strokeCap: 'round' }
-		} else {
-			this.pedal.rightPedal.line = {
-				color: 'black', thickness: 2
-			}
-			this.pedal.rightPedal.legSupport = { color: 'black', thickness: 3, strokeCap: 'round' }
-
-		}
 	}
 
 	createBall(position, config) {
@@ -224,9 +198,6 @@ class ViewController {
 
 		this.dynamicTerrain()
 
-		// zoom scale
-		const { scale } = this.config;
-
 		this.engine.bicycleNodes.forEach(node => {
 			const renderInfo = node.getData()
 			const worldPos = node.getPosition()
@@ -239,8 +210,6 @@ class ViewController {
 		})
 
 		const frameNodes = {}
-
-		console.log(this.bicycleFrameNodes)
 
 		for (const [vertId, node] of Object.entries(this.bicycleFrameNodes)) {
 			frameNodes[vertId] = node.getPosition()
@@ -282,44 +251,9 @@ class ViewController {
 		
 		// return
 
-		const pedalPos = math.rotate([10, 0], this.pedal.rotation)
-		const LEG_LEN = 5
-
-		let wheelDelta = math.subtract(this.wheel.v2.position, this.wheel.v1.position)
-
-		wheelDelta = math.divide(wheelDelta, math.norm(wheelDelta))
-
-		const leftPos = math.add(this.ballPedal.getPosition(), pedalPos)
-
-		drawLine(
-			this.worldToViewPort(this.ballPedal.getPosition()),
-			this.worldToViewPort(leftPos),
-			this.pedal.leftPedal.line
-		)
-	
-		const delLeft = math.multiply(wheelDelta, -LEG_LEN)
-		const delRight = math.multiply(wheelDelta, LEG_LEN)
-
-		drawLine(
-			this.worldToViewPort(math.add(leftPos, delLeft)),
-			this.worldToViewPort(math.add(leftPos, delRight)),
-			this.pedal.leftPedal.legSupport
-
-		)
-
-		const rightPos = (math.add(this.ballPedal.getPosition(), math.rotate(pedalPos, Math.PI)))
-
-		drawLine(
-			this.worldToViewPort(this.ballPedal.getPosition()),
-			this.worldToViewPort(rightPos),
-			this.pedal.rightPedal.line
-
-		)
-
-		drawLine(
-			this.worldToViewPort(math.add(rightPos, delLeft)),
-			this.worldToViewPort(math.add(rightPos, delRight)),
-			this.pedal.rightPedal.legSupport
+		this.pedal.render(
+			(pos) => this.worldToViewPort(math.add(pos, this.bicycleFrameNodes.A.position)),
+			{ }
 		)
 
 	}

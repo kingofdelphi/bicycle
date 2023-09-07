@@ -3,6 +3,7 @@ import keys from './keys';
 import * as math from './math';
 import nodes from './level';
 import { BicycleFrame } from './bicycle_frame'
+import { Pedal } from './pedal'
 
 class Demo {
 	buildBicycle() {
@@ -16,7 +17,6 @@ class Demo {
 		config.pinned = false;
 		const positionA = [80, 300];
 		const positionB = math.add(positionA, [2 * config.radius + 34, 0])
-		this.viewController.createPedals('left')
 
 		const ballA = this.viewController.createBall(positionA, Object.assign({}, config, { color: null }));
 		this.wheel = { v1: ballA, v2: ballA } 
@@ -109,8 +109,6 @@ class Demo {
 
 		this.viewController.engine.addAngularConstraint(ballHandle, handleCenterBall, ballHandleA, Math.PI / 2 + Math.PI / 6, 0, 1)
 		this.viewController.engine.addAngularConstraint(ballHandleA, handleCenterBall, ballHandleB, Math.PI, 0, 1)
-
-		this.viewController.createPedals('right')
 		
 		this.viewController.bicycleFrame = new BicycleFrame()
 		this.viewController.bicycleFrameNodes = {
@@ -126,6 +124,7 @@ class Demo {
 			J: ballSeatA,
 			K: ballSeatB
 		}
+		this.viewController.pedal = new Pedal()
 	}
 
 	postInit(viewController) {
