@@ -26,23 +26,32 @@ class ViewController {
 		return this.engine;
 	}
 
-	createBall(position, config) {
-		let node = this.engine.addNode(position, config);
-		let color = config.pinned ? 'green' : config.color;
-		let nconfig = Object.assign({}, config, { color });
-		const ball = {
+	createNode(position, config) {
+		const data = {
 			renderObj: {
-				position: [0, 0],
-				wheel: new Wheel(config.radius)
+				position: [0, 0]
 			},
-			node,
-			config: nconfig
+			config: config || { pinned : false }
 		}
-		node.setData(ball);
-		return node;
+
+		return this.engine.addNode(position, data);
 	}
 
-	addNewJoint(v1, v2, config, create_render_segment = true) {
+	createWheel(position, config) {
+		const node = this.createNode(position, config)
+		const color = config.pinned ? 'green' : config.color
+		const data = {
+			renderObj: {
+				...node.data.renderObj,
+				wheel: new Wheel(config.radius)
+			},
+			config: { ...config, color }
+		}
+		node.setData(data)
+		return node
+	}
+
+	addNewJoint(v1, v2, config) {
 		let joint = this.engine.connectJoint(v1, v2);
 		let jointInfo = {
 			renderObj: { visible: true },
@@ -148,7 +157,7 @@ class ViewController {
 				radius: 0,
 				pinned: true
 			};
-			const ball = this.createBall(nodes[i], Object.assign({}, config));
+			const ball = this.createNode(nodes[i], Object.assign({}, config));
 			nodesP.push(ball);
 		}
 		
@@ -195,9 +204,9 @@ class ViewController {
 	update(dt) {
 		this.engine.update(dt);
 
-		this.dynamicTerrain()
+		this.dynamicTerrain();
 
-		this.engine.bicycleNodes.forEach(node => {
+		[this.wheel.v1, this.wheel.v2].forEach(node => {
 			const renderInfo = node.getData()
 			const worldPos = node.getPosition()
 			const viewPortPos = this.worldToViewPort(worldPos)

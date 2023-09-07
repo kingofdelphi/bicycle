@@ -34,7 +34,8 @@ export class Wheel {
     render(worldToViewPort, renderConfig) {
         const pos = worldToViewPort([0, 0])
         const viewPortRadius = math.norm(math.subtract(worldToViewPort([this.radius, 0]), pos))
-        drawCircle(pos, viewPortRadius, renderConfig)
+
+        drawCircle(pos, viewPortRadius, { strokeColor: 'black', strokeWidth: 4 })
 
         this.spokeLinesIndices.forEach(indices => {
             const v1 = this.spokeVertices[indices[0]]

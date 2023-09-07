@@ -86,7 +86,7 @@ class Engine {
 		this.angularConstraints.push(constraint);
 	}
 
-	addNode(position, config, data) {
+	addNode(position, data) {
 		let node = {
 			position,
 			oldPosition: position,
@@ -219,9 +219,9 @@ class Engine {
 		this.collisionMap.clear()
 		
 		const indxL = this.viewController.getFirstTerrainNotInViewPort()
-		const indxR = this.viewController.getSecondTerrainNotInViewPort()
+		const indxR = this.viewController.getSecondTerrainNotInViewPort();
 
-		this.bicycleNodes.forEach((node) => {
+		[this.viewController.wheel.v1, this.viewController.wheel.v2].forEach((node) => {
 			// if (math.norm(ball.vel) <= 0) return;
 			// if a circle is connected to a joint, shouldn't check collision with it
 			let colInfo = []
