@@ -20,6 +20,16 @@ class ViewController {
 
 		this.terrainJoints = []
 
+		this.texture = {
+			image: new Image(),
+			ctxPattern: null
+		}
+		
+		// this.texture.image.src = "/Revised Stone Texture - Anna Sakoi.jpeg";
+		this.texture.image.src = "/clay.jpeg";
+		this.texture.image.onload = () => {
+			this.texture.ctxPattern = ctx.createPattern(this.texture.image, "repeat")
+		}
 	}
 
 	getEngine() {
@@ -254,7 +264,11 @@ class ViewController {
 			ctx.lineTo(start[0], start[1] + 2000)
 			ctx.stroke();
 
+			ctx.fillStyle = this.texture.ctxPattern
+			ctx.save()
+			ctx.translate(-this.focus[0] * this.config.scale, -this.focus[1] * this.config.scale)
 			ctx.fill()
+			ctx.restore()
 		}
 		
 		// return
