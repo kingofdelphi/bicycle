@@ -26,7 +26,7 @@ class ViewController {
 		}
 		
 		// this.texture.image.src = "/Revised Stone Texture - Anna Sakoi.jpeg";
-		this.texture.image.src = "./clay.jpeg";
+		this.texture.image.src = "./Clay.jpeg";
 		this.texture.image.onload = () => {
 			this.texture.ctxPattern = ctx.createPattern(this.texture.image, "repeat")
 		}
