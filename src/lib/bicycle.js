@@ -84,20 +84,28 @@ class Demo {
             B------A        G
 
         */
+	   
 
-		const rearAngleToSeat = -Math.PI / 6 * 2
-		const frontWheelToHandle = -Math.PI / 6 * 2.2
+		const angleConstraints = [
+			'GBC', 'BGD', 'GBA', 'ACE', 'CEJ', 'JEK', 'GDF', 'DFH', 'HFI'
+		]
 
-		this.viewController.engine.addAngularConstraint(frame.G, frame.B, frame.C, rearAngleToSeat, 0, 1)
-		this.viewController.engine.addAngularConstraint(frame.B, frame.G, frame.D, -frontWheelToHandle, 0, 1)
-		this.viewController.engine.addAngularConstraint(frame.G, frame.B, frame.A, 0, 0, 1)
-		this.viewController.engine.addAngularConstraint(frame.A, frame.C, frame.E, Math.PI, 0, 1)
-		this.viewController.engine.addAngularConstraint(frame.C, frame.E, frame.J, Math.PI / 2 + Math.PI / 6, 0, 1)
-		this.viewController.engine.addAngularConstraint(frame.J, frame.E, frame.K, Math.PI, 0, 1)
-		this.viewController.engine.addAngularConstraint(frame.G, frame.D, frame.F, Math.PI, 0, 1)
-		this.viewController.engine.addAngularConstraint(frame.D, frame.F, frame.H, Math.PI / 2 + Math.PI / 6, 0, 1)
-		this.viewController.engine.addAngularConstraint(frame.H, frame.F, frame.I, Math.PI, 0, 1)
+		angleConstraints.forEach(frameAngle => {
+			const v0 = frame[frameAngle[0]]
+			const v1 = frame[frameAngle[1]]
+			const v2 = frame[frameAngle[2]]
+			
+			const v10 = math.subtract(v0.position, v1.position)
+			const v12 = math.subtract(v2.position, v1.position)
 
+			const angle10 = math.atan2(v10[1], v10[0])
+			const angle12 = math.atan2(v12[1], v12[0])
+
+			const angle = angle12 - angle10
+
+			this.viewController.engine.addAngularConstraint(v0, v1, v2, angle, 0, 1)
+
+		})
 
 		this.viewController.pedal = new Pedal()
 	}
