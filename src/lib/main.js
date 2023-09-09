@@ -12,7 +12,6 @@ canvas.width = w;
 canvas.height = h;
 
 document.getElementById('pull').checked = true
-const fpsElem = document.getElementById('fps')
 
 class Main {
 	init(world) {
@@ -61,6 +60,10 @@ class Main {
 			ctx.font = "30px Arial";
 
 			ctx.fillText(`FPS: ${fps}`, getCanvasBounds()[0] - 200, 50)
+
+			ctx.fillStyle = 'green'
+			ctx.fillText(`Controls: Arrow Keys, Space to Jump`, 50, 50)
+
 			window.requestAnimationFrame(onFrame)
 		}
 		window.requestAnimationFrame(onFrame)

@@ -18,8 +18,6 @@ class ViewController {
 
 		this.terrains = []
 
-		this.terrainJoints = []
-
 		this.texture = {
 			image: new Image(),
 			ctxPattern: null
@@ -72,11 +70,11 @@ class ViewController {
 		return joint;
 	}
 
-	createTerrain(p1, p2, config) {
+	createTerrain(v1, v2, config) {
 		let terrainInfo = {
 			config,
-			p1,
-			p2
+			v1,
+			v2
 		}
 		this.terrains.push(terrainInfo)
 		return terrainInfo;
@@ -114,7 +112,7 @@ class ViewController {
 
 		while (low < high) {
 			const mid = Math.floor((low + high + 1) / 2)
-			const x = this.worldToViewPort(this.terrains[mid].p2)[0]
+			const x = this.worldToViewPort(this.terrains[mid].v2.position)[0]
 			if (x < 0)
 				low = mid
 			else high = mid - 1
@@ -131,7 +129,7 @@ class ViewController {
 
 		while (low < high) {
 			const mid = Math.floor((low + high) / 2)
-			const x = this.worldToViewPort(this.terrains[mid].p1)[0]
+			const x = this.worldToViewPort(this.terrains[mid].v1.position)[0]
 			if (x > bounds[0])
 				high = mid
 			else low = mid + 1
@@ -146,8 +144,8 @@ class ViewController {
 
 		let slice = false
 		
-		if (this.terrainJoints.length) {
-			nodesP.push(this.terrainJoints.at(-1).v2)
+		if (this.terrains.length) {
+			nodesP.push(this.terrains.at(-1).v2)
 			slice = true
 			nodes = [nodesP[0].position].concat(nodes)
 		}
@@ -182,10 +180,7 @@ class ViewController {
 		}
 
 		for (let i = 1; i < nodesP.length; ++i) {
-			this.createTerrain(nodesP[i - 1].position, math.add(nodesP[i].position, [1, 0]), { fillColor: 'rgb(139, 152, 76)' })
-			const joint = this.addNewJoint(nodesP[i - 1], nodesP[i], { color: 'black', thickness: 0, collidable: true, weightageA: 0.5, weightageB: .5 }, false)
-
-			this.terrainJoints.push(joint)
+			this.createTerrain(nodesP[i - 1], nodesP[i])
 		}
 	}
 
@@ -199,13 +194,17 @@ class ViewController {
 
 			const GAP = Math.random() * 25 + 25
 
-			const start = math.add(this.terrains.at(-1).p2, [0, -amplitude])
+			const start = math.add(this.terrains.at(-1).v2.position, [0, -amplitude])
 
 			for (let i = 0; i < MIN_WINDOW; ++i) {
 				const pos = [i * GAP, Math.cos(i / (MIN_WINDOW - 1) * (numcycles * 2 * Math.PI)) * amplitude]
 				const nd = math.add(start, pos)
 				result.push(nd)
 			}
+
+			// to avoid joints of 0 length
+			result.shift()
+
 			this.addNewTerrain(result)
 			
 		}
@@ -243,7 +242,7 @@ class ViewController {
 		const indxR = this.getSecondTerrainNotInViewPort()
 		
 		if (indxL + 1 < indxR) {
-			const start = this.worldToViewPort(math.add(this.terrains[indxL + 1].p1, [0, 0]))
+			const start = this.worldToViewPort(math.add(this.terrains[indxL + 1].v1.position, [0, 0]))
 
 			ctx.beginPath();
 			ctx.moveTo(start[0], start[1]);
@@ -255,7 +254,7 @@ class ViewController {
 			for (let i = indxL + 1; i < indxR; ++i) {		
 				const terrain = this.terrains[i]
 
-				end = this.worldToViewPort(math.add(terrain.p2, [0, 0]))
+				end = this.worldToViewPort(math.add(terrain.v2.position, [0, 0]))
 				
 				ctx.lineTo(end[0], end[1]);
 			}

@@ -222,12 +222,10 @@ class Engine {
 		const indxR = this.viewController.getSecondTerrainNotInViewPort();
 
 		[this.viewController.wheel.v1, this.viewController.wheel.v2].forEach((node) => {
-			// if (math.norm(ball.vel) <= 0) return;
-			// if a circle is connected to a joint, shouldn't check collision with it
 			let colInfo = []
 		
 			for (let i = indxL + 1; i < indxR; ++i) {
-				const joint = this.viewController.terrainJoints[i]
+				const joint = this.viewController.terrains[i]
 				const { v1, v2 } = joint;
 				
 				const radius = node.data.config.radius
@@ -300,8 +298,6 @@ class Engine {
 	getBestEdgeFromConvexPairCollision(colInfo1, colInfo2) {
 		const t1 = colInfo1.collisionInfo.type
 		const t2 = colInfo2.collisionInfo.type
-
-		console.log(t1, t2)
 
 		if (t1 === 'edge_normal' && t2 === 'edge_normal') {
 			console.error('got two edge normals for convex edge')
