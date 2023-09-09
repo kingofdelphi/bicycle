@@ -13,6 +13,13 @@ class Engine {
 		};
 		this.collisionMap = new Map();
 		this.ballJointSeparationFactor = 1
+
+		this.audio = new Audio('./loud-thud-45719.mp3')
+
+		this.volumes = {}
+
+		this.collisions = {
+		}
 	}
 
 	setConfig(config) {
@@ -199,6 +206,15 @@ class Engine {
 		const tangentImpulse = -contactTangentVel / effectiveMass
 				
 		const frictionMg = coeff_of_friction * normalImpulse
+
+		const volume = math.min(1, math.max(normalImpulse - 100, 0) / 1000)
+
+		const nodeId = node.data.config.id
+		this.collisions[nodeId] = normalImpulse > 100
+
+		if (volume) {
+			this.volumes[nodeId] = math.max(this.volumes[nodeId] || 0, volume)
+		}
 		
 		const frictionalImpulse = math.multiply(tangentAxis, math.clamp(tangentImpulse, -frictionMg, frictionMg))
 
@@ -346,6 +362,9 @@ class Engine {
 	update(dt) {
 		if (dt == 0) return;
 		this.dt = dt;
+		this.prevCollisions = {...this.collisions}
+		this.collisions = {}
+		
 		this.nodes.forEach((node, i) => {
 			if (node.isPinned()) return
 
@@ -370,7 +389,15 @@ class Engine {
 			this.solveAngularConstraints()
 		}
 
+		for (const key of Object.keys(this.volumes)) {
+			if (!this.prevCollisions[key] && this.collisions[key]) {
+				this.audio.volume = this.volumes[key]
+				this.audio.play()
+			}
+			this.volumes[key] = 0
 
+		}
+		
 	}
 
 	getCollidingObjects(node) {

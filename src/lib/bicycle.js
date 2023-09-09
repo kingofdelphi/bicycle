@@ -27,7 +27,7 @@ class Demo {
 			const initialPosition = PositionMap[vertId]
 
 			const obj = vertId == 'B' || vertId == 'G' ? 
-				this.viewController.createWheel(initialPosition, { ...config }) : this.viewController.createNode(initialPosition)
+				this.viewController.createWheel(initialPosition, { ...config, id: vertId }) : this.viewController.createNode(initialPosition)
 
 			this.viewController.bicycleFrameNodes[vertId] = obj
 		})
