@@ -210,7 +210,7 @@ class Engine {
 		const volume = math.min(1, math.max(normalImpulse - 100, 0) / 1000)
 
 		const nodeId = node.data.config.id
-		this.collisions[nodeId] = normalImpulse > 100
+		this.collisions[nodeId] = true
 
 		if (volume) {
 			this.volumes[nodeId] = math.max(this.volumes[nodeId] || 0, volume)
