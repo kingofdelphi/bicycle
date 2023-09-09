@@ -7,7 +7,9 @@ export const drawCircle = (position, radius, config) => {
     ctx.arc(position[0], position[1], radius, 0, 2 * Math.PI);
     ctx.lineWidth = config.strokeWidth
     ctx.strokeStyle = config.strokeColor || 'black'
-    ctx.stroke()
+    if (config.strokeWidth > 0) {
+        ctx.stroke()
+    }
     if (config.fillColor) {
         ctx.fillStyle = config.fillColor
         ctx.fill()

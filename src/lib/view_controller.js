@@ -215,6 +215,16 @@ class ViewController {
 
 		this.dynamicTerrain();
 
+		const frameNodes = {}
+
+		for (const [vertId, node] of Object.entries(this.bicycleFrameNodes)) {
+			frameNodes[vertId] = node.getPosition()
+		}
+		
+		this.bicycleFrame.setPosition(frameNodes)
+
+		this.bicycleFrame.render((pos) => this.worldToViewPort(pos), { thickness: 2 });
+
 		[this.wheel.v1, this.wheel.v2].forEach(node => {
 			const renderInfo = node.getData()
 			const worldPos = node.getPosition()
@@ -225,17 +235,6 @@ class ViewController {
 			wheel.render((pos) => this.worldToViewPort(math.add(worldPos, math.rotate(pos, node.getRotation()))), renderInfo.config)
 			
 		})
-
-		const frameNodes = {}
-
-		for (const [vertId, node] of Object.entries(this.bicycleFrameNodes)) {
-			frameNodes[vertId] = node.getPosition()
-		}
-		
-		this.bicycleFrame.setPosition(frameNodes)
-
-		this.bicycleFrame.render((pos) => this.worldToViewPort(pos), { thickness: 2 })
-
 		
 		// return
 		const indxL = this.getFirstTerrainNotInViewPort()
