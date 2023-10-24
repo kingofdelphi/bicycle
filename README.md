@@ -44,10 +44,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ## Formulas:
 
-![image](https://github.com/kingofdelphi/bicycle/assets/6021498/e4bae902-e83d-41b5-bec3-c9c4ef21e5a6)
-
-## Formulas:
-
 - $N = \text{contact normal}$
 
 - $V_{a_c} = U_{a_c} + \frac{j}{Ma} \cdot N$
