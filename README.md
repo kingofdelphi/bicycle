@@ -43,7 +43,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 # THE PHYSICS
 
 ## Formulas:
-
+$U$ represents the initial velocity. $V$ represents the final velocity. The subscript for e.g. $U_a_c$ represents the initial velocity of the center of body a
 - $N = \text{contact normal}$
 
 - $V_{a_c} = U_{a_c} + \frac{j}{Ma} \cdot N$
