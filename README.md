@@ -47,7 +47,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ![image](https://github.com/kingofdelphi/bicycle/assets/6021498/e4bae902-e83d-41b5-bec3-c9c4ef21e5a6)
 
 ## Formulas:
-$ a = F / m }
+$ a = F / m $
 $ N = contact normal $
 
 - $ N = \text{contact normal} $
