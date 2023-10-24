@@ -47,47 +47,43 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 ![image](https://github.com/kingofdelphi/bicycle/assets/6021498/e4bae902-e83d-41b5-bec3-c9c4ef21e5a6)
 
 ## Formulas:
-$a = F / m$
 
-$ N = contact normal $
+- $N = \text{contact normal}$
 
-- $ N = \text{contact normal} $
+- $V_{a_c} = U_{a_c} + \frac{j}{Ma} \cdot N$
 
-- $ V_{a_c} = U_{a_c} + \frac{j}{Ma} \cdot N $
+- $V_{b_c} = U_{b_c} - \frac{j}{Mb} \cdot N$
 
-- $ V_{b_c} = U_{b_c} - \frac{j}{Mb} \cdot N $
+- $U_a = U_{a_c} + \Omega_a R_a$
 
-- $ U_a = U_{a_c} + \Omega_a R_a $
+- $U_b = U_{b_c} + \Omega_b R_b$
 
-- $ U_b = U_{b_c} + \Omega_b R_b $
+- $\Omega_a' = \Omega_a + \frac{Ra \times N}{Ia}$
 
-- $ \Omega_a' = \Omega_a + \frac{Ra \times N}{Ia} $
+- $\Omega_b' = \Omega_b - \frac{Rb \times N}{Ib}$
 
-- $ \Omega_b' = \Omega_b - \frac{Rb \times N}{Ib} $
+- $V_a = V_{a_c} + \Omega_a' R_a$
 
-- $ V_a = V_{a_c} + \Omega_a' R_a $
+- $V_a = V_{a_c} + (\Omega_a + \frac{Ra \times N}{Ia}) R_a$
 
-- $ V_a = V_{a_c} + (\Omega_a + \frac{Ra \times N}{Ia}) R_a $
+- $V_a = V_{a_c} + \Omega_a R_a + \frac{j(Ra \times N) R_a}{Ia}$
 
-- $ V_a = V_{a_c} + \Omega_a R_a + \frac{j(Ra \times N) R_a}{Ia} $
+- $V_b = V_{b_c} + \Omega_b' R_b$
 
-- $ V_b = V_{b_c} + \Omega_b' R_b $
+- $V_b = V_{b_c} + (\Omega_b - \frac{Rb \times N}{Ib}) R_b$
 
-- $ V_b = V_{b_c} + (\Omega_b - \frac{Rb \times N}{Ib}) R_b $
+- $V_b = V_{b_c} + \Omega_b R_b - \frac{j (Rb \times N) R_b}{Ib}$
 
-- $ V_b = V_{b_c} + \Omega_b R_b - \frac{j (Rb \times N) R_b}{Ib} $
+- $V_a \cdot N - V_b \cdot N = -e(Ua \cdot N - Ub \cdot N)$
 
-- $ V_a \cdot N - V_b \cdot N = -e(Ua \cdot N - Ub \cdot N) $
+- $(V_{a_c} + j \frac{(Ra \times N) Ra}{Ia}) \cdot N - (V_{b_c} - j \frac{(Rb \times N) Rb}{Ib}) \cdot N = -e (Ua \cdot N - Ub \cdot N) - (\Omega_a R_a) \cdot N + (\Omega_b \times Rb) \cdot N$
 
-- $ (V_{a_c} + j \frac{(Ra \times N) Ra}{Ia}) \cdot N - (V_{b_c} - j \frac{(Rb \times N) Rb}{Ib}) \cdot N = -e (Ua \cdot N - Ub \cdot N) - (\Omega_a R_a) \cdot N + (\Omega_b \times Rb) \cdot N $
+- $(U_{a_c} + \frac{j}{Ma} \cdot N + j \frac{(Ra \times N) Ra}{Ia}) \cdot N - (U_{b_c} - \frac{j}{Mb} \cdot N - j \frac{(Rb \times N) Rb}{Ib}) \cdot N = -e (Ua \cdot N - Ub \cdot N) - (\Omega_a R_a) \cdot N + (\Omega_b \times Rb) \cdot N$
 
-- $ (U_{a_c} + \frac{j}{Ma} \cdot N + j \frac{(Ra \times N) Ra}{Ia}) \cdot N - (U_{b_c} - \frac{j}{Mb} \cdot N - j \frac{(Rb \times N) Rb}{Ib}) \cdot N = -e (Ua \cdot N - Ub \cdot N) - (\Omega_a R_a) \cdot N + (\Omega_b \times Rb) \cdot N $
+- $j \left( \frac{1}{Ma} \cdot N + \frac{(Ra \times N) Ra}{Ia} \right) \cdot N - j \left( -\frac{1}{Mb} \cdot N - \frac{(Rb \times N) Rb}{Ib} \right) \cdot N = -e (Ua \cdot N - Ub \cdot N) - (\Omega_a R_a) \cdot N + (\Omega_b \times Rb) \cdot N - U_{a_c} \cdot N + U_{b_c} \cdot N$
 
-- $ j \left( \frac{1}{Ma} \cdot N + \frac{(Ra \times N) Ra}{Ia} \right) \cdot N - j \left( -\frac{1}{Mb} \cdot N - \frac{(Rb \times N) Rb}{Ib} \right) \cdot N = -e (Ua \cdot N - Ub \cdot N) - (\Omega_a R_a) \cdot N + (\Omega_b \times Rb) \cdot N - U_{a_c} \cdot N + U_{b_c} \cdot N $
+- $j = \frac{-e(Ua \cdot N - Ub \cdot N) - (\Omega_a R_a) \cdot N + (\Omega_b \times Rb) \cdot N - U_{a_c} \cdot N + U_{b_c} \cdot N}{\frac{1}{Ma} \cdot N + \frac{(Ra \times N) Ra}{Ia} \cdot N - \left( -\frac{1}{Mb} \cdot N - \frac{(Rb \times N) Rb}{Ib} \right) \cdot N}$
 
-- $ j = \frac{-e(Ua \cdot N - Ub \cdot N) - (\Omega_a R_a) \cdot N + (\Omega_b \times Rb) \cdot N - U_{a_c} \cdot N + U_{b_c} \cdot N}{\frac{1}{Ma} \cdot N + \frac{(Ra \times N) Ra}{Ia} \cdot N - \left( -\frac{1}{Mb} \cdot N - \frac{(Rb \times N) Rb}{Ib} \right) \cdot N} $
+- $j = \frac{-e(Ua \cdot N - Ub \cdot N) - Ua \cdot N + Ub \cdot N}{\frac{1}{Ma} + \frac{1}{Mb} + \left( \frac{(Ra \times N) Ra}{Ia} \cdot N + \frac{(Rb \times N) Rb}{Ib} \cdot N \right)}$
 
-- $ j = \frac{-e(Ua \cdot N - Ub \cdot N) - Ua \cdot N + Ub \cdot N}{\frac{1}{Ma} + \frac{1}{Mb} + \left( \frac{(Ra \times N) Ra}{Ia} \cdot N + \frac{(Rb \times N) Rb}{Ib} \cdot N \right)} $
-
-- $ j = \frac{-(1+e)(Ua \cdot N - Ub \cdot N)}{\frac{1}{Ma} + \frac{1}{Mb} + \left( \frac{(Ra \times N) Ra}{Ia} \cdot N + \frac{(Rb \times N) Rb}{Ib} \cdot N \right)} $
-
+- $j = \frac{-(1+e)(Ua \cdot N - Ub \cdot N)}{\frac{1}{Ma} + \frac{1}{Mb} + \left( \frac{(Ra \times N) Ra}{Ia} \cdot N + \frac{(Rb \times N) Rb}{Ib} \cdot N \right)}$
